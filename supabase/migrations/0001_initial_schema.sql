@@ -34,6 +34,10 @@ create table public.people (
   updated_at timestamptz not null default now()
 );
 
+create index people_created_by_user_idx
+  on public.people (created_by_user_id)
+  where created_by_user_id is not null;
+
 create table public.person_managers (
   person_id uuid not null references public.people (id) on delete cascade,
   manager_user_id uuid not null references public.app_users (id) on delete cascade,
@@ -41,6 +45,12 @@ create table public.person_managers (
   created_at timestamptz not null default now(),
   primary key (person_id, manager_user_id)
 );
+
+create index person_managers_manager_user_idx
+  on public.person_managers (manager_user_id);
+create index person_managers_granted_by_user_idx
+  on public.person_managers (granted_by_user_id)
+  where granted_by_user_id is not null;
 
 create table public.families (
   id uuid primary key default gen_random_uuid(),
@@ -51,6 +61,9 @@ create table public.families (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create index families_created_by_user_idx
+  on public.families (created_by_user_id);
 
 create table public.family_memberships (
   family_id uuid not null references public.families (id) on delete cascade,
@@ -64,6 +77,12 @@ create table public.family_memberships (
   primary key (family_id, person_id),
   check ((status = 'ACTIVE' and ended_at is null) or status <> 'ACTIVE')
 );
+
+create index family_memberships_person_idx
+  on public.family_memberships (person_id);
+create index family_memberships_created_by_user_idx
+  on public.family_memberships (created_by_user_id)
+  where created_by_user_id is not null;
 
 create table public.family_invitations (
   id uuid primary key default gen_random_uuid(),
@@ -87,6 +106,13 @@ create table public.family_invitations (
 create unique index family_invitations_one_pending_email
   on public.family_invitations (family_id, email)
   where status = 'PENDING';
+create index family_invitations_family_idx
+  on public.family_invitations (family_id);
+create index family_invitations_invited_by_user_idx
+  on public.family_invitations (invited_by_user_id);
+create index family_invitations_accepted_by_user_idx
+  on public.family_invitations (accepted_by_user_id)
+  where accepted_by_user_id is not null;
 
 create table public.branches (
   id uuid primary key default gen_random_uuid(),
@@ -100,6 +126,9 @@ create table public.branches (
   unique (family_id, name)
 );
 
+create index branches_created_by_user_idx
+  on public.branches (created_by_user_id);
+
 create table public.branch_memberships (
   branch_id uuid not null,
   family_id uuid not null,
@@ -112,6 +141,12 @@ create table public.branch_memberships (
   foreign key (family_id, person_id)
     references public.family_memberships (family_id, person_id) on delete cascade
 );
+
+create index branch_memberships_family_person_idx
+  on public.branch_memberships (family_id, person_id);
+create index branch_memberships_created_by_user_idx
+  on public.branch_memberships (created_by_user_id)
+  where created_by_user_id is not null;
 
 create table public.recipes (
   id uuid primary key default gen_random_uuid(),
@@ -144,6 +179,10 @@ create table public.recipes (
 create index recipes_owner_idx on public.recipes (owner_person_id);
 create index recipes_creator_idx on public.recipes (original_creator_person_id);
 create index recipes_source_idx on public.recipes (source_recipe_id);
+create index recipes_entered_by_user_idx on public.recipes (entered_by_user_id);
+create index recipes_preserved_by_user_idx
+  on public.recipes (preserved_by_user_id)
+  where preserved_by_user_id is not null;
 
 create table public.recipe_ingredients (
   id uuid primary key default gen_random_uuid(),
@@ -185,6 +224,9 @@ create table public.recipe_media (
   unique (recipe_id, position)
 );
 
+create index recipe_media_uploaded_by_user_idx
+  on public.recipe_media (uploaded_by_user_id);
+
 create table public.recipe_visibilities (
   id uuid primary key default gen_random_uuid(),
   recipe_id uuid not null references public.recipes (id) on delete cascade,
@@ -206,6 +248,10 @@ create unique index recipe_visibilities_branch_unique
 
 create index recipe_visibilities_audience_idx
   on public.recipe_visibilities (family_id, branch_id, recipe_id);
+create index recipe_visibilities_recipe_idx
+  on public.recipe_visibilities (recipe_id);
+create index recipe_visibilities_granted_by_user_idx
+  on public.recipe_visibilities (granted_by_user_id);
 
 create table public.recipe_revisions (
   id uuid primary key default gen_random_uuid(),
@@ -219,6 +265,9 @@ create table public.recipe_revisions (
   unique (recipe_id, revision_number),
   unique (id, recipe_id)
 );
+
+create index recipe_revisions_created_by_user_idx
+  on public.recipe_revisions (created_by_user_id);
 
 create table public.recipe_suggestions (
   id uuid primary key default gen_random_uuid(),
@@ -245,6 +294,16 @@ create table public.recipe_suggestions (
 
 create index recipe_suggestions_recipe_status_idx
   on public.recipe_suggestions (recipe_id, status);
+create index recipe_suggestions_base_revision_recipe_idx
+  on public.recipe_suggestions (base_revision_id, recipe_id);
+create index recipe_suggestions_submitted_by_user_idx
+  on public.recipe_suggestions (submitted_by_user_id);
+create index recipe_suggestions_decided_by_user_idx
+  on public.recipe_suggestions (decided_by_user_id)
+  where decided_by_user_id is not null;
+create index recipe_suggestions_outcome_recipe_idx
+  on public.recipe_suggestions (outcome_recipe_id)
+  where outcome_recipe_id is not null;
 
 create table public.collections (
   id uuid primary key default gen_random_uuid(),
@@ -268,6 +327,10 @@ create unique index collections_default_key_unique
 create unique index collections_custom_name_unique
   on public.collections (family_id, lower(custom_name))
   where custom_name is not null;
+create index collections_family_idx on public.collections (family_id);
+create index collections_created_by_user_idx
+  on public.collections (created_by_user_id)
+  where created_by_user_id is not null;
 
 create table public.recipe_collections (
   recipe_id uuid not null references public.recipes (id) on delete cascade,
@@ -279,6 +342,11 @@ create table public.recipe_collections (
   foreign key (collection_id, family_id)
     references public.collections (id, family_id) on delete cascade
 );
+
+create index recipe_collections_collection_family_idx
+  on public.recipe_collections (collection_id, family_id);
+create index recipe_collections_added_by_user_idx
+  on public.recipe_collections (added_by_user_id);
 
 create table public.audit_events (
   id uuid primary key default gen_random_uuid(),
@@ -365,6 +433,56 @@ begin
 end;
 $$;
 
+create function private.lock_recipe_family_mutation()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  old_lock_key bigint;
+  new_lock_key bigint;
+begin
+  if tg_op in ('UPDATE', 'DELETE') then
+    old_lock_key := pg_catalog.hashtextextended(
+      old.recipe_id::text || ':' || old.family_id::text,
+      1947758031
+    );
+  end if;
+
+  if tg_op in ('INSERT', 'UPDATE') then
+    new_lock_key := pg_catalog.hashtextextended(
+      new.recipe_id::text || ':' || new.family_id::text,
+      1947758031
+    );
+  end if;
+
+  if old_lock_key is not null and new_lock_key is not null
+     and old_lock_key <> new_lock_key then
+    if old_lock_key < new_lock_key then
+      perform pg_catalog.pg_advisory_xact_lock(old_lock_key);
+      perform pg_catalog.pg_advisory_xact_lock(new_lock_key);
+    else
+      perform pg_catalog.pg_advisory_xact_lock(new_lock_key);
+      perform pg_catalog.pg_advisory_xact_lock(old_lock_key);
+    end if;
+  else
+    perform pg_catalog.pg_advisory_xact_lock(
+      coalesce(old_lock_key, new_lock_key)
+    );
+  end if;
+
+  return case when tg_op = 'DELETE' then old else new end;
+end;
+$$;
+
+create trigger recipe_collections_lock_visibility
+  before insert or update on public.recipe_collections
+  for each row execute function private.lock_recipe_family_mutation();
+
+create trigger recipe_visibilities_lock_collections
+  before insert or update or delete on public.recipe_visibilities
+  for each row execute function private.lock_recipe_family_mutation();
+
 create constraint trigger recipe_collection_requires_visibility
   after insert or update on public.recipe_collections
   deferrable initially immediate
@@ -391,8 +509,23 @@ end;
 $$;
 
 create trigger recipe_visibility_cleanup_collections
-  after delete on public.recipe_visibilities
+  after update of recipe_id, family_id or delete on public.recipe_visibilities
   for each row execute function private.remove_invalid_recipe_collections();
+
+create function private.serialize_super_admin_change()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  perform pg_catalog.pg_advisory_xact_lock(1947758031, 1);
+  return case when tg_op = 'DELETE' then old else new end;
+end;
+$$;
+
+create trigger app_users_serialize_super_admin_change
+  before update of platform_role or delete on public.app_users
+  for each row execute function private.serialize_super_admin_change();
 
 create function private.retain_super_admin()
 returns trigger

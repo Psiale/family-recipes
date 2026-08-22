@@ -14,6 +14,25 @@ end;
 $$;
 grant execute on function public.test_assert(boolean, text) to authenticated;
 
+select public.test_assert(
+  not exists (
+    select 1
+    from pg_catalog.pg_constraint c
+    join pg_catalog.pg_attribute a
+      on a.attrelid = c.conrelid
+     and a.attnum = any(c.conkey)
+    where c.contype = 'f'
+      and c.connamespace = 'public'::regnamespace
+      and not exists (
+        select 1
+        from pg_catalog.pg_index i
+        where i.indrelid = c.conrelid
+          and a.attnum = any(i.indkey)
+      )
+  ),
+  'every public foreign-key column has a supporting index'
+);
+
 insert into auth.users (id, raw_user_meta_data) values
   ('00000000-0000-0000-0000-000000000001', '{"display_name":"Super"}'),
   ('00000000-0000-0000-0000-000000000002', '{"display_name":"Owner"}'),
@@ -169,6 +188,23 @@ select public.test_assert((select count(*) = 3 from public.recipes), 'family Adm
 
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000008', false);
 select public.test_assert((select count(*) = 4 from public.recipes), 'person manager sees managed recipes');
+do $$
+begin
+  begin
+    insert into public.recipe_suggestions (
+      recipe_id, base_revision_id, submitted_by_user_id, suggested_changes
+    ) values (
+      '40000000-0000-0000-0000-000000000001',
+      '50000000-0000-0000-0000-000000000001',
+      '00000000-0000-0000-0000-000000000008',
+      '{"story":"Manager without membership"}'
+    );
+    raise exception 'Manager suggestion without membership unexpectedly succeeded';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
 
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000001', false);
 select public.test_assert((select count(*) = 4 from public.recipes), 'Super Admin sees every recipe');

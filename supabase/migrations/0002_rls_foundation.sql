@@ -215,7 +215,13 @@ set search_path = ''
 as $$
   select
     private.is_super_admin(p_user_id)
-    or private.can_manage_recipe(p_recipe_id, p_user_id)
+    or exists (
+      select 1
+      from public.recipes r
+      join public.people owner on owner.id = r.owner_person_id
+      where r.id = p_recipe_id
+        and owner.user_id = p_user_id
+    )
     or exists (
       select 1
       from public.recipe_visibilities rv
