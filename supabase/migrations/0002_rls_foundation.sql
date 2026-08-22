@@ -216,18 +216,27 @@ as $$
   select
     private.is_super_admin(p_user_id)
     or private.can_manage_recipe(p_recipe_id, p_user_id)
-    or (
-      private.can_read_recipe(p_recipe_id, p_user_id)
-      and exists (
-        select 1
-        from public.recipe_visibilities rv
-        where rv.recipe_id = p_recipe_id
-          and private.has_family_role(
-            rv.family_id,
-            array['OWNER', 'ADMIN', 'MEMBER']::public.family_role[],
-            p_user_id
+    or exists (
+      select 1
+      from public.recipe_visibilities rv
+      join public.family_memberships fm
+        on fm.family_id = rv.family_id
+       and fm.status = 'ACTIVE'
+       and fm.role in ('OWNER', 'ADMIN', 'MEMBER')
+      join public.people viewer
+        on viewer.id = fm.person_id
+       and viewer.user_id = p_user_id
+      where rv.recipe_id = p_recipe_id
+        and (
+          rv.branch_id is null
+          or fm.role in ('OWNER', 'ADMIN')
+          or exists (
+            select 1
+            from public.branch_memberships bm
+            where bm.branch_id = rv.branch_id
+              and bm.person_id = fm.person_id
           )
-      )
+        )
     );
 $$;
 
@@ -262,18 +271,28 @@ security definer
 set search_path = ''
 as $$
 declare
-  target_recipe_id uuid;
   is_preserved boolean;
 begin
   if tg_table_name = 'recipes' then
-    target_recipe_id := old.id;
     is_preserved := old.preservation_status = 'PRESERVED';
-  else
-    target_recipe_id := coalesce(new.recipe_id, old.recipe_id);
+  elsif tg_op = 'INSERT' then
     select r.preservation_status = 'PRESERVED'
       into is_preserved
       from public.recipes r
-      where r.id = target_recipe_id;
+      where r.id = new.recipe_id;
+  elsif tg_op = 'DELETE' then
+    select r.preservation_status = 'PRESERVED'
+      into is_preserved
+      from public.recipes r
+      where r.id = old.recipe_id;
+  else
+    select exists (
+      select 1
+      from public.recipes r
+      where r.id in (old.recipe_id, new.recipe_id)
+        and r.preservation_status = 'PRESERVED'
+    )
+      into is_preserved;
   end if;
 
   if coalesce(is_preserved, false) and not private.is_super_admin(auth.uid()) then
