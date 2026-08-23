@@ -33,19 +33,51 @@ select public.test_assert(
   'every public foreign-key column has a supporting index'
 );
 
-insert into auth.users (id, raw_user_meta_data) values
-  ('00000000-0000-0000-0000-000000000001', '{"display_name":"Super"}'),
-  ('00000000-0000-0000-0000-000000000002', '{"display_name":"Owner"}'),
-  ('00000000-0000-0000-0000-000000000003', '{"display_name":"Admin"}'),
-  ('00000000-0000-0000-0000-000000000004', '{"display_name":"Branch member"}'),
-  ('00000000-0000-0000-0000-000000000005', '{"display_name":"Member"}'),
-  ('00000000-0000-0000-0000-000000000006', '{"display_name":"Read only"}'),
-  ('00000000-0000-0000-0000-000000000007', '{"display_name":"Outsider"}'),
-  ('00000000-0000-0000-0000-000000000008', '{"display_name":"Manager"}');
+do $$
+begin
+  begin
+    insert into auth.users (id, email, raw_user_meta_data)
+    values (
+      '00000000-0000-0000-0000-000000000099',
+      'not-the-admin@example.com',
+      '{"display_name":"Premature user"}'
+    );
+    raise exception 'A non-configured account unexpectedly bootstrapped the platform';
+  exception when check_violation then
+    null;
+  end;
+end;
+$$;
 
-update public.app_users
-set platform_role = 'SUPER_ADMIN'
-where id = '00000000-0000-0000-0000-000000000001';
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-000000000001', 'PsialeDev@gmail.com', '{"display_name":"Super"}'),
+  ('00000000-0000-0000-0000-000000000002', 'owner@example.com', '{"display_name":"Owner"}'),
+  ('00000000-0000-0000-0000-000000000003', 'admin@example.com', '{"display_name":"Admin"}'),
+  ('00000000-0000-0000-0000-000000000004', 'branch@example.com', '{"display_name":"Branch member"}'),
+  ('00000000-0000-0000-0000-000000000005', 'member@example.com', '{"display_name":"Member"}'),
+  ('00000000-0000-0000-0000-000000000006', 'readonly@example.com', '{"display_name":"Read only"}'),
+  ('00000000-0000-0000-0000-000000000007', 'outsider@example.com', '{"display_name":"Outsider"}'),
+  ('00000000-0000-0000-0000-000000000008', 'manager@example.com', '{"display_name":"Manager"}');
+
+select public.test_assert(
+  (
+    select count(*) = 1
+      and bool_and(id = '00000000-0000-0000-0000-000000000001')
+    from public.app_users
+    where platform_role = 'SUPER_ADMIN'
+  ),
+  'the configured email is bootstrapped as the only Super Admin'
+);
+
+select public.test_assert(
+  exists (
+    select 1
+    from public.audit_events
+    where action = 'SUPER_ADMIN_BOOTSTRAPPED'
+      and target_id = '00000000-0000-0000-0000-000000000001'
+  ),
+  'Super Admin bootstrap is audited'
+);
 
 insert into public.people (id, user_id, display_name, created_by_user_id) values
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Super', '00000000-0000-0000-0000-000000000001'),
@@ -142,6 +174,16 @@ insert into public.recipe_revisions (
 set role authenticated;
 
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000007', false);
+
+select public.test_assert(
+  private.current_person_id('00000000-0000-0000-0000-000000000002') is null,
+  'an authenticated user cannot resolve another user through a definer helper'
+);
+
+select public.test_assert(
+  not private.is_super_admin('00000000-0000-0000-0000-000000000001'),
+  'an authenticated user cannot evaluate Super Admin status for another user'
+);
 select public.test_assert((select count(*) = 0 from public.recipes), 'outsider sees no recipes');
 
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000006', false);
@@ -210,6 +252,36 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000001
 select public.test_assert((select count(*) = 4 from public.recipes), 'Super Admin sees every recipe');
 
 reset role;
+
+do $$
+begin
+  begin
+    insert into public.family_invitations (
+      family_id,
+      email,
+      invited_by_user_id,
+      status,
+      token_hash,
+      expires_at,
+      accepted_by_user_id,
+      accepted_at
+    )
+    values (
+      '20000000-0000-0000-0000-000000000001',
+      'invalid@example.com',
+      '00000000-0000-0000-0000-000000000002',
+      'PENDING',
+      'invalid-acceptance-state',
+      now() + interval '1 day',
+      '00000000-0000-0000-0000-000000000002',
+      now()
+    );
+    raise exception 'Contradictory invitation state unexpectedly succeeded';
+  exception when check_violation then
+    null;
+  end;
+end;
+$$;
 
 insert into public.collections (id, family_id, custom_name, created_by_user_id) values (
   '60000000-0000-0000-0000-000000000001',

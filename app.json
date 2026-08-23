@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Recetario Familiar",
+    "slug": "family-recipe-tree",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "familyrecipes",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.familyrecipetree.app"
+    },
+    "android": {
+      "package": "com.familyrecipetree.app",
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F7F2E8",
+          "dark": {
+            "backgroundColor": "#1B2118"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
