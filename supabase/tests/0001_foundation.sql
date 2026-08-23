@@ -15,6 +15,24 @@ $$;
 grant execute on function public.test_assert(boolean, text) to authenticated;
 
 select public.test_assert(
+  (
+    select p.prosecdef
+    from pg_catalog.pg_proc p
+    where p.oid = 'private.retain_super_admin()'::regprocedure
+  ),
+  'the deferred Super Admin invariant runs with its owner privileges'
+);
+
+select public.test_assert(
+  not has_function_privilege(
+    'authenticated',
+    'private.retain_super_admin()',
+    'EXECUTE'
+  ),
+  'authenticated clients cannot execute the Super Admin invariant directly'
+);
+
+select public.test_assert(
   not exists (
     select 1
     from pg_catalog.pg_constraint c

@@ -17,13 +17,17 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci --coverage",
-    "ci": "npm run lint && npm run typecheck && npm run test:ci",
+    "test:server-env": "node --test scripts/server-env.test.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test:server-env && npm run test:ci",
     "db:start": "node --env-file-if-exists=.env scripts/run-local-database.mjs start",
     "db:stop": "supabase stop",
     "db:reset": "node --env-file-if-exists=.env scripts/run-local-database.mjs reset",
     "db:configure": "node --env-file-if-exists=.env scripts/configure-super-admin.mjs",
     "db:test": "node --env-file-if-exists=.env scripts/test-database.mjs",
-    "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
+    "db:types:check": "node --env-file-if-exists=.env scripts/check-database-types.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -32,9 +32,15 @@ export function AppButton({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.white : colors.primary} />
+        <ActivityIndicator
+          color={variant === 'primary' ? colors.white : colors.primary}
+        />
       ) : (
-        <Text style={variant === 'primary' ? styles.primaryLabel : styles.secondaryLabel}>
+        <Text
+          style={
+            variant === 'primary' ? styles.primaryLabel : styles.secondaryLabel
+          }
+        >
           {label}
         </Text>
       )}

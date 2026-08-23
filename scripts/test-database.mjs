@@ -2,17 +2,15 @@ import { readFile } from 'node:fs/promises';
 
 import pg from 'pg';
 
-const databaseUrl = process.env.SUPABASE_DB_URL?.trim();
+import { parseDatabaseEnv } from './server-env.mjs';
 
-if (!databaseUrl) {
-  throw new Error('SUPABASE_DB_URL is required to run database tests.');
-}
+const env = parseDatabaseEnv();
 
 const testSql = await readFile(
   new URL('../supabase/tests/0001_foundation.sql', import.meta.url),
   'utf8',
 );
-const client = new pg.Client({ connectionString: databaseUrl });
+const client = new pg.Client({ connectionString: env.SUPABASE_DB_URL });
 
 await client.connect();
 

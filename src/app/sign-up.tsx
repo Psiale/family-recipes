@@ -6,26 +6,30 @@ import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Screen } from '@/components/Screen';
 import { colors, spacing } from '@/components/theme';
-import { SignInForm } from '@/features/auth/components/SignInForm';
+import { SignUpForm } from '@/features/auth/components/SignUpForm';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 
-export default function SignInScreen() {
+export default function SignUpScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
-  const { signIn } = useSession();
+  const { i18n, t } = useTranslation();
+  const { signUp } = useSession();
+  const locale = i18n.resolvedLanguage === 'en' ? 'en' : 'es';
 
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.hero}>
         <Text accessibilityRole="header" style={styles.title}>
-          {t('auth.signInTitle')}
+          {t('auth.signUpTitle')}
         </Text>
-        <Text style={styles.subtitle}>{t('auth.signInSubtitle')}</Text>
+        <Text style={styles.subtitle}>{t('auth.signUpSubtitle')}</Text>
+        <Text style={styles.hint}>{t('auth.bootstrapHint')}</Text>
       </View>
-      <SignInForm onSignIn={({ email, password }) => signIn(email, password)} />
+      <SignUpForm
+        onSignUp={({ email, password }) => signUp(email, password, locale)}
+      />
       <AppButton
-        label={t('auth.needAccount')}
-        onPress={() => router.push('/sign-up')}
+        label={t('auth.haveAccount')}
+        onPress={() => router.replace('/sign-in')}
         variant="secondary"
       />
       <LanguageSwitcher />
@@ -51,5 +55,10 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 17,
     lineHeight: 25,
+  },
+  hint: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 21,
   },
 });

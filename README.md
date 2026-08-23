@@ -37,15 +37,27 @@ committed database types are generated from the local migrated schema.
    account must register before other users.
 6. Run `npm start`, then choose iOS or Android.
 
+Only `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are
+embedded in the Expo bundle. `SUPABASE_DB_URL` and `SUPER_ADMIN_EMAIL` are
+server-only values used by local database scripts and CI; never expose them with
+an `EXPO_PUBLIC_` prefix. The app displays localized recovery guidance when its
+public configuration is missing or invalid.
+
 Useful checks:
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm test`
+- `npm run format:check`
 - `npm run db:test`
+- `npm run db:types:check`
 - `npm run db:configure` after changing `SUPER_ADMIN_EMAIL`
 - `npm run db:types` after every migration
 
 EAS includes `development`, `development-simulator`, `preview`, and
 `production` build profiles. Configure the two public Supabase variables in the
 matching EAS environment before cloud builds.
+
+The CI workflow runs frontend quality checks and, in a separate isolated local
+Supabase stack, applies every migration, executes the transactional SQL/RLS
+suite, and verifies that generated database types are current.

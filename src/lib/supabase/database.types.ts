@@ -942,13 +942,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      dearmor: { Args: { "": string }; Returns: string }
-      gen_random_uuid: { Args: never; Returns: string }
-      gen_salt: { Args: { "": string }; Returns: string }
-      pgp_armor_headers: {
-        Args: { "": string }
-        Returns: Record<string, unknown>[]
-      }
+      [_ in never]: never
     }
     Enums: {
       family_role: "OWNER" | "ADMIN" | "MEMBER" | "READ_ONLY"

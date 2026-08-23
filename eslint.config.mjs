@@ -8,6 +8,7 @@ export default defineConfig([
       'coverage/**',
       'dist/**',
       'node_modules/**',
+      'supabase/.branches/**',
       'supabase/.temp/**',
     ],
   },
@@ -19,7 +20,14 @@ export default defineConfig([
         {
           alphabetize: { order: 'asc', caseInsensitive: true },
           'newlines-between': 'always',
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+          ],
         },
       ],
     },

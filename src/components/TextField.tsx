@@ -8,29 +8,28 @@ type TextFieldProps = ComponentProps<typeof TextInput> & {
   label: string;
 };
 
-export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
-  { error, label, style, ...props },
-  ref,
-) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        ref={ref}
-        aria-label={label}
-        aria-invalid={Boolean(error)}
-        placeholderTextColor={colors.muted}
-        style={[styles.input, Boolean(error) && styles.inputError, style]}
-        {...props}
-      />
-      {error ? (
-        <Text accessibilityRole="alert" style={styles.error}>
-          {error}
-        </Text>
-      ) : null}
-    </View>
-  );
-});
+export const TextField = forwardRef<TextInput, TextFieldProps>(
+  function TextField({ error, label, style, ...props }, ref) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+          ref={ref}
+          aria-label={label}
+          aria-invalid={Boolean(error)}
+          placeholderTextColor={colors.muted}
+          style={[styles.input, Boolean(error) && styles.inputError, style]}
+          {...props}
+        />
+        {error ? (
+          <Text accessibilityRole="alert" style={styles.error}>
+            {error}
+          </Text>
+        ) : null}
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {

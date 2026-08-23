@@ -1,5 +1,10 @@
 import NetInfo from '@react-native-community/netinfo';
-import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  focusManager,
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useState } from 'react';
 import { AppState, type AppStateStatus, Platform } from 'react-native';
@@ -16,26 +21,29 @@ function handleAppState(status: AppStateStatus) {
   }
 }
 
+export function createAppQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 2,
+        staleTime: 30_000,
+      },
+      mutations: {
+        retry: 0,
+      },
+    },
+  });
+}
+
 export function QueryProvider({ children }: PropsWithChildren) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: 2,
-            staleTime: 30_000,
-          },
-          mutations: {
-            retry: 0,
-          },
-        },
-      }),
-  );
+  const [queryClient] = useState(createAppQueryClient);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', handleAppState);
     return () => subscription.remove();
   }, []);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 }

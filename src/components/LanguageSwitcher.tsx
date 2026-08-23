@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { SupportedLanguage } from '@/i18n';
+import { setAppLanguage, type SupportedLanguage } from '@/i18n';
 
 import { AppButton } from './AppButton';
 import { colors, spacing } from './theme';
@@ -10,7 +10,7 @@ export function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
 
   const setLanguage = (language: SupportedLanguage) => {
-    void i18n.changeLanguage(language);
+    void setAppLanguage(language);
   };
 
   return (

@@ -8,7 +8,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.familyrecipetree.app"
+      "bundleIdentifier": "com.familyrecipetree.app",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "package": "com.familyrecipetree.app",
@@ -31,6 +34,10 @@
         }
       ]
     ],
+    "locales": {
+      "en": "./locales/app-en.json",
+      "es": "./locales/app-es.json"
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

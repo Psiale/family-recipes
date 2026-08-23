@@ -1,6 +1,10 @@
 type LogContext = Record<string, boolean | number | string | null | undefined>;
 
-function write(level: 'error' | 'info' | 'warn', message: string, context?: LogContext) {
+function write(
+  level: 'error' | 'info' | 'warn',
+  message: string,
+  context?: LogContext,
+) {
   if (!__DEV__ && level === 'info') {
     return;
   }
@@ -10,7 +14,10 @@ function write(level: 'error' | 'info' | 'warn', message: string, context?: LogC
 }
 
 export const logger = {
-  error: (message: string, context?: LogContext) => write('error', message, context),
-  info: (message: string, context?: LogContext) => write('info', message, context),
-  warn: (message: string, context?: LogContext) => write('warn', message, context),
+  error: (message: string, context?: LogContext) =>
+    write('error', message, context),
+  info: (message: string, context?: LogContext) =>
+    write('info', message, context),
+  warn: (message: string, context?: LogContext) =>
+    write('warn', message, context),
 };

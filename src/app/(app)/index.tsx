@@ -29,7 +29,11 @@ export default function HomeScreen() {
         ) : null}
       </View>
       <LanguageSwitcher />
-      <AppButton label={t('auth.signOut')} onPress={() => void signOut()} variant="secondary" />
+      <AppButton
+        label={t('auth.signOut')}
+        onPress={() => void signOut()}
+        variant="secondary"
+      />
     </Screen>
   );
 }
