@@ -942,7 +942,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_managed_person: { Args: { p_token: string }; Returns: string }
+      create_family: {
+        Args: { p_description?: string; p_name: string }
+        Returns: string
+      }
+      create_managed_person: {
+        Args: {
+          p_biography?: string
+          p_display_name: string
+          p_family_id: string
+        }
+        Returns: string
+      }
+      issue_person_claim: {
+        Args: { p_email: string; p_person_id: string }
+        Returns: string
+      }
+      onboard_person: {
+        Args: { p_biography?: string; p_display_name: string }
+        Returns: string
+      }
     }
     Enums: {
       family_role: "OWNER" | "ADMIN" | "MEMBER" | "READ_ONLY"

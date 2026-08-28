@@ -61,6 +61,7 @@ Useful checks:
 - `npm test`
 - `npm run format:check`
 - `npm run db:test`
+- `npm run test:integration` (local Supabase Auth and PostgREST vertical slice)
 - `npm run db:types:check`
 - `npm run db:configure` after changing `SUPER_ADMIN_EMAIL`
 - `npm run db:types` after every migration
@@ -72,3 +73,31 @@ matching EAS environment before cloud builds.
 The CI workflow runs frontend quality checks and, in a separate isolated local
 Supabase stack, applies every migration, executes the transactional SQL/RLS
 suite, and verifies that generated database types are current.
+
+## Step 3: people and families
+
+After signing in, create your Person or enter a claim code for an existing
+managed Person. Then create a family, switch between your active families, and
+add managed people as an OWNER/ADMIN. An explicit manager can generate a
+verified-email-bound claim code to share privately. Codes expire in seven days;
+reissuing replaces the previous code. The app does not send invitation emails.
+Claiming keeps the Person and recipe attribution intact and revokes pre-claim
+manager permissions. See [the onboarding ADR](docs/adr/0001-step-3-onboarding.md).
+
+On an existing local Supabase stack, apply the additive migration with
+`npx supabase migration up --local`; a data reset is not needed. No service-role
+key is used by the application. All writes go through transactional RPCs.
+
+`npm run db:test` creates and removes a disposable database, applies every
+migration, runs SQL/RLS regression tests, and checks competing onboarding and
+claim requests. It requires database-creation privileges and uses a minimal
+Auth schema with the same JWT subject helper. It does not touch local app data.
+`npm run test:integration` separately verifies real local Auth and PostgREST,
+including the actual relation queries used by the app. It creates temporary
+users/people/families and removes those records afterward, preserving immutable
+audit events. A fresh CI stack retains its bootstrapped Super Admin until teardown.
+
+Family selection is saved per account on the device and checked against active
+memberships. In-memory queries are discarded on account changes/sign-out.
+General family invitations, role administration, branches, and recipes remain
+outside this slice.

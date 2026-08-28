@@ -63,10 +63,15 @@ localized UX.
 
 ## First implementation slice
 
-The first vertical slice should be **create a family and add a managed person**.
-It exercises authentication identity, person linkage, family ownership, RLS,
-Spanish/English localization, forms, validation, and query invalidation without
-prematurely introducing the more complex recipe aggregate.
+Step 3 implements **Person onboarding/claiming, create a family, and add a
+managed person** on top of the existing authentication foundation. The slice
+includes active-family listing/switching, Spanish/English forms, transactional
+RPCs, RLS denial tests, concurrent claims, and local Auth/PostgREST integration
+tests. See [ADR 0001](adr/0001-step-3-onboarding.md) for claim and manager rules.
+
+This completes the first slice of Phase 2, not the entire phase. General family
+invitations, role changes, ownership transfer, branches, person-manager
+delegation, and Super Admin override screens remain before recipe workflows.
 
 ## Decisions to resolve before recipe migrations stabilize
 

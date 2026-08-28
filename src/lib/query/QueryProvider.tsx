@@ -38,6 +38,8 @@ export function createAppQueryClient() {
 export function QueryProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(createAppQueryClient);
 
+  useEffect(() => () => queryClient.clear(), [queryClient]);
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', handleAppState);
     return () => subscription.remove();
