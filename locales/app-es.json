@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Recetario Familiar"
+  },
+  "android": {
+    "app_name": "Recetario Familiar"
+  }
+}

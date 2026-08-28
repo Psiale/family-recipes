@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Family Recipe Tree"
+  },
+  "android": {
+    "app_name": "Family Recipe Tree"
+  }
+}
