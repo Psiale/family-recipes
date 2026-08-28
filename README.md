@@ -35,7 +35,17 @@ committed database types are generated from the local migrated schema.
    `.env`.
 5. The default Super Admin email is `psialedev@gmail.com`; that verified Auth
    account must register before other users.
-6. Run `npm start`, then choose iOS or Android.
+6. For the iPhone simulator, run `npm run ios` to build and install the native
+   development app and start Metro. Keep that terminal running while using the
+   app. To select a simulator, use `npm run ios -- --device`.
+7. After the development app is installed, use `npm start` and press `i` to
+   reopen it. Run `npm run ios` again after changing native dependencies. For
+   Android, use `npm run android` for the first build.
+
+Keep only route screens and layouts in `src/app/`: Expo Router bundles files in
+that directory as application routes, including `*.test.tsx` files. Route tests
+belong in `src/test/`; other tests can remain next to their components outside
+`src/app/`.
 
 Only `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are
 embedded in the Expo bundle. `SUPABASE_DB_URL` and `SUPER_ADMIN_EMAIL` are
@@ -47,6 +57,7 @@ Useful checks:
 
 - `npm run lint`
 - `npm run typecheck`
+- `npm run check:ios-bundle` (catches native bundling errors without Xcode)
 - `npm test`
 - `npm run format:check`
 - `npm run db:test`
