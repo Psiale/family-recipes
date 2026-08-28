@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { render, screen } from '@testing-library/react-native';
 
-import { RootNavigator } from './_layout';
+import { RootNavigator } from '@/app/_layout';
 
 const mockUseSession = jest.fn();
 
