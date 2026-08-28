@@ -48,3 +48,18 @@ service transactions additionally enforce multi-row invariants and auditing.
 6. Accept a suggestion and either revise or fork the target.
 7. Add a recipe to a collection after verifying family visibility.
 8. Remove family visibility and remove now-invalid collection links.
+9. Create a family and its first ACTIVE OWNER membership.
+10. Create a managed Person, MEMBER membership, and explicit manager grant.
+11. Claim an existing Person using a single-use, verified-email-bound code.
+
+## Step 3 self-service writes
+
+- Signed-in users without a Person can onboard themselves or claim an existing
+  managed Person; neither operation accepts a caller-supplied user ID.
+- Linked users can create a family; the caller becomes its first OWNER.
+- Only active OWNER/ADMIN members can create managed people in that family.
+- Only an explicit manager can issue a code for an unlinked Person. A family
+  role by itself is insufficient. Claiming revokes pre-claim manager grants,
+  preserving Person IDs, family memberships, ownership, visibility, and lineage.
+- These RPCs do not expose general role changes or Super Admin override paths.
+  Those remain dedicated, audited administration work.

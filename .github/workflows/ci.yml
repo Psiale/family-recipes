@@ -66,6 +66,9 @@ jobs:
       - name: Verify generated database types
         run: npm run db:types:check
 
+      - name: Verify local Auth and PostgREST vertical slice
+        run: npm run test:integration
+
       - name: Stop local Supabase stack
         if: always()
         run: npm run db:stop
