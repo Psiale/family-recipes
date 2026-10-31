@@ -1,5 +1,11 @@
 import { forwardRef, type ComponentProps } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  type TextInputInstance,
+  View,
+} from 'react-native';
 
 import { colors, spacing } from './theme';
 
@@ -8,7 +14,7 @@ type TextFieldProps = ComponentProps<typeof TextInput> & {
   label: string;
 };
 
-export const TextField = forwardRef<TextInput, TextFieldProps>(
+export const TextField = forwardRef<TextInputInstance, TextFieldProps>(
   function TextField({ error, label, style, ...props }, ref) {
     return (
       <View style={styles.container}>

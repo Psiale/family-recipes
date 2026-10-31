@@ -68,7 +68,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     const supabase = getSupabaseClient();
 
-    const exchangeConfirmationCode = async (url: string | null) => {
+    const exchangeConfirmationCode = async (url: string | null | undefined) => {
       if (!url) {
         return;
       }
