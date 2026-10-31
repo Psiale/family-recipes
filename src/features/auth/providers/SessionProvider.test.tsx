@@ -26,7 +26,7 @@ jest.mock('@/lib/supabase/client', () => ({
 }));
 
 jest.mock('expo-linking', () => ({
-  createURL: () => 'familyrecipes://sign-in',
+  createURL: (path: string) => `familyrecipes://${path}`,
   parse: () => ({ queryParams: {} }),
 }));
 

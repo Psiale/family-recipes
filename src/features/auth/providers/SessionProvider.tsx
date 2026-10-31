@@ -133,7 +133,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         password,
         options: {
           data: { locale },
-          emailRedirectTo: ExpoLinking.createURL('/sign-in'),
+          emailRedirectTo: ExpoLinking.createURL('sign-in'),
         },
       });
 
