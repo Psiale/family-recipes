@@ -19,6 +19,9 @@
 7. Recipe revisions and sensitive Super Admin audit events are append-only.
 8. Collections are family-scoped. A recipe may be placed in a collection only
    while it has visibility in that collection's family.
+9. Family relationships connect active members of one family. Parent-child
+   relationships are directed and acyclic; partner relationships are
+   undirected and stored in a canonical order.
 
 ## Aggregate map
 
@@ -30,6 +33,8 @@ auth.users 1---1 User 0---1 Person
 Family 1---* FamilyMembership *---1 Person
    |                  |
    +---* Branch 1---* BranchMembership
+   |
+   +---* FamilyRelationship *---2 Person
    |
    +---* Collection *---* Recipe (through RecipeCollection)
    |
@@ -78,6 +83,15 @@ unaccepted email address is never treated as a member.
 A branch is an organizational subgroup within one family. Branch membership is
 valid only if the person also has an active membership in the same family.
 Branches do not model biological or legal relationships.
+
+### FamilyRelationship
+
+A relationship belongs to one family and connects two people who are active
+members of it. `PARENT_CHILD` is directed from parent to child and cannot form
+a cycle. `PARTNER` is symmetric, so its endpoints are normalized before
+storage. Owners and Admins maintain relationships; every active family member
+may read the resulting tree. Relationship records describe family structure
+and remain separate from organizational branches and authorization roles.
 
 ### FamilyInvitation
 

@@ -9,6 +9,8 @@ export const familyKeys = {
     [...familyKeys.root(userId), 'families', personId] as const,
   people: (userId: string, familyId: string) =>
     [...familyKeys.root(userId), 'people', familyId] as const,
+  relationships: (userId: string, familyId: string) =>
+    [...familyKeys.root(userId), 'relationships', familyId] as const,
 };
 
 export function useCurrentPerson(userId: string) {
@@ -27,6 +29,12 @@ export function useFamilyPeople(userId: string, familyId: string) {
   return useQuery({
     queryKey: familyKeys.people(userId, familyId),
     queryFn: () => api.listFamilyPeople(userId, familyId),
+  });
+}
+export function useFamilyRelationships(userId: string, familyId: string) {
+  return useQuery({
+    queryKey: familyKeys.relationships(userId, familyId),
+    queryFn: () => api.listFamilyRelationships(familyId),
   });
 }
 
@@ -58,6 +66,14 @@ export function useFamilyActions(userId: string) {
       mutationFn: api.issueClaim,
       gcTime: 0,
       networkMode: 'always',
+    }),
+    createRelationship: useMutation({
+      mutationFn: api.createFamilyRelationship,
+      ...options,
+    }),
+    deleteRelationship: useMutation({
+      mutationFn: api.deleteFamilyRelationship,
+      ...options,
     }),
   };
 }

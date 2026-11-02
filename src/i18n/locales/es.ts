@@ -93,6 +93,38 @@ export const es = {
       MEMBER: 'Miembro',
       READ_ONLY: 'Solo lectura',
     },
+    tree: {
+      title: 'Árbol familiar',
+      explanation:
+        'Organiza los parentescos de esta familia. El árbol muestra cada generación y conserva los vínculos de pareja.',
+      empty:
+        'Aún no hay parentescos. Las personas aparecen juntas hasta que agregues el primer vínculo.',
+      generation: 'Generación {{number}}',
+      parents: 'Padres: {{names}}',
+      partners: 'Pareja: {{names}}',
+      add: 'Agregar parentesco',
+      save: 'Guardar parentesco',
+      remove: 'Eliminar vínculo',
+      relationships: 'Vínculos registrados',
+      formExplanation:
+        'Elige un vínculo y dos personas distintas. En padre/madre e hijo/a, el orden sí importa.',
+      parent: 'Padre o madre',
+      child: 'Hijo o hija',
+      firstPartner: 'Primera persona',
+      secondPartner: 'Segunda persona',
+      parentLink: '{{from}} es padre o madre de {{to}}',
+      partnerLink: '{{from}} y {{to}} son pareja',
+      kinds: {
+        PARENT_CHILD: 'Padre/madre e hijo/a',
+        PARTNER: 'Pareja',
+      },
+      errors: {
+        load: 'No pudimos cargar el árbol familiar. Las demás funciones de la familia siguen disponibles.',
+        people: 'Selecciona dos personas distintas.',
+        duplicate: 'Este parentesco ya existe.',
+        cycle: 'Este vínculo crearía un ciclo en el árbol familiar.',
+      },
+    },
     validation: {
       nameRequired: 'Ingresa un nombre.',
       nameLong: 'Usa un nombre de hasta 120 caracteres.',

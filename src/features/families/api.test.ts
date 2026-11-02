@@ -2,8 +2,10 @@ import { getSupabaseClient } from '@/lib/supabase/client';
 
 import {
   claimPerson,
+  createFamilyRelationship,
   createFamily,
   createManagedPerson,
+  deleteFamilyRelationship,
   issueClaim,
   onboardPerson,
 } from './api';
@@ -50,6 +52,22 @@ it('uses the atomic RPCs without accepting a user ID, owner ID or family role', 
   await claimPerson('token');
   expect(rpc).toHaveBeenLastCalledWith('claim_managed_person', {
     p_token: 'token',
+  });
+  await createFamilyRelationship({
+    familyId: 'family-id',
+    fromPersonId: 'parent-id',
+    kind: 'PARENT_CHILD',
+    toPersonId: 'child-id',
+  });
+  expect(rpc).toHaveBeenLastCalledWith('create_family_relationship', {
+    p_family_id: 'family-id',
+    p_from_person_id: 'parent-id',
+    p_kind: 'PARENT_CHILD',
+    p_to_person_id: 'child-id',
+  });
+  await deleteFamilyRelationship('relationship-id');
+  expect(rpc).toHaveBeenLastCalledWith('delete_family_relationship', {
+    p_relationship_id: 'relationship-id',
   });
 });
 

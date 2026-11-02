@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase/client';
-import type { Tables } from '@/lib/supabase/database.types';
+import type { Enums, Tables } from '@/lib/supabase/database.types';
 
 export type Person = Tables<'people'>;
 export type DetailsValues = { name: string; description: string };
@@ -48,6 +48,54 @@ export async function listFamilyPeople(userId: string, familyId: string) {
     role,
     canIssueClaim: !person.user_id && managedIds.has(person.id),
   }));
+}
+export type FamilyPerson = Awaited<ReturnType<typeof listFamilyPeople>>[number];
+
+export async function listFamilyRelationships(familyId: string) {
+  const { data, error } = await getSupabaseClient()
+    .from('family_relationships')
+    .select('*')
+    .eq('family_id', familyId)
+    .order('created_at');
+  if (error) throw error;
+  return data;
+}
+export type FamilyRelationship = Awaited<
+  ReturnType<typeof listFamilyRelationships>
+>[number];
+
+export type RelationshipValues = {
+  familyId: string;
+  fromPersonId: string;
+  kind: Enums<'family_relationship_kind'>;
+  toPersonId: string;
+};
+
+export async function createFamilyRelationship({
+  familyId,
+  fromPersonId,
+  kind,
+  toPersonId,
+}: RelationshipValues) {
+  const { data, error } = await getSupabaseClient().rpc(
+    'create_family_relationship',
+    {
+      p_family_id: familyId,
+      p_from_person_id: fromPersonId,
+      p_kind: kind,
+      p_to_person_id: toPersonId,
+    },
+  );
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteFamilyRelationship(relationshipId: string) {
+  const { error } = await getSupabaseClient().rpc(
+    'delete_family_relationship',
+    { p_relationship_id: relationshipId },
+  );
+  if (error) throw error;
 }
 
 export async function onboardPerson({ name, description }: DetailsValues) {

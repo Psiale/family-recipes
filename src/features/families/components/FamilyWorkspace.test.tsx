@@ -67,6 +67,7 @@ beforeEach(async () => {
   mockApi.getCurrentPerson.mockResolvedValue(null);
   mockApi.listFamilies.mockResolvedValue([]);
   mockApi.listFamilyPeople.mockResolvedValue([]);
+  mockApi.listFamilyRelationships.mockResolvedValue([]);
 });
 
 it('integrates onboarding, atomic family creation, managed creation and claim issuance through real query hooks', async () => {
@@ -106,7 +107,7 @@ it('integrates onboarding, atomic family creation, managed creation and claim is
   await user.press(screen.getByRole('button', { name: 'Agregar persona' }));
   await user.type(screen.getByLabelText('Nombre de la persona'), 'Abuela');
   await user.press(screen.getByRole('button', { name: 'Agregar persona' }));
-  await screen.findByText('Abuela');
+  expect(await screen.findAllByText('Abuela')).toHaveLength(2);
   expect(mockApi.createManagedPerson).toHaveBeenCalledWith(
     { name: 'Abuela', description: '', familyId: family.id },
     expect.anything(),
@@ -213,9 +214,9 @@ it('switches families with isolated member queries and persists the selection', 
     },
   ]);
   const { user } = await setup();
-  await screen.findByText('Primera persona');
+  expect(await screen.findAllByText('Primera persona')).toHaveLength(2);
   await user.press(screen.getByRole('button', { name: second.name }));
-  expect(await screen.findByText('Segunda persona')).toBeOnTheScreen();
+  expect(await screen.findAllByText('Segunda persona')).toHaveLength(2);
   expect(screen.queryByText('Primera persona')).not.toBeOnTheScreen();
   expect(await AsyncStorage.getItem(familyStorageKey('user-1'))).toBe(
     second.id,
@@ -256,7 +257,7 @@ it('hides managed-person writes for read-only users and claim issuance without a
     { person: managed, role: 'MEMBER', canIssueClaim: false },
   ]);
   await setup();
-  await screen.findByText('Abuela');
+  expect(await screen.findAllByText('Abuela')).toHaveLength(2);
   expect(
     screen.queryByRole('button', { name: 'Agregar persona' }),
   ).not.toBeOnTheScreen();
@@ -276,6 +277,28 @@ it('recovers from a failed initial query without showing the wrong onboarding st
   ).not.toBeOnTheScreen();
   await user.press(screen.getByRole('button', { name: 'Reintentar' }));
   expect(await screen.findByText('Hola, Alex')).toBeOnTheScreen();
+});
+
+it('keeps family people available when only the tree query fails', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family]);
+  mockApi.listFamilyPeople.mockResolvedValue([
+    { person: managed, role: 'MEMBER', canIssueClaim: false },
+  ]);
+  mockApi.listFamilyRelationships.mockRejectedValue({ code: 'PGRST205' });
+
+  await setup();
+
+  expect(await screen.findByText('Personas de la familia')).toBeOnTheScreen();
+  expect(screen.getAllByText('Abuela')).toHaveLength(1);
+  expect(
+    screen.getByText(
+      'No pudimos cargar el árbol familiar. Las demás funciones de la familia siguen disponibles.',
+    ),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('button', { name: 'Agregar persona' }),
+  ).toBeOnTheScreen();
 });
 
 it('renders English onboarding and validation', async () => {

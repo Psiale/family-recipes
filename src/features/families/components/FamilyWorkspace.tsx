@@ -10,11 +10,13 @@ import {
   useFamilies,
   useFamilyActions,
   useFamilyPeople,
+  useFamilyRelationships,
 } from '../queries';
 import { useFamilySelection } from '../useFamilySelection';
 
 import { ClaimForm } from './ClaimForm';
 import { DetailsForm } from './DetailsForm';
+import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
 import { styles } from './styles';
 
@@ -167,6 +169,7 @@ function FamilyDashboard({
 function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
   const { t } = useTranslation();
   const people = useFamilyPeople(userId, family.id);
+  const relationships = useFamilyRelationships(userId, family.id);
   const actions = useFamilyActions(userId);
   const [adding, setAdding] = useState(false);
   const [claimTarget, setClaimTarget] = useState<Person | null>(null);
@@ -264,6 +267,34 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
           onPress={() => setAdding(true)}
         />
       ) : null}
+      {relationships.isPending ? (
+        <Text role="status" style={styles.body}>
+          {t('app.loading')}
+        </Text>
+      ) : relationships.isError ? (
+        <View style={styles.treeSection}>
+          <Text role="heading" style={styles.subtitle}>
+            {t('families.tree.title')}
+          </Text>
+          <Text role="alert" style={styles.error}>
+            {t('families.tree.errors.load')}
+          </Text>
+          <AppButton
+            label={t('families.retry')}
+            variant="secondary"
+            onPress={() => void relationships.refetch()}
+          />
+        </View>
+      ) : (
+        <FamilyTree
+          canManage={canAdd}
+          familyId={family.id}
+          people={people.data}
+          relationships={relationships.data}
+          onCreate={actions.createRelationship.mutateAsync}
+          onDelete={actions.deleteRelationship.mutateAsync}
+        />
+      )}
       <AppButton
         label={t('families.refreshPeople')}
         variant="secondary"

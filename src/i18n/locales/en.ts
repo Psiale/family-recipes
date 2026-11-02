@@ -93,6 +93,38 @@ export const en = {
       MEMBER: 'Member',
       READ_ONLY: 'Read-only',
     },
+    tree: {
+      title: 'Family tree',
+      explanation:
+        'Organize this family’s relationships. The tree shows each generation and keeps partner connections.',
+      empty:
+        'There are no relationships yet. People appear together until you add the first connection.',
+      generation: 'Generation {{number}}',
+      parents: 'Parents: {{names}}',
+      partners: 'Partner: {{names}}',
+      add: 'Add relationship',
+      save: 'Save relationship',
+      remove: 'Remove connection',
+      relationships: 'Recorded connections',
+      formExplanation:
+        'Choose a connection and two different people. For parent and child, the order matters.',
+      parent: 'Parent',
+      child: 'Child',
+      firstPartner: 'First person',
+      secondPartner: 'Second person',
+      parentLink: '{{from}} is a parent of {{to}}',
+      partnerLink: '{{from}} and {{to}} are partners',
+      kinds: {
+        PARENT_CHILD: 'Parent and child',
+        PARTNER: 'Partners',
+      },
+      errors: {
+        load: 'We could not load the family tree. The other family features are still available.',
+        people: 'Select two different people.',
+        duplicate: 'This relationship already exists.',
+        cycle: 'This connection would create a cycle in the family tree.',
+      },
+    },
     validation: {
       nameRequired: 'Enter a name.',
       nameLong: 'Use a name up to 120 characters.',
