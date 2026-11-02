@@ -10,6 +10,7 @@ supabase/.branches/
 supabase/.temp/
 *.log
 .DS_Store
+.codex-attachments/
 ios/
 android/
 
