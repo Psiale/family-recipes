@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import pg from 'pg';
 
 import { parseDatabaseEnv } from './server-env.mjs';
+import { testFamilyRoleConcurrency } from './test-family-role-concurrency.mjs';
 import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
 
 const env = parseDatabaseEnv();
@@ -66,6 +67,7 @@ try {
     }
   }
   await testOnboardingConcurrency(testUrl.toString());
+  await testFamilyRoleConcurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

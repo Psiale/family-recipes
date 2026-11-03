@@ -93,6 +93,24 @@ export const es = {
       MEMBER: 'Miembro',
       READ_ONLY: 'Solo lectura',
     },
+    roleManagement: {
+      title: 'Rol de {{name}}',
+      edit: 'Cambiar rol de {{name}}',
+      explanation:
+        'Los roles controlan el acceso dentro de esta familia. No cambian los administradores de perfiles ni la propiedad de recetas. Solo un propietario puede otorgar o retirar el rol de Administrador.',
+      current: 'Rol actual: {{role}}',
+      save: 'Guardar rol',
+      stale:
+        'La membresía cambió mientras la editabas. Actualiza y elige el rol de nuevo.',
+      descriptions: {
+        MEMBER:
+          'Los miembros pueden aportar sus propias recetas y ver el contenido compartido con ellos.',
+        READ_ONLY:
+          'Los miembros de solo lectura pueden ver contenido compartido, pero no crear recetas ni sugerencias.',
+        ADMIN:
+          'Los administradores pueden gestionar miembros comunes y relaciones familiares. No pueden cambiar otros administradores ni propietarios.',
+      },
+    },
     tree: {
       title: 'Árbol familiar',
       explanation:

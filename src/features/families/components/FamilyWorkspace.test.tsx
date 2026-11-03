@@ -311,3 +311,88 @@ it('renders English onboarding and validation', async () => {
   await screen.unmount();
   await i18n.changeLanguage('es');
 });
+
+it('lets an owner promote a family member and refreshes their displayed role', async () => {
+  await i18n.changeLanguage('en');
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family]);
+  mockApi.listFamilyPeople.mockResolvedValue([
+    { person, role: 'OWNER', canIssueClaim: false },
+    { person: managed, role: 'MEMBER', canIssueClaim: true },
+  ]);
+  mockApi.changeFamilyRole.mockImplementation(async () => {
+    mockApi.listFamilyPeople.mockResolvedValue([
+      { person, role: 'OWNER', canIssueClaim: false },
+      { person: managed, role: 'ADMIN', canIssueClaim: true },
+    ]);
+  });
+  const { user } = await setup();
+  await user.press(
+    await screen.findByRole('button', { name: 'Change role for Abuela' }),
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Change role for Alex' }),
+  ).toBeNull();
+  await user.press(screen.getByRole('button', { name: 'Admin' }));
+  await user.press(screen.getByRole('button', { name: 'Save role' }));
+  await screen.findByText('Admin · Managed profile');
+  expect(mockApi.changeFamilyRole).toHaveBeenCalledWith(
+    {
+      familyId: family.id,
+      personId: managed.id,
+      role: 'ADMIN',
+      expectedRole: 'MEMBER',
+    },
+    expect.anything(),
+  );
+});
+
+it('limits admin controls to ordinary members and rejects a stale edit visibly', async () => {
+  await i18n.changeLanguage('en');
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([{ ...family, role: 'ADMIN' }]);
+  mockApi.listFamilyPeople.mockResolvedValue([
+    { person, role: 'ADMIN', canIssueClaim: false },
+    { person: managed, role: 'MEMBER', canIssueClaim: false },
+    {
+      person: { ...person, id: 'owner', display_name: 'Owner' },
+      role: 'OWNER',
+      canIssueClaim: false,
+    },
+  ]);
+  mockApi.changeFamilyRole.mockRejectedValue({ code: 'PT409' });
+  const { user } = await setup();
+  await screen.findByRole('button', { name: 'Change role for Abuela' });
+  expect(
+    screen.queryByRole('button', { name: 'Change role for Alex' }),
+  ).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Change role for Owner' }),
+  ).toBeNull();
+  await user.press(
+    screen.getByRole('button', { name: 'Change role for Abuela' }),
+  );
+  expect(screen.queryByRole('button', { name: 'Admin' })).toBeNull();
+  await user.press(screen.getByRole('button', { name: 'Read-only' }));
+  await user.press(screen.getByRole('button', { name: 'Save role' }));
+  await screen.findByRole('alert', {
+    name: 'This membership changed while you were editing. Refresh and choose the role again.',
+  });
+});
+
+it.each(['MEMBER', 'READ_ONLY'] as const)(
+  'does not expose role editing to %s',
+  async (role) => {
+    await i18n.changeLanguage('en');
+    mockApi.getCurrentPerson.mockResolvedValue(person);
+    mockApi.listFamilies.mockResolvedValue([{ ...family, role }]);
+    mockApi.listFamilyPeople.mockResolvedValue([
+      { person: managed, role: 'MEMBER', canIssueClaim: false },
+    ]);
+    await setup();
+    await screen.findByText('Member · Managed profile');
+    expect(
+      screen.queryByRole('button', { name: 'Change role for Abuela' }),
+    ).toBeNull();
+  },
+);

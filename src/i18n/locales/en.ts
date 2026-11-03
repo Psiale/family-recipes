@@ -93,6 +93,24 @@ export const en = {
       MEMBER: 'Member',
       READ_ONLY: 'Read-only',
     },
+    roleManagement: {
+      title: 'Role for {{name}}',
+      edit: 'Change role for {{name}}',
+      explanation:
+        'Family roles control access within this family. They do not change profile managers or recipe ownership. Only an owner can grant or revoke Admin.',
+      current: 'Current role: {{role}}',
+      save: 'Save role',
+      stale:
+        'This membership changed while you were editing. Refresh and choose the role again.',
+      descriptions: {
+        MEMBER:
+          'Members can contribute their own recipes and view content shared with them.',
+        READ_ONLY:
+          'Read-only members can view shared content but cannot create recipes or suggestions.',
+        ADMIN:
+          'Admins can manage ordinary members and family relationships. They cannot change other Admins or Owners.',
+      },
+    },
     tree: {
       title: 'Family tree',
       explanation:

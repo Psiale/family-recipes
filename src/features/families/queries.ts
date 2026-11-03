@@ -75,5 +75,6 @@ export function useFamilyActions(userId: string) {
       mutationFn: api.deleteFamilyRelationship,
       ...options,
     }),
+    changeRole: useMutation({ mutationFn: api.changeFamilyRole, ...options }),
   };
 }

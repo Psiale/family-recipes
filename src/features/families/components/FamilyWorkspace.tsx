@@ -12,12 +12,14 @@ import {
   useFamilyPeople,
   useFamilyRelationships,
 } from '../queries';
+import { allowedFamilyRoles } from '../roles';
 import { useFamilySelection } from '../useFamilySelection';
 
 import { ClaimForm } from './ClaimForm';
 import { DetailsForm } from './DetailsForm';
 import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
+import { RoleForm } from './RoleForm';
 import { styles } from './styles';
 
 function LoadError({ retry }: { retry: () => void }) {
@@ -173,6 +175,7 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
   const actions = useFamilyActions(userId);
   const [adding, setAdding] = useState(false);
   const [claimTarget, setClaimTarget] = useState<Person | null>(null);
+  const [roleTargetId, setRoleTargetId] = useState<string | null>(null);
   const canAdd = family.role === 'OWNER' || family.role === 'ADMIN';
   if (people.isPending)
     return (
@@ -181,6 +184,26 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
       </Text>
     );
   if (people.isError) return <LoadError retry={() => void people.refetch()} />;
+  const roleTarget = people.data.find(
+    ({ person, role }) =>
+      person.id === roleTargetId &&
+      allowedFamilyRoles(family.role, role).length > 0,
+  );
+  if (roleTarget)
+    return (
+      <View style={styles.card}>
+        <RoleForm
+          key={`${roleTarget.person.id}:${roleTarget.role}`}
+          actorRole={family.role}
+          currentRole={roleTarget.role}
+          familyId={family.id}
+          personId={roleTarget.person.id}
+          name={roleTarget.person.display_name}
+          onSave={actions.changeRole.mutateAsync}
+          onCancel={() => setRoleTargetId(null)}
+        />
+      </View>
+    );
   // Recheck current server-derived permissions before keeping an editor open.
   const claimPerson = people.data.find(
     ({ person, canIssueClaim }) =>
@@ -251,6 +274,15 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
           </Text>
           {person.biography ? (
             <Text style={styles.body}>{person.biography}</Text>
+          ) : null}
+          {allowedFamilyRoles(family.role, role).length > 0 ? (
+            <AppButton
+              label={t('families.roleManagement.edit', {
+                name: person.display_name,
+              })}
+              variant="secondary"
+              onPress={() => setRoleTargetId(person.id)}
+            />
           ) : null}
           {canIssueClaim ? (
             <AppButton

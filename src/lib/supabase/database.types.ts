@@ -1020,6 +1020,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      change_family_role: {
+        Args: {
+          p_expected_role: Database['public']['Enums']['family_role'];
+          p_family_id: string;
+          p_person_id: string;
+          p_role: Database['public']['Enums']['family_role'];
+        };
+        Returns: undefined;
+      };
       claim_managed_person: { Args: { p_token: string }; Returns: string };
       create_family: {
         Args: { p_description?: string; p_name: string };

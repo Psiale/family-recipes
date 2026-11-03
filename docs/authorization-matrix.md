@@ -63,3 +63,17 @@ service transactions additionally enforce multi-row invariants and auditing.
   preserving Person IDs, family memberships, ownership, visibility, and lineage.
 - These RPCs do not expose general role changes or Super Admin override paths.
   Those remain dedicated, audited administration work.
+
+## Family role management
+
+- Active Owners can assign `ADMIN`, `MEMBER`, or `READ_ONLY` to an active
+  non-Owner member. Admins can only switch `MEMBER` and `READ_ONLY` memberships.
+- The role editor cannot assign or alter `OWNER`; ownership transfer remains a
+  separate feature. Super Admin overrides remain separate administration work.
+- Role changes affect only the selected family's membership. They do not alter
+  PersonManager grants, account links, or recipe ownership.
+- The RPC checks the actor's current membership, locks authorization rows,
+  rejects stale expected roles, and records the previous and new roles in an
+  immutable audit event. Direct membership updates remain unavailable to clients.
+- Tree writes recheck and retain manager authority while competing role changes
+  finish, preventing a waiting write from using a role that was revoked.
