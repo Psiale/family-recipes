@@ -6,28 +6,19 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Screen } from '@/components/Screen';
 import { colors, spacing } from '@/components/theme';
 import { useSession } from '@/features/auth/providers/SessionProvider';
-import { useCurrentProfileQuery } from '@/features/profile/useCurrentProfileQuery';
+import { FamilyWorkspace } from '@/features/families/components/FamilyWorkspace';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { session, signOut } = useSession();
-  const profile = useCurrentProfileQuery(session!.user.id);
   const email = session?.user.email ?? '';
 
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.card}>
-        <Text accessibilityRole="header" style={styles.title}>
-          {profile.data?.display_name || t('home.welcome')}
-        </Text>
         <Text style={styles.body}>{t('home.signedInAs', { email })}</Text>
-        <Text style={styles.body}>{t('home.foundationReady')}</Text>
-        {profile.isError ? (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {t('errors.profileLoad')}
-          </Text>
-        ) : null}
       </View>
+      <FamilyWorkspace key={session!.user.id} userId={session!.user.id} />
       <LanguageSwitcher />
       <AppButton
         label={t('auth.signOut')}
@@ -51,17 +42,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
   },
-  title: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '800',
-  },
   body: {
     color: colors.muted,
     fontSize: 16,
     lineHeight: 24,
-  },
-  error: {
-    color: colors.error,
   },
 });

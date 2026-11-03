@@ -1,3 +1,4 @@
+import { useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
@@ -19,5 +20,26 @@ describe('QueryProvider', () => {
     );
 
     expect(screen.getByText('Contenido con consultas')).toBeOnTheScreen();
+  });
+
+  it('discards account-scoped cached data when its session boundary unmounts', async () => {
+    let captured: QueryClient | undefined;
+    function Probe() {
+      captured = useQueryClient();
+      return null;
+    }
+    await render(
+      <QueryProvider>
+        <Probe />
+      </QueryProvider>,
+    );
+    captured!.setQueryData(
+      ['family-workspace', 'first-user'],
+      ['private-data'],
+    );
+    await screen.unmount();
+    expect(
+      captured!.getQueryData(['family-workspace', 'first-user']),
+    ).toBeUndefined();
   });
 });

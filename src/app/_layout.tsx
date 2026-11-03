@@ -39,10 +39,17 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryProvider>
-      <SessionProvider>
-        <RootNavigator />
-      </SessionProvider>
+    <SessionProvider>
+      <SessionQueries />
+    </SessionProvider>
+  );
+}
+
+function SessionQueries() {
+  const { session } = useSession();
+  return (
+    <QueryProvider key={session?.user.id ?? 'anonymous'}>
+      <RootNavigator />
     </QueryProvider>
   );
 }

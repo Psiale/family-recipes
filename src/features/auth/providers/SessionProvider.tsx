@@ -68,7 +68,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     const supabase = getSupabaseClient();
 
-    const exchangeConfirmationCode = async (url: string | null) => {
+    const exchangeConfirmationCode = async (url: string | null | undefined) => {
       if (!url) {
         return;
       }
@@ -133,7 +133,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         password,
         options: {
           data: { locale },
-          emailRedirectTo: ExpoLinking.createURL('/sign-in'),
+          emailRedirectTo: ExpoLinking.createURL('sign-in'),
         },
       });
 

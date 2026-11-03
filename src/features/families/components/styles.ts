@@ -1,0 +1,91 @@
+import { StyleSheet } from 'react-native';
+
+import { colors, spacing } from '@/components/theme';
+
+export const styles = StyleSheet.create({
+  stack: { gap: spacing.md },
+  card: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
+  title: { color: colors.text, fontSize: 24, fontWeight: '800' },
+  subtitle: { color: colors.text, fontSize: 19, fontWeight: '700' },
+  body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  error: { color: colors.error, fontSize: 14 },
+  multiline: {
+    minHeight: 100,
+    paddingTop: spacing.md,
+    textAlignVertical: 'top',
+  },
+  code: { color: colors.text, fontSize: 16, lineHeight: 26 },
+  fieldLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  choiceGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  choice: { flexGrow: 1, minWidth: 140 },
+  treeSection: {
+    borderTopColor: colors.border,
+    borderTopWidth: 1,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    paddingTop: spacing.lg,
+  },
+  tree: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  generation: { alignItems: 'center' },
+  generationLabel: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '800',
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+  },
+  treeRow: {
+    alignItems: 'stretch',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  treeConnector: {
+    backgroundColor: colors.primary,
+    height: spacing.lg,
+    marginBottom: spacing.xs,
+    width: 2,
+  },
+  personNode: {
+    backgroundColor: colors.surface,
+    borderColor: colors.primary,
+    borderRadius: 14,
+    borderWidth: 1,
+    minWidth: 132,
+    padding: spacing.md,
+  },
+  personNodeName: { color: colors.text, fontSize: 16, fontWeight: '800' },
+  personNodeMeta: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: spacing.xs,
+  },
+  relationshipRow: {
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  relationshipLabel: { color: colors.text, fontSize: 15, lineHeight: 22 },
+});

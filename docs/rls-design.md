@@ -58,6 +58,29 @@ RLS is insufficient for invariants spanning rows. Database triggers enforce:
 The last-Super-Admin check is deferred to transaction commit so an atomic
 privilege transfer is possible.
 
+## Hosted security configuration
+
+Migration `20261103184342_security_advisor_hardening` revokes execution of the
+hosted `public.rls_auto_enable()` event-trigger function from `PUBLIC`, `anon`,
+and `authenticated`. The event trigger remains enabled and continues to enable
+RLS on new public tables. Fresh local stacks without this platform function
+skip that revocation. The database test runner models the hosted trigger so
+the permission change and automatic RLS behavior are covered in CI.
+
+The same migration moves `citext` into `extensions` without replacing the type,
+preserving existing invitation email columns and case-insensitive indexes.
+Future SQL must qualify the type as `extensions.citext`; queries using its
+operators need `extensions` in their search path (already configured for the
+Data API in `supabase/config.toml`).
+
+As of November 3, 2026, the hosted project uses the Free plan. Leaked-password
+protection remains disabled because Supabase requires Pro or above. Before
+inviting real users, upgrade the plan and enable **Prevent use of leaked
+passwords** under Authentication → Sign In / Providers → Email, then rerun the
+security advisor. This Auth setting is separate from database migrations and
+must be verified on the hosted project. See the
+[Supabase password security documentation](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+
 ## Storage
 
 Use private buckets. A recipe media object key begins with immutable recipe ID,
