@@ -22,12 +22,14 @@ and Android.
 
 ## Phase 2 — Families and people
 
-- Family creation, invitations, membership roles, and family switching.
+- Family creation, membership roles, and family switching.
+- Role changes, member removal, and family ownership transfer.
 - Managed profiles, account claiming, and person-manager grants.
 - Branch creation and membership.
 - Super Admin family/person administration with immutable audit events.
 
-Exit: the complete identity and family authorization matrix passes end-to-end.
+Exit: identity and family authorization pass end-to-end for existing members
+and managed profiles. Invitation-based joining is deferred to Phase 5.
 
 ## Phase 3 — Recipe core
 
@@ -49,7 +51,20 @@ organized without conflating ownership or visibility.
 
 Exit: lineage and suggestions remain correct across access loss and preservation.
 
-## Phase 5 — Hardening and release
+## Phase 5 — Family invitations (deferred)
+
+- Email-based family invitations and invitation acceptance.
+- Single-use, expiring invitations bound to the recipient's verified email.
+- Sender domain and email-delivery provider setup.
+
+This is the final product feature priority, after membership administration,
+branches, recipes, lineage, and suggestions. Domain purchases and email-provider
+setup are deferred with it.
+
+Exit: invited relatives can join the correct family with the intended role;
+expired, revoked, reused, and wrong-recipient invitations are rejected.
+
+## Phase 6 — Hardening and release
 
 - Accessibility, offline/error states, performance, image processing, and abuse
   limits.
@@ -69,9 +84,19 @@ includes active-family listing/switching, Spanish/English forms, transactional
 RPCs, RLS denial tests, concurrent claims, and local Auth/PostgREST integration
 tests. See [ADR 0001](adr/0001-step-3-onboarding.md) for claim and manager rules.
 
-This completes the first slice of Phase 2, not the entire phase. General family
-invitations, role changes, ownership transfer, branches, person-manager
-delegation, and Super Admin override screens remain before recipe workflows.
+This completes the first slice of Phase 2, not the entire phase. Role changes,
+member removal, ownership transfer, branches, person-manager delegation, and
+Super Admin override screens remain before recipe workflows. General family
+invitations and email delivery are deferred to Phase 5.
+
+## Current slice — Family roles
+
+Add the role editor for active family members and the audited role-change RPC.
+Owners may grant/revoke Admin; Admins may only manage Member/Read-only roles.
+Owner changes, member removal, and ownership transfer remain later slices.
+Role changes retain existing Person identities, manager grants, and recipe
+ownership. Regression tests cover authorization denials, stale edits, and
+concurrent demotion during privileged writes.
 
 ## Decisions to resolve before recipe migrations stabilize
 

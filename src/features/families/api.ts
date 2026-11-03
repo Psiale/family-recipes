@@ -51,6 +51,30 @@ export async function listFamilyPeople(userId: string, familyId: string) {
 }
 export type FamilyPerson = Awaited<ReturnType<typeof listFamilyPeople>>[number];
 
+export type FamilyRole = Enums<'family_role'>;
+export type EditableFamilyRole = Exclude<FamilyRole, 'OWNER'>;
+export type RoleChangeValues = {
+  familyId: string;
+  personId: string;
+  role: EditableFamilyRole;
+  expectedRole: FamilyRole;
+};
+
+export async function changeFamilyRole({
+  familyId,
+  personId,
+  role,
+  expectedRole,
+}: RoleChangeValues) {
+  const { error } = await getSupabaseClient().rpc('change_family_role', {
+    p_family_id: familyId,
+    p_person_id: personId,
+    p_role: role,
+    p_expected_role: expectedRole,
+  });
+  if (error) throw error;
+}
+
 export async function listFamilyRelationships(familyId: string) {
   const { data, error } = await getSupabaseClient()
     .from('family_relationships')

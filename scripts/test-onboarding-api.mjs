@@ -188,10 +188,94 @@ try {
     ).length,
     0,
   );
+  // Exercise role administration through the same authenticated REST RPCs as
+  // the app, including immediate permission changes without a JWT refresh.
+  unwrap(
+    await owner.rpc('change_family_role', {
+      p_family_id: familyIds[0],
+      p_person_id: managedId,
+      p_role: 'ADMIN',
+      p_expected_role: 'MEMBER',
+    }),
+  );
+  const roleTarget = unwrap(
+    await claimant.rpc('create_managed_person', {
+      p_family_id: familyIds[0],
+      p_display_name: 'Role integration target',
+    }),
+  );
+  personIds.push(roleTarget);
+  unwrap(
+    await claimant.rpc('change_family_role', {
+      p_family_id: familyIds[0],
+      p_person_id: roleTarget,
+      p_role: 'READ_ONLY',
+      p_expected_role: 'MEMBER',
+    }),
+  );
+  assert.equal(
+    (
+      await claimant.rpc('change_family_role', {
+        p_family_id: familyIds[0],
+        p_person_id: roleTarget,
+        p_role: 'ADMIN',
+        p_expected_role: 'READ_ONLY',
+      })
+    ).error?.code,
+    '42501',
+  );
+  assert.equal(
+    (
+      await owner.rpc('change_family_role', {
+        p_family_id: familyIds[0],
+        p_person_id: roleTarget,
+        p_role: 'MEMBER',
+        p_expected_role: 'MEMBER',
+      })
+    ).error?.code,
+    'PT409',
+  );
+  unwrap(
+    await owner.rpc('change_family_role', {
+      p_family_id: familyIds[0],
+      p_person_id: managedId,
+      p_role: 'READ_ONLY',
+      p_expected_role: 'ADMIN',
+    }),
+  );
+  assert.equal(
+    (
+      await claimant.rpc('change_family_role', {
+        p_family_id: familyIds[0],
+        p_person_id: roleTarget,
+        p_role: 'MEMBER',
+        p_expected_role: 'READ_ONLY',
+      })
+    ).error?.code,
+    '42501',
+  );
+  assert.equal(
+    (
+      await claimant.rpc('create_managed_person', {
+        p_family_id: familyIds[0],
+        p_display_name: 'Demotion must deny this',
+      })
+    ).error?.code,
+    '42501',
+  );
+  const roleRows = unwrap(
+    await claimant
+      .from('family_memberships')
+      .select('role')
+      .eq('family_id', familyIds[0])
+      .eq('person_id', managedId),
+  );
+  assert.equal(roleRows[0].role, 'READ_ONLY');
+
   unwrap(await owner.auth.signOut());
   unwrap(await claimant.auth.signOut());
   console.log(
-    'Real local Auth + PostgREST onboarding, family listing, managed-person creation, claiming, RLS, and sign-out passed.',
+    'Real local Auth + PostgREST onboarding, claiming, role changes, immediate demotion, RLS, and sign-out passed.',
   );
 } finally {
   // Only IDs created by this test are removed. Append-only audit evidence stays.

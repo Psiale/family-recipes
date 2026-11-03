@@ -8,6 +8,7 @@ import {
   deleteFamilyRelationship,
   issueClaim,
   onboardPerson,
+  changeFamilyRole,
 } from './api';
 
 jest.mock('@/lib/supabase/client', () => ({ getSupabaseClient: jest.fn() }));
@@ -76,5 +77,30 @@ it('propagates database denial rather than returning success data', async () => 
   rpc.mockResolvedValue({ data: null, error });
   await expect(
     createFamily({ name: 'Family', description: '' }),
+  ).rejects.toEqual(error);
+});
+
+it('binds role changes to the family, target and previously observed role', async () => {
+  await changeFamilyRole({
+    familyId: 'family',
+    personId: 'person',
+    role: 'ADMIN',
+    expectedRole: 'MEMBER',
+  });
+  expect(rpc).toHaveBeenLastCalledWith('change_family_role', {
+    p_family_id: 'family',
+    p_person_id: 'person',
+    p_role: 'ADMIN',
+    p_expected_role: 'MEMBER',
+  });
+  const error = { code: 'PT409' };
+  rpc.mockResolvedValue({ data: null, error });
+  await expect(
+    changeFamilyRole({
+      familyId: 'family',
+      personId: 'person',
+      role: 'ADMIN',
+      expectedRole: 'MEMBER',
+    }),
   ).rejects.toEqual(error);
 });
