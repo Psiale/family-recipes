@@ -34,6 +34,27 @@ try {
     $$;
     grant usage on schema auth to authenticated, anon;
     grant execute on function auth.uid() to authenticated, anon;
+
+    -- Model the hosted platform's automatic-RLS trigger, including both the
+    -- default PUBLIC privilege and explicit client grants. Local Supabase does
+    -- not install it, so otherwise the hardening migration would be untested.
+    create function public.rls_auto_enable() returns event_trigger
+    language plpgsql security definer set search_path = pg_catalog as $$
+    declare command record;
+    begin
+      for command in select * from pg_event_trigger_ddl_commands()
+        where command_tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+          and object_type in ('table', 'partitioned table')
+          and schema_name = 'public'
+      loop
+        execute format('alter table %s enable row level security', command.object_identity);
+      end loop;
+    end;
+    $$;
+    grant execute on function public.rls_auto_enable() to anon, authenticated;
+    create event trigger ensure_rls on ddl_command_end
+      when tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+      execute function public.rls_auto_enable();
   `);
   for (const directory of ['migrations', 'tests']) {
     const root = new URL(`../supabase/${directory}/`, import.meta.url);

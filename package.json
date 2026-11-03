@@ -29,7 +29,7 @@
     "db:reset": "node --env-file-if-exists=.env scripts/run-local-database.mjs reset",
     "db:configure": "node --env-file-if-exists=.env scripts/configure-super-admin.mjs",
     "db:test": "node --env-file-if-exists=.env scripts/test-database.mjs",
-    "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts",
+    "db:types": "node --env-file-if-exists=.env scripts/check-database-types.mjs --write",
     "db:types:check": "node --env-file-if-exists=.env scripts/check-database-types.mjs"
   },
   "dependencies": {

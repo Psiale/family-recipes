@@ -1,6 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+
+import { format, resolveConfig } from 'prettier';
 
 const executable = resolve(
   'node_modules',
@@ -22,12 +24,24 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-const committed = await readFile(
-  new URL('../src/lib/supabase/database.types.ts', import.meta.url),
-  'utf8',
+const typesFile = new URL(
+  '../src/lib/supabase/database.types.ts',
+  import.meta.url,
 );
+const generated = await format(result.stdout, {
+  ...(await resolveConfig(typesFile)),
+  parser: 'typescript',
+});
 
-if (result.stdout !== committed) {
+if (process.argv.includes('--write')) {
+  await writeFile(typesFile, generated);
+  console.log('Generated database types updated.');
+  process.exit(0);
+}
+
+const committed = await readFile(typesFile, 'utf8');
+
+if (generated !== committed) {
   console.error(
     'Generated database types are stale. Run npm run db:types and commit the result.',
   );
