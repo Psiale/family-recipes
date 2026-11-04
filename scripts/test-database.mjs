@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import pg from 'pg';
 
 import { parseDatabaseEnv } from './server-env.mjs';
+import { testBranchConcurrency } from './test-branch-concurrency.mjs';
 import { testFamilyRoleConcurrency } from './test-family-role-concurrency.mjs';
 import { testMembershipConcurrency } from './test-membership-concurrency.mjs';
 import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
@@ -70,6 +71,7 @@ try {
   await testOnboardingConcurrency(testUrl.toString());
   await testFamilyRoleConcurrency(testUrl.toString());
   await testMembershipConcurrency(testUrl.toString());
+  await testBranchConcurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

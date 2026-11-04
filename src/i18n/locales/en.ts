@@ -108,6 +108,26 @@ export const en = {
     },
   },
   families: {
+    branches: {
+      title: 'Family branches',
+      name: 'Branch name',
+      explanation:
+        'Group relatives into branches, such as a household or side of the family. A person can belong to several branches. This does not change the family tree.',
+      create: 'Create branch',
+      empty: 'No branches yet.',
+      emptyMembers: 'This branch has no members yet.',
+      add: 'Add {{name}} to branch',
+      remove: 'Remove {{name}} from branch',
+      member: 'In this branch',
+      other: 'Other family members',
+      back: 'Back to family tree',
+      backList: 'Back to branches',
+      duplicate: 'A branch with this name already exists in this family.',
+      stale:
+        'This membership changed. Refresh the branches and review the current members before trying again.',
+      removeExplanation:
+        'Removing someone here only removes their branch assignment. Their family membership and profile stay intact.',
+    },
     backToTree: 'Back to tree',
     openDetails: 'View details for {{name}}',
     viewDetails: 'View family details ›',

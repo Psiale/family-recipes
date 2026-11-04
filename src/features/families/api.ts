@@ -210,3 +210,51 @@ export async function transferFamilyOwnership({
   });
   if (error) throw error;
 }
+
+export async function listFamilyBranches(familyId: string) {
+  const { data, error } = await getSupabaseClient()
+    .from('branches')
+    .select('*, branch_memberships(person_id)')
+    .eq('family_id', familyId)
+    .order('name');
+  if (error) throw error;
+  return data;
+}
+export async function createFamilyBranch({
+  familyId,
+  name,
+  description,
+}: DetailsValues & { familyId: string }) {
+  const { data, error } = await getSupabaseClient().rpc(
+    'create_family_branch',
+    {
+      p_family_id: familyId,
+      p_name: name,
+      p_description: description,
+    },
+  );
+  if (error) throw error;
+  return data;
+}
+export async function setBranchMembership({
+  familyId,
+  branchId,
+  personId,
+  isMember,
+  expectedMember,
+}: {
+  familyId: string;
+  branchId: string;
+  personId: string;
+  isMember: boolean;
+  expectedMember: boolean;
+}) {
+  const { error } = await getSupabaseClient().rpc('set_branch_membership', {
+    p_family_id: familyId,
+    p_branch_id: branchId,
+    p_person_id: personId,
+    p_is_member: isMember,
+    p_expected_member: expectedMember,
+  });
+  if (error) throw error;
+}

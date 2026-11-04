@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, userEvent } from '@testing-library/react-native';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@testing-library/react-native';
 
 import i18n from '@/i18n';
 
@@ -555,3 +560,69 @@ it('offers ownership only for linked non-owners and refreshes the former owner�
     expect.anything(),
   );
 });
+
+it.each(['OWNER', 'READ_ONLY'] as const)(
+  'refreshes branch people and the current %s role after another device makes changes',
+  async (updatedRole) => {
+    mockApi.getCurrentPerson.mockResolvedValue(person);
+    mockApi.listFamilies.mockResolvedValue([family]);
+    mockApi.listFamilyPeople.mockResolvedValue([
+      { person, role: 'OWNER', canIssueClaim: false },
+    ]);
+    const branch = {
+      id: 'branch-1',
+      family_id: family.id,
+      name: 'North',
+      description: null,
+      created_by_user_id: 'user-1',
+      created_at: '',
+      updated_at: '',
+      branch_memberships: [] as { person_id: string }[],
+    };
+    mockApi.listFamilyBranches.mockResolvedValue([branch]);
+    const { user } = await setup();
+    await user.press(
+      await screen.findByRole('button', {
+        name: 'Ver detalles de Familia Uno',
+      }),
+    );
+    await user.press(screen.getByRole('button', { name: 'Ramas familiares' }));
+    await user.press(await screen.findByRole('button', { name: 'North' }));
+    expect(
+      screen.getByText('Esta rama todavía no tiene miembros.'),
+    ).toBeOnTheScreen();
+
+    mockApi.listFamilyPeople.mockResolvedValue([
+      { person, role: updatedRole, canIssueClaim: false },
+      { person: managed, role: 'MEMBER', canIssueClaim: false },
+    ]);
+    mockApi.listFamilies.mockResolvedValue([{ ...family, role: updatedRole }]);
+    mockApi.listFamilyBranches.mockResolvedValue([
+      { ...branch, branch_memberships: [{ person_id: managed.id }] },
+    ]);
+    // The dashboard has a separate refresh control; use the branch screen's.
+    await user.press(
+      screen.getAllByRole('button', { name: 'Actualizar familias' }).at(-1)!,
+    );
+    expect(await screen.findByText('Abuela')).toBeOnTheScreen();
+    expect(
+      screen.queryByText('Esta rama todavía no tiene miembros.'),
+    ).toBeNull();
+    if (updatedRole === 'OWNER') {
+      expect(
+        await screen.findByRole('button', {
+          name: 'Quitar a Abuela de la rama',
+        }),
+      ).toBeOnTheScreen();
+    } else {
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: 'Quitar a Abuela de la rama' }),
+        ).toBeNull(),
+      );
+      expect(
+        screen.queryByRole('button', { name: 'Agregar a Alex a la rama' }),
+      ).toBeNull();
+    }
+  },
+);

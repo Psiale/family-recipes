@@ -22,6 +22,7 @@ import { useFamilySelection } from '../useFamilySelection';
 import { ClaimForm } from './ClaimForm';
 import { DetailsForm } from './DetailsForm';
 import { DetailsSheet } from './DetailsSheet';
+import { FamilyBranches } from './FamilyBranches';
 import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
 import { MembershipConfirmation } from './MembershipConfirmation';
@@ -186,6 +187,7 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
     personId: string;
     expectedRole: FamilyRole;
   } | null>(null);
+  const [branchesOpen, setBranchesOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [roleTargetId, setRoleTargetId] = useState<string | null>(null);
@@ -197,6 +199,15 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
       </Text>
     );
   if (people.isError) return <LoadError retry={() => void people.refetch()} />;
+  if (branchesOpen)
+    return (
+      <FamilyBranches
+        userId={userId}
+        family={family}
+        people={people.data}
+        onClose={() => setBranchesOpen(false)}
+      />
+    );
   const membershipTarget = people.data.find(
     ({ person, role }) =>
       person.id === membershipAction?.personId &&
@@ -343,6 +354,13 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
               role: t(`families.roles.${family.role}`),
             })}
           </Text>
+          <AppButton
+            label={t('families.branches.title')}
+            onPress={() => {
+              setDetailsOpen(false);
+              setBranchesOpen(true);
+            }}
+          />
         </DetailsSheet>
       ) : null}
       {selectedPersonId &&
