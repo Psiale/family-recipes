@@ -62,6 +62,14 @@ export const en = {
         'We could not close recovery. Check your connection and try again.',
     },
   },
+  navigation: {
+    open: 'Open menu',
+    tree: 'Family tree',
+    recipes: 'Recipes',
+    close: 'Close menu',
+    recipesSoon:
+      'Your family recipes will live here. Creating and browsing recipes is coming soon.',
+  },
   home: {
     title: 'Home',
     welcome: 'Welcome to your recipe tree',
@@ -83,7 +91,8 @@ export const en = {
     start: 'Get started',
     tip: 'Good to know',
     help: 'How to use the app',
-    revisit: 'You can revisit this guide from “How to use the app”.',
+    revisit:
+      'Open the menu and choose “How to use the app” to revisit this guide.',
     steps: {
       welcome: {
         title: 'One step at a time',
