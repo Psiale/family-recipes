@@ -1063,6 +1063,22 @@ export type Database = {
         Args: { p_biography?: string; p_display_name: string };
         Returns: string;
       };
+      remove_family_member: {
+        Args: {
+          p_expected_role: Database['public']['Enums']['family_role'];
+          p_family_id: string;
+          p_person_id: string;
+        };
+        Returns: undefined;
+      };
+      transfer_family_ownership: {
+        Args: {
+          p_expected_role: Database['public']['Enums']['family_role'];
+          p_family_id: string;
+          p_person_id: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       family_relationship_kind: 'PARENT_CHILD' | 'PARTNER';

@@ -10,3 +10,27 @@ export function allowedFamilyRoles(
     return ['MEMBER', 'READ_ONLY'];
   return [];
 }
+
+export function canRemoveFamilyMember(
+  actorRole: FamilyRole,
+  targetRole: FamilyRole,
+) {
+  return (
+    targetRole !== 'OWNER' &&
+    (actorRole === 'OWNER' || (actorRole === 'ADMIN' && targetRole !== 'ADMIN'))
+  );
+}
+
+export function canTransferFamilyOwnership(
+  actorRole: FamilyRole,
+  targetRole: FamilyRole,
+  targetUserId: string | null,
+  actorUserId: string,
+) {
+  return (
+    actorRole === 'OWNER' &&
+    targetRole !== 'OWNER' &&
+    targetUserId !== null &&
+    targetUserId !== actorUserId
+  );
+}

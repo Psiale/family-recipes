@@ -89,11 +89,22 @@ member removal, ownership transfer, branches, person-manager delegation, and
 Super Admin override screens remain before recipe workflows. General family
 invitations and email delivery are deferred to Phase 5.
 
-## Current slice — Family roles
+## Completed slice — Family roles
 
 Add the role editor for active family members and the audited role-change RPC.
 Owners may grant/revoke Admin; Admins may only manage Member/Read-only roles.
-Owner changes, member removal, and ownership transfer remain later slices.
+The membership administration slice below adds removal and dedicated ownership transfer.
+
+## Current slice — Membership administration
+
+- Confirmed removal ends the membership while preserving profiles, recipes, and history.
+- Owners remove non-owners; Admins remove ordinary members.
+- Only Owners transfer ownership to an active member with a linked account.
+- Atomic transfer makes the recipient Owner and the previous owner Admin.
+- Owner removal and direct owner role changes stay prohibited.
+- SQL/RLS, concurrency, API integration, and UI confirmation coverage verify these rules.
+
+Next: family branches. Email invitations remain deferred until the later invitation phase.
 Role changes retain existing Person identities, manager grants, and recipe
 ownership. Regression tests cover authorization denials, stale edits, and
 concurrent demotion during privileged writes.

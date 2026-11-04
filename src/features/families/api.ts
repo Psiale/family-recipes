@@ -178,3 +178,35 @@ export async function issueClaim({
   if (error) throw error;
   return data;
 }
+
+export type MembershipChangeValues = {
+  familyId: string;
+  personId: string;
+  expectedRole: FamilyRole;
+};
+
+export async function removeFamilyMember({
+  familyId,
+  personId,
+  expectedRole,
+}: MembershipChangeValues) {
+  const { error } = await getSupabaseClient().rpc('remove_family_member', {
+    p_family_id: familyId,
+    p_person_id: personId,
+    p_expected_role: expectedRole,
+  });
+  if (error) throw error;
+}
+
+export async function transferFamilyOwnership({
+  familyId,
+  personId,
+  expectedRole,
+}: MembershipChangeValues) {
+  const { error } = await getSupabaseClient().rpc('transfer_family_ownership', {
+    p_family_id: familyId,
+    p_person_id: personId,
+    p_expected_role: expectedRole,
+  });
+  if (error) throw error;
+}

@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci --coverage",
+    "test:ci": "jest --ci --coverage --runInBand",
     "test:server-env": "node --test scripts/server-env.test.mjs",
     "test:integration": "node --env-file-if-exists=.env scripts/test-onboarding-api.mjs",
     "check:ios-bundle": "expo export --platform ios --output-dir .expo/ios-bundle-check",

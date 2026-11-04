@@ -119,8 +119,28 @@ available among active members), and member count. Avatar selection is deferred.
 
 Family selection is saved per account on the device and checked against active
 memberships. In-memory queries are discarded on account changes/sign-out.
-General family invitations, role administration, branches, and recipes remain
-outside this slice.
+General family invitations, branches, and recipes remain outside this slice.
+
+## Membership administration
+
+Open a person from the family tree to manage their membership. Owners can remove
+any non-owner; Admins can remove Members and Read-only members. Removal requires
+confirmation, marks the membership `REMOVED` with an end time, and revokes access
+through that family. It preserves the person, recipe attribution, relationships,
+explicit profile-manager grants, and other family memberships. The active tree
+hides removed people and their links. Restoration is not available in the app yet.
+Access granted independently (such as ownership of a recipe) is unchanged.
+
+Only an active Owner can transfer ownership, and only to another active member
+with a linked account. Confirmation promotes the recipient to Owner and changes
+the transferring owner to Admin atomically. No removal or role editor can modify
+an Owner; ownership transfer is the only client path that demotes an Owner.
+The original family creator remains recorded separately from its current owner.
+
+Both RPCs check the expected current role, serialize with family role/tree
+mutations, recheck authority after locking, and audit successful changes. Apply
+`20261104040410_family_membership_administration` before releasing these controls.
+The migration is tested locally; hosted deployment is a separate release step.
 
 ## Password recovery
 

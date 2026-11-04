@@ -75,6 +75,14 @@ export function useFamilyActions(userId: string) {
       mutationFn: api.deleteFamilyRelationship,
       ...options,
     }),
+    removeMember: useMutation({
+      mutationFn: api.removeFamilyMember,
+      ...options,
+    }),
+    transferOwnership: useMutation({
+      mutationFn: api.transferFamilyOwnership,
+      ...options,
+    }),
     changeRole: useMutation({ mutationFn: api.changeFamilyRole, ...options }),
   };
 }
