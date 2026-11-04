@@ -9,6 +9,8 @@ export const familyKeys = {
     [...familyKeys.root(userId), 'families', personId] as const,
   people: (userId: string, familyId: string) =>
     [...familyKeys.root(userId), 'people', familyId] as const,
+  branches: (userId: string, familyId: string) =>
+    [...familyKeys.root(userId), 'branches', familyId] as const,
   relationships: (userId: string, familyId: string) =>
     [...familyKeys.root(userId), 'relationships', familyId] as const,
 };
@@ -38,6 +40,13 @@ export function useFamilyRelationships(userId: string, familyId: string) {
   });
 }
 
+export function useFamilyBranches(userId: string, familyId: string) {
+  return useQuery({
+    queryKey: familyKeys.branches(userId, familyId),
+    queryFn: () => api.listFamilyBranches(familyId),
+  });
+}
+
 export function useFamilyActions(userId: string) {
   const client = useQueryClient();
   const refresh = () =>
@@ -48,6 +57,14 @@ export function useFamilyActions(userId: string) {
     networkMode: 'always' as const,
   };
   return {
+    createBranch: useMutation({
+      mutationFn: api.createFamilyBranch,
+      ...options,
+    }),
+    setBranchMember: useMutation({
+      mutationFn: api.setBranchMembership,
+      ...options,
+    }),
     onboard: useMutation({ mutationFn: api.onboardPerson, ...options }),
     claim: useMutation({
       mutationFn: api.claimPerson,

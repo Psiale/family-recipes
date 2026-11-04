@@ -1034,6 +1034,10 @@ export type Database = {
         Args: { p_description?: string; p_name: string };
         Returns: string;
       };
+      create_family_branch: {
+        Args: { p_description?: string; p_family_id: string; p_name: string };
+        Returns: string;
+      };
       create_family_relationship: {
         Args: {
           p_family_id: string;
@@ -1067,6 +1071,16 @@ export type Database = {
         Args: {
           p_expected_role: Database['public']['Enums']['family_role'];
           p_family_id: string;
+          p_person_id: string;
+        };
+        Returns: undefined;
+      };
+      set_branch_membership: {
+        Args: {
+          p_branch_id: string;
+          p_expected_member: boolean;
+          p_family_id: string;
+          p_is_member: boolean;
           p_person_id: string;
         };
         Returns: undefined;

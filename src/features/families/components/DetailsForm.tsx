@@ -12,7 +12,7 @@ import { detailsSchema, onboardingErrorKey } from '../forms';
 import { styles } from './styles';
 
 type Props = {
-  kind: 'person' | 'family';
+  kind: 'person' | 'family' | 'branch';
   submitLabel: string;
   onSave: (values: DetailsValues) => Promise<unknown>;
   onCancel?: () => void;
@@ -35,7 +35,16 @@ export function DetailsForm({ kind, submitLabel, onSave, onCancel }: Props) {
     try {
       await onSave(values);
     } catch (error) {
-      setError('root', { message: onboardingErrorKey(error) });
+      setError('root', {
+        message:
+          kind === 'branch' &&
+          typeof error === 'object' &&
+          error !== null &&
+          'code' in error &&
+          error.code === '23505'
+            ? 'families.branches.duplicate'
+            : onboardingErrorKey(error),
+      });
     }
   });
   return (
@@ -47,7 +56,11 @@ export function DetailsForm({ kind, submitLabel, onSave, onCancel }: Props) {
           <TextField
             ref={ref}
             label={t(
-              kind === 'person' ? 'families.personName' : 'families.familyName',
+              kind === 'branch'
+                ? 'families.branches.name'
+                : kind === 'person'
+                  ? 'families.personName'
+                  : 'families.familyName',
             )}
             value={value}
             onChangeText={onChange}

@@ -95,7 +95,7 @@ Add the role editor for active family members and the audited role-change RPC.
 Owners may grant/revoke Admin; Admins may only manage Member/Read-only roles.
 The membership administration slice below adds removal and dedicated ownership transfer.
 
-## Current slice — Membership administration
+## Completed slice — Membership administration
 
 - Confirmed removal ends the membership while preserving profiles, recipes, and history.
 - Owners remove non-owners; Admins remove ordinary members.
@@ -104,10 +104,23 @@ The membership administration slice below adds removal and dedicated ownership t
 - Owner removal and direct owner role changes stay prohibited.
 - SQL/RLS, concurrency, API integration, and UI confirmation coverage verify these rules.
 
-Next: family branches. Email invitations remain deferred until the later invitation phase.
+Email invitations remain deferred until the later invitation phase.
 Role changes retain existing Person identities, manager grants, and recipe
 ownership. Regression tests cover authorization denials, stale edits, and
 concurrent demotion during privileged writes.
+
+## Current slice — Family branches
+
+- Open Family branches from family details to view named groups and their members.
+- Owners and Admins create branches and add/remove active family members.
+- Members and Read-only users can view branches without editing them.
+- A person may belong to several branches; groups do not change tree relationships.
+- Removing family membership clears branch assignments atomically, with audit events.
+- SQL/RLS, concurrent removal, real Auth/API, and localized UI tests cover this slice.
+- Membership administration and branches migrations must be deployed before an APK using these features is released.
+
+Next: person-manager delegation and Super Admin administration. Invitations and
+email delivery remain deferred. Recipe workflows begin in Phase 3.
 
 ## Decisions to resolve before recipe migrations stabilize
 

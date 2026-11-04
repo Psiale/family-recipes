@@ -108,6 +108,26 @@ export const es = {
     },
   },
   families: {
+    branches: {
+      title: 'Ramas familiares',
+      name: 'Nombre de la rama',
+      explanation:
+        'Agrupa a tus familiares por hogar o lado de la familia. Una persona puede pertenecer a varias ramas. Esto no cambia el árbol familiar.',
+      create: 'Crear rama',
+      empty: 'Todavía no hay ramas.',
+      emptyMembers: 'Esta rama todavía no tiene miembros.',
+      add: 'Agregar a {{name}} a la rama',
+      remove: 'Quitar a {{name}} de la rama',
+      member: 'En esta rama',
+      other: 'Otros familiares',
+      back: 'Volver al árbol familiar',
+      backList: 'Volver a las ramas',
+      duplicate: 'Ya existe una rama con este nombre en esta familia.',
+      stale:
+        'Esta membresía cambió. Actualiza las ramas y revisa los miembros actuales antes de intentar de nuevo.',
+      removeExplanation:
+        'Quitar a alguien aquí solo elimina su asignación a esta rama. Su membresía familiar y perfil se conservan.',
+    },
     backToTree: 'Volver al árbol',
     openDetails: 'Ver detalles de {{name}}',
     viewDetails: 'Ver información de la familia ›',

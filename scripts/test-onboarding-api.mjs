@@ -273,6 +273,42 @@ try {
   );
   assert.equal(roleRows[0].role, 'READ_ONLY');
 
+  const branchId = unwrap(
+    await owner.rpc('create_family_branch', {
+      p_family_id: familyIds[0],
+      p_name: 'Integration branch',
+      p_description: 'Branch test',
+    }),
+  );
+  assert.equal(
+    (
+      await claimant.rpc('create_family_branch', {
+        p_family_id: familyIds[0],
+        p_name: 'Denied branch',
+      })
+    ).error?.code,
+    '42501',
+  );
+  const branchParams = {
+    p_family_id: familyIds[0],
+    p_branch_id: branchId,
+    p_person_id: roleTarget,
+    p_is_member: true,
+    p_expected_member: false,
+  };
+  unwrap(await owner.rpc('set_branch_membership', branchParams));
+  assert.equal(
+    (await owner.rpc('set_branch_membership', branchParams)).error?.code,
+    'PT409',
+  );
+  const branchRows = unwrap(
+    await claimant
+      .from('branches')
+      .select('id,branch_memberships(person_id)')
+      .eq('id', branchId),
+  );
+  assert.equal(branchRows[0].branch_memberships[0].person_id, roleTarget);
+
   // Transfer and removal through real Auth/PostgREST preserve the same people.
   unwrap(
     await owner.rpc('transfer_family_ownership', {
@@ -304,6 +340,16 @@ try {
       .select('status,ended_at')
       .eq('family_id', familyIds[0])
       .eq('person_id', roleTarget),
+  );
+  assert.equal(
+    unwrap(
+      await claimant
+        .from('branch_memberships')
+        .select('person_id')
+        .eq('branch_id', branchId),
+    ).length,
+    0,
+    'Family removal clears branch assignments',
   );
   assert.equal(removedRows[0].status, 'REMOVED');
   assert.ok(removedRows[0].ended_at);
