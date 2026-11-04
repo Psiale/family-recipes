@@ -62,6 +62,31 @@ export const en = {
         'We could not close recovery. Check your connection and try again.',
     },
   },
+  delegation: {
+    title: 'Profile delegates',
+    explanation:
+      'Only you can authorize delegates for your linked profile. Access applies across all your families and includes your private recipes. Delegates cannot appoint others or transfer ownership. Removing a family membership does not revoke this access.',
+    needProfile:
+      'Create or claim your person profile before managing delegates.',
+    current: 'People authorized by you',
+    empty: 'You have not authorized any delegates.',
+    unavailable: 'Unavailable account',
+    choose: 'Choose a relative with an account',
+    noFamily:
+      'Join or create a family to choose a delegate. You can still revoke existing delegates above.',
+    noCandidates:
+      'No other linked family members are available. Managed profiles cannot be delegates.',
+    grantTitle: 'Authorize {{name}}',
+    revokeTitle: 'Revoke access for {{name}}',
+    grantWarning:
+      'This person will be able to access your profile and all your recipes, including private recipes across families. They may manage editable recipes and their visibility when those features are available. Preserved recipes and ownership remain protected. This authorization lasts until you revoke it here, even if either of you leaves the family.',
+    revokeWarning:
+      'This removes their delegated access across all families. They may still see recipes shared with their own family or branch. Your profile, recipes, and ownership are preserved.',
+    confirmGrant: 'Confirm global access',
+    confirmRevoke: 'Confirm revocation',
+    stale:
+      'This authorization changed. Cancel and review the updated delegate list before trying again.',
+  },
   navigation: {
     open: 'Open menu',
     tree: 'Family tree',

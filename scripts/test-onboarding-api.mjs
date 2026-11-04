@@ -189,6 +189,22 @@ try {
     ).length,
     0,
   );
+  const delegateParams = {
+    p_manager_user_id: userIds[0],
+    p_family_id: familyIds[0],
+    p_enabled: true,
+    p_expected_enabled: false,
+  };
+  unwrap(await claimant.rpc('set_person_manager', delegateParams));
+  assert.equal(
+    (await claimant.rpc('set_person_manager', delegateParams)).error?.code,
+    'PT409',
+  );
+  assert.equal(
+    unwrap(await claimant.rpc('list_my_person_managers'))[0].manager_user_id,
+    userIds[0],
+  );
+
   // Exercise role administration through the same authenticated REST RPCs as
   // the app, including immediate permission changes without a JWT refresh.
   unwrap(
@@ -385,6 +401,23 @@ try {
     '42501',
   );
 
+  assert.equal(
+    unwrap(await claimant.rpc('list_my_person_managers'))[0].manager_user_id,
+    userIds[0],
+    'Global grant survives family removal until explicitly revoked',
+  );
+  unwrap(
+    await claimant.rpc('set_person_manager', {
+      p_manager_user_id: userIds[0],
+      p_enabled: false,
+      p_expected_enabled: true,
+    }),
+  );
+  assert.equal(
+    unwrap(await claimant.rpc('list_my_person_managers')).length,
+    0,
+    'Revocation works without a shared-family argument',
+  );
   unwrap(await owner.auth.signOut());
   unwrap(await claimant.auth.signOut());
   await testPasswordRecovery(config, db);

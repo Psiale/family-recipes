@@ -62,6 +62,31 @@ export const es = {
         'No pudimos cerrar la recuperación. Revisa tu conexión e inténtalo de nuevo.',
     },
   },
+  delegation: {
+    title: 'Delegados de mi perfil',
+    explanation:
+      'Solo tú puedes autorizar delegados de tu perfil vinculado. El acceso abarca todas tus familias e incluye tus recetas privadas. Los delegados no pueden autorizar a otros ni transferir la propiedad. Eliminar una membresía familiar no revoca este acceso.',
+    needProfile:
+      'Crea o vincula tu perfil de persona antes de administrar delegados.',
+    current: 'Personas autorizadas por ti',
+    empty: 'Todavía no has autorizado delegados.',
+    unavailable: 'Cuenta no disponible',
+    choose: 'Elige un familiar con cuenta',
+    noFamily:
+      'Únete o crea una familia para elegir un delegado. Aún puedes revocar los delegados existentes arriba.',
+    noCandidates:
+      'No hay otros familiares con cuenta disponibles. Los perfiles administrados no pueden ser delegados.',
+    grantTitle: 'Autorizar a {{name}}',
+    revokeTitle: 'Revocar acceso de {{name}}',
+    grantWarning:
+      'Esta persona podrá acceder a tu perfil y a todas tus recetas, incluidas las privadas de distintas familias. Podrá administrar recetas editables y su visibilidad cuando esas funciones estén disponibles. Las recetas preservadas y la propiedad siguen protegidas. La autorización dura hasta que la revoques aquí, incluso si alguno deja la familia.',
+    revokeWarning:
+      'Esto elimina su acceso delegado en todas las familias. Aún podrá ver recetas compartidas con su propia familia o rama. Tu perfil, recetas y propiedad se conservan.',
+    confirmGrant: 'Confirmar acceso global',
+    confirmRevoke: 'Confirmar revocación',
+    stale:
+      'Esta autorización cambió. Cancela y revisa la lista actualizada de delegados antes de intentar de nuevo.',
+  },
   navigation: {
     open: 'Abrir menú',
     tree: 'Árbol familiar',

@@ -77,3 +77,14 @@ service transactions additionally enforce multi-row invariants and auditing.
   immutable audit event. Direct membership updates remain unavailable to clients.
 - Tree writes recheck and retain manager authority while competing role changes
   finish, preventing a waiting write from using a role that was revoked.
+
+## Person-manager delegation
+
+- Only the account linked to a Person may grant or revoke that Person's delegates.
+- New delegates must have linked accounts and share an ACTIVE family membership
+  at grant time. Family roles do not imply authority over another person's grants.
+- Grants apply globally, including private recipes, and persist until explicitly
+  revoked. Family membership removal and role changes do not revoke them.
+- Revocation and listing remain available without a current shared family.
+- Delegate changes are serialized, reject stale expected state, and are audited.
+- Delegation does not change ownership or override preserved recipe rules.
