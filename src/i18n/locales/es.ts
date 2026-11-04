@@ -167,6 +167,8 @@ export const es = {
       READ_ONLY: 'Solo lectura',
     },
     membership: {
+      stale:
+        'Esta membresía cambió. Cancela y vuelve a abrir esta acción desde el perfil de la persona para revisar la información actual antes de confirmar.',
       removeTitle: 'Quitar a {{name}} de la familia',
       removeExplanation:
         '¿Quitar a {{name}} de {{family}}? Ya no aparecerá en el árbol de esta familia ni tendrá acceso como miembro. Se conservarán su perfil, sus recetas y sus membresías en otras familias. Todavía no se puede deshacer desde la app.',

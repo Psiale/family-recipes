@@ -167,6 +167,8 @@ export const en = {
       READ_ONLY: 'Read-only',
     },
     membership: {
+      stale:
+        'This membership changed. Cancel and reopen this action from the person’s profile to review the latest information before confirming.',
       removeTitle: 'Remove {{name}} from family',
       removeExplanation:
         'Remove {{name}} from {{family}}? They will no longer appear in this family’s tree or have membership access. Their profile, recipes, and memberships in other families are kept. This cannot be undone in the app yet.',

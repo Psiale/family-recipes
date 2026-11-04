@@ -43,7 +43,7 @@ export function MembershipConfirmation({
       setError(
         t(
           code === 'PT409'
-            ? 'families.roleManagement.stale'
+            ? 'families.membership.stale'
             : code === '42501'
               ? 'families.errors.permission'
               : 'families.errors.save',
