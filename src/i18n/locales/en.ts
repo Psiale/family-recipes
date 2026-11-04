@@ -75,6 +75,15 @@ export const en = {
     english: 'English',
   },
   families: {
+    backToTree: 'Back to tree',
+    openDetails: 'View details for {{name}}',
+    viewDetails: 'View family details ›',
+    createdBy: 'Created by: {{name}}',
+    unavailableCreator: 'Profile unavailable',
+    createdOn: 'Created on: {{date}}',
+    memberCount: 'People: {{count}}',
+    personDetails: 'Person profile',
+
     onboardingTitle: 'Your person profile',
     onboardingExplanation:
       'Your account signs you in. Your profile identifies the person who owns their recipes. If someone already created your profile, use their code instead of creating another.',
@@ -143,6 +152,11 @@ export const en = {
       },
     },
     tree: {
+      hint: 'Tap a person to view their profile. Swipe sideways to explore.',
+      parentLegend: '━ Parent → child',
+      partnerLegend: '┄ Partner',
+      openPerson: 'View profile for {{name}}',
+
       title: 'Family tree',
       explanation:
         'Organize this family’s relationships. The tree shows each generation and keeps partner connections.',

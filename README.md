@@ -97,6 +97,14 @@ including the actual relation queries used by the app. It creates temporary
 users/people/families and removes those records afterward, preserving immutable
 audit events. A fresh CI stack retains its bootstrapped Super Admin until teardown.
 
+The family tree renders tappable initial avatars with explicit parent/child
+branches and dashed partner links. Ancestors appear above descendants, and
+partners share a generation when that preserves ancestry. Swipe horizontally
+for wider families. Tapping a person opens their biography, membership role,
+relationships, and authorized role/claim actions. Tapping the selected family
+name opens its description, creation date, creator (when their profile is
+available among active members), and member count. Avatar selection is deferred.
+
 Family selection is saved per account on the device and checked against active
 memberships. In-memory queries are discarded on account changes/sign-out.
 General family invitations, role administration, branches, and recipes remain
