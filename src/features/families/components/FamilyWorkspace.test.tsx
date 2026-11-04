@@ -450,3 +450,108 @@ it('opens family metadata separately from a person profile and returns to the tr
   expect(screen.queryByText('Su historia')).not.toBeOnTheScreen();
   expect(screen.getByText('Árbol familiar')).toBeOnTheScreen();
 });
+
+it('confirms removal, preserves cancellation, and removes inactive people and links from the tree', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family]);
+  const ownerEntry = { person, role: 'OWNER' as const, canIssueClaim: false };
+  mockApi.listFamilyPeople.mockResolvedValue([
+    ownerEntry,
+    { person: managed, role: 'MEMBER', canIssueClaim: true },
+  ]);
+  mockApi.listFamilyRelationships.mockResolvedValue([
+    {
+      id: 'link',
+      family_id: family.id,
+      kind: 'PARENT_CHILD',
+      from_person_id: managed.id,
+      to_person_id: person.id,
+      created_at: '',
+      created_by_user_id: 'user-1',
+    },
+  ]);
+  mockApi.removeFamilyMember.mockImplementation(async () => {
+    mockApi.listFamilyPeople.mockResolvedValue([ownerEntry]);
+  });
+  const { user } = await setup();
+  await user.press(
+    await screen.findByRole('button', { name: 'Ver perfil de Abuela' }),
+  );
+  await user.press(
+    screen.getByRole('button', { name: 'Quitar a Abuela de la familia' }),
+  );
+  expect(mockApi.removeFamilyMember).not.toHaveBeenCalled();
+  await user.press(screen.getByRole('button', { name: 'Cancelar' }));
+  expect(
+    screen.getByRole('button', { name: 'Vincular cuenta de Abuela' }),
+  ).toBeOnTheScreen();
+  await user.press(
+    screen.getByRole('button', { name: 'Quitar a Abuela de la familia' }),
+  );
+  await user.press(
+    screen.getByRole('button', { name: 'Confirmar eliminación de membresía' }),
+  );
+  await screen.findByText('Árbol familiar');
+  expect(
+    screen.queryByRole('button', { name: 'Ver perfil de Abuela' }),
+  ).toBeNull();
+  expect(
+    screen.queryByTestId('tree-edge-link', { includeHiddenElements: true }),
+  ).toBeNull();
+  expect(mockApi.removeFamilyMember).toHaveBeenCalledWith(
+    { familyId: family.id, personId: managed.id, expectedRole: 'MEMBER' },
+    expect.anything(),
+  );
+});
+
+it('offers ownership only for linked non-owners and refreshes the former owner’s permissions', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family]);
+  const linked = { ...managed, user_id: 'user-2' };
+  mockApi.listFamilyPeople.mockResolvedValue([
+    { person, role: 'OWNER', canIssueClaim: false },
+    { person: linked, role: 'READ_ONLY', canIssueClaim: false },
+  ]);
+  mockApi.transferFamilyOwnership.mockImplementation(async () => {
+    mockApi.listFamilies.mockResolvedValue([{ ...family, role: 'ADMIN' }]);
+    mockApi.listFamilyPeople.mockResolvedValue([
+      { person, role: 'ADMIN', canIssueClaim: false },
+      { person: linked, role: 'OWNER', canIssueClaim: false },
+    ]);
+  });
+  const { user } = await setup();
+  await user.press(
+    await screen.findByRole('button', { name: 'Ver perfil de Alex' }),
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Quitar a Alex de la familia' }),
+  ).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Transferir propiedad a Alex' }),
+  ).toBeNull();
+  await user.press(screen.getByRole('button', { name: 'Volver al árbol' }));
+  await user.press(
+    screen.getByRole('button', { name: 'Ver perfil de Abuela' }),
+  );
+  await user.press(
+    screen.getByRole('button', { name: 'Transferir propiedad a Abuela' }),
+  );
+  expect(mockApi.transferFamilyOwnership).not.toHaveBeenCalled();
+  await user.press(
+    screen.getByRole('button', { name: 'Confirmar transferencia' }),
+  );
+  await screen.findByText('Tu rol: Administrador');
+  await user.press(
+    screen.getByRole('button', { name: 'Ver perfil de Abuela' }),
+  );
+  expect(
+    screen.getByText('Propietario · Con cuenta vinculada'),
+  ).toBeOnTheScreen();
+  expect(
+    screen.queryByRole('button', { name: 'Quitar a Abuela de la familia' }),
+  ).toBeNull();
+  expect(mockApi.transferFamilyOwnership).toHaveBeenCalledWith(
+    { familyId: family.id, personId: managed.id, expectedRole: 'READ_ONLY' },
+    expect.anything(),
+  );
+});

@@ -273,11 +273,77 @@ try {
   );
   assert.equal(roleRows[0].role, 'READ_ONLY');
 
+  // Transfer and removal through real Auth/PostgREST preserve the same people.
+  unwrap(
+    await owner.rpc('transfer_family_ownership', {
+      p_family_id: familyIds[0],
+      p_person_id: managedId,
+      p_expected_role: 'READ_ONLY',
+    }),
+  );
+  assert.equal(
+    (
+      await owner.rpc('transfer_family_ownership', {
+        p_family_id: familyIds[0],
+        p_person_id: managedId,
+        p_expected_role: 'OWNER',
+      })
+    ).error?.code,
+    '42501',
+  );
+  unwrap(
+    await claimant.rpc('remove_family_member', {
+      p_family_id: familyIds[0],
+      p_person_id: roleTarget,
+      p_expected_role: 'READ_ONLY',
+    }),
+  );
+  const removedRows = unwrap(
+    await claimant
+      .from('family_memberships')
+      .select('status,ended_at')
+      .eq('family_id', familyIds[0])
+      .eq('person_id', roleTarget),
+  );
+  assert.equal(removedRows[0].status, 'REMOVED');
+  assert.ok(removedRows[0].ended_at);
+  assert.equal(
+    unwrap(await claimant.from('people').select('id').eq('id', roleTarget))
+      .length,
+    1,
+    'Explicit profile manager retains the person',
+  );
+  const oldOwner = unwrap(
+    await owner.from('people').select('id').eq('user_id', userIds[0]).single(),
+  );
+  unwrap(
+    await claimant.rpc('remove_family_member', {
+      p_family_id: familyIds[0],
+      p_person_id: oldOwner.id,
+      p_expected_role: 'ADMIN',
+    }),
+  );
+  assert.equal(
+    unwrap(await owner.from('families').select('id').eq('id', familyIds[0]))
+      .length,
+    0,
+    'Removed user loses family visibility',
+  );
+  assert.equal(
+    (
+      await owner.rpc('create_managed_person', {
+        p_family_id: familyIds[0],
+        p_display_name: 'Removed account cannot add',
+      })
+    ).error?.code,
+    '42501',
+  );
+
   unwrap(await owner.auth.signOut());
   unwrap(await claimant.auth.signOut());
   await testPasswordRecovery(config, db);
   console.log(
-    'Real local Auth + PostgREST onboarding, claiming, role changes, immediate demotion, RLS, and sign-out passed.',
+    'Real local Auth + PostgREST onboarding, claiming, role changes, immediate demotion, ownership transfer, removal, RLS, and sign-out passed.',
   );
 } finally {
   // Only IDs created by this test are removed. Append-only audit evidence stays.

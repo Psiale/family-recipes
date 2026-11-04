@@ -9,6 +9,8 @@ import {
   issueClaim,
   onboardPerson,
   changeFamilyRole,
+  removeFamilyMember,
+  transferFamilyOwnership,
 } from './api';
 
 jest.mock('@/lib/supabase/client', () => ({ getSupabaseClient: jest.fn() }));
@@ -104,3 +106,26 @@ it('binds role changes to the family, target and previously observed role', asyn
     }),
   ).rejects.toEqual(error);
 });
+
+it.each([
+  [removeFamilyMember, 'remove_family_member'],
+  [transferFamilyOwnership, 'transfer_family_ownership'],
+] as const)(
+  'binds membership RPCs to the family and expected role',
+  async (action, name) => {
+    await action({
+      familyId: 'family',
+      personId: 'person',
+      expectedRole: 'ADMIN',
+    });
+    expect(rpc).toHaveBeenLastCalledWith(name, {
+      p_family_id: 'family',
+      p_person_id: 'person',
+      p_expected_role: 'ADMIN',
+    });
+    rpc.mockResolvedValue({ error: { code: 'PT409' } });
+    await expect(
+      action({ familyId: 'family', personId: 'person', expectedRole: 'ADMIN' }),
+    ).rejects.toEqual({ code: 'PT409' });
+  },
+);

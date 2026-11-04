@@ -166,6 +166,16 @@ export const en = {
       MEMBER: 'Member',
       READ_ONLY: 'Read-only',
     },
+    membership: {
+      removeTitle: 'Remove {{name}} from family',
+      removeExplanation:
+        'Remove {{name}} from {{family}}? They will no longer appear in this family’s tree or have membership access. Their profile, recipes, and memberships in other families are kept. This cannot be undone in the app yet.',
+      removeConfirm: 'Confirm removal',
+      transferTitle: 'Transfer ownership to {{name}}',
+      transferExplanation:
+        'Make {{name}} the owner of {{family}}? They will be able to manage admins and remove members. You will become an Admin. Only the new owner can transfer ownership back to you.',
+      transferConfirm: 'Confirm ownership transfer',
+    },
     roleManagement: {
       title: 'Role for {{name}}',
       edit: 'Change role for {{name}}',

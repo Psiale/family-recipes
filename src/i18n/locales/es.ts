@@ -166,6 +166,16 @@ export const es = {
       MEMBER: 'Miembro',
       READ_ONLY: 'Solo lectura',
     },
+    membership: {
+      removeTitle: 'Quitar a {{name}} de la familia',
+      removeExplanation:
+        '¿Quitar a {{name}} de {{family}}? Ya no aparecerá en el árbol de esta familia ni tendrá acceso como miembro. Se conservarán su perfil, sus recetas y sus membresías en otras familias. Todavía no se puede deshacer desde la app.',
+      removeConfirm: 'Confirmar eliminación de membresía',
+      transferTitle: 'Transferir propiedad a {{name}}',
+      transferExplanation:
+        '¿Hacer a {{name}} propietario de {{family}}? Podrá gestionar administradores y quitar miembros. Tú pasarás a ser Administrador. Solo el nuevo propietario podrá devolverte la propiedad.',
+      transferConfirm: 'Confirmar transferencia',
+    },
     roleManagement: {
       title: 'Rol de {{name}}',
       edit: 'Cambiar rol de {{name}}',

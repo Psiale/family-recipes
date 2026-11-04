@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 
-import type { Family, Person } from '../api';
+import type { Family, Person, FamilyRole } from '../api';
 import {
   useCurrentPerson,
   useFamilies,
@@ -12,7 +12,11 @@ import {
   useFamilyPeople,
   useFamilyRelationships,
 } from '../queries';
-import { allowedFamilyRoles } from '../roles';
+import {
+  allowedFamilyRoles,
+  canRemoveFamilyMember,
+  canTransferFamilyOwnership,
+} from '../roles';
 import { useFamilySelection } from '../useFamilySelection';
 
 import { ClaimForm } from './ClaimForm';
@@ -20,6 +24,7 @@ import { DetailsForm } from './DetailsForm';
 import { DetailsSheet } from './DetailsSheet';
 import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
+import { MembershipConfirmation } from './MembershipConfirmation';
 import { RoleForm } from './RoleForm';
 import { styles } from './styles';
 
@@ -176,6 +181,11 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
   const actions = useFamilyActions(userId);
   const [adding, setAdding] = useState(false);
   const [claimTarget, setClaimTarget] = useState<Person | null>(null);
+  const [membershipAction, setMembershipAction] = useState<{
+    kind: 'remove' | 'transfer';
+    personId: string;
+    expectedRole: FamilyRole;
+  } | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [roleTargetId, setRoleTargetId] = useState<string | null>(null);
@@ -187,6 +197,44 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
       </Text>
     );
   if (people.isError) return <LoadError retry={() => void people.refetch()} />;
+  const membershipTarget = people.data.find(
+    ({ person, role }) =>
+      person.id === membershipAction?.personId &&
+      (membershipAction.kind === 'remove'
+        ? canRemoveFamilyMember(family.role, role)
+        : canTransferFamilyOwnership(
+            family.role,
+            role,
+            person.user_id,
+            userId,
+          )),
+  );
+  if (membershipAction && membershipTarget)
+    return (
+      <View style={styles.card}>
+        <MembershipConfirmation
+          key={`${membershipAction.kind}:${membershipTarget.person.id}`}
+          kind={membershipAction.kind}
+          name={membershipTarget.person.display_name}
+          familyName={family.name}
+          values={{
+            familyId: family.id,
+            personId: membershipTarget.person.id,
+            expectedRole: membershipAction.expectedRole,
+          }}
+          onConfirm={
+            membershipAction.kind === 'remove'
+              ? actions.removeMember.mutateAsync
+              : actions.transferOwnership.mutateAsync
+          }
+          onCancel={() => {
+            setMembershipAction(null);
+            setSelectedPersonId(membershipTarget.person.id);
+          }}
+          onDone={() => setMembershipAction(null)}
+        />
+      </View>
+    );
   const roleTarget = people.data.find(
     ({ person, role }) =>
       person.id === roleTargetId &&
@@ -344,6 +392,43 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
                       </Text>
                     );
                   })}
+                {canRemoveFamilyMember(family.role, role) ? (
+                  <AppButton
+                    label={t('families.membership.removeTitle', {
+                      name: person.display_name,
+                    })}
+                    variant="secondary"
+                    onPress={() => {
+                      setSelectedPersonId(null);
+                      setMembershipAction({
+                        kind: 'remove',
+                        personId: person.id,
+                        expectedRole: role,
+                      });
+                    }}
+                  />
+                ) : null}
+                {canTransferFamilyOwnership(
+                  family.role,
+                  role,
+                  person.user_id,
+                  userId,
+                ) ? (
+                  <AppButton
+                    label={t('families.membership.transferTitle', {
+                      name: person.display_name,
+                    })}
+                    variant="secondary"
+                    onPress={() => {
+                      setSelectedPersonId(null);
+                      setMembershipAction({
+                        kind: 'transfer',
+                        personId: person.id,
+                        expectedRole: role,
+                      });
+                    }}
+                  />
+                ) : null}
                 {allowedFamilyRoles(family.role, role).length > 0 ? (
                   <AppButton
                     label={t('families.roleManagement.edit', {
@@ -410,7 +495,13 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
           canManage={canAdd}
           familyId={family.id}
           people={people.data}
-          relationships={relationships.data}
+          relationships={relationships.data.filter(
+            (link) =>
+              people.data.some(
+                ({ person }) => person.id === link.from_person_id,
+              ) &&
+              people.data.some(({ person }) => person.id === link.to_person_id),
+          )}
           onCreate={actions.createRelationship.mutateAsync}
           onDelete={actions.deleteRelationship.mutateAsync}
         />
