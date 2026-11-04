@@ -43,6 +43,39 @@ export const es = {
     spanish: 'Español',
     english: 'English',
   },
+  guide: {
+    label: 'Bienvenido a tu familia',
+    progress: 'Paso {{current}} de {{total}}',
+    next: 'Siguiente',
+    back: 'Atrás',
+    skip: 'Omitir por ahora',
+    start: 'Empezar',
+    tip: 'Para tener en cuenta',
+    help: 'Cómo usar la app',
+    revisit: 'Puedes volver a esta guía desde «Cómo usar la app».',
+    steps: {
+      welcome: {
+        title: 'Vamos paso a paso',
+        body: 'No necesitas configurar toda tu familia hoy. Empezaremos con lo básico para que sepas dónde ir.',
+        tip: 'Primero, tu perfil. Después, tu familia y sus vínculos.',
+      },
+      profile: {
+        title: 'Tu lugar en la familia',
+        body: 'Tu cuenta te permite iniciar sesión. Tu perfil de persona te representa dentro de todas tus familias.',
+        tip: 'Si alguien ya creó tu perfil, pídele un código y elige «{{claimAction}}». Así evitas crear uno duplicado.',
+      },
+      family: {
+        title: 'Empieza con los más cercanos',
+        body: 'Crea una familia y agrega a tus familiares. No necesitan una cuenta: puedes crearles un perfil gestionado con su nombre.',
+        tip: 'Si ya perteneces a una familia, selecciónala. Puedes cambiar de familia sin perder tu perfil.',
+      },
+      tree: {
+        title: 'Conecta tu árbol',
+        body: 'Los vínculos de padre/madre e hijo/a ordenan las generaciones. Las parejas tienen su propio vínculo. Los propietarios y administradores pueden agregarlos.',
+        tip: 'Toca una persona para ver su perfil. Toca el nombre de la familia para ver su información. Desliza hacia los lados para explorar el árbol.',
+      },
+    },
+  },
   families: {
     onboardingTitle: 'Tu perfil de persona',
     onboardingExplanation:

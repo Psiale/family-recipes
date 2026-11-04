@@ -74,6 +74,18 @@ The CI workflow runs frontend quality checks and, in a separate isolated local
 Supabase stack, applies every migration, executes the transactional SQL/RLS
 suite, and verifies that generated database types are current.
 
+## First-use guide
+
+After signing in, a four-step guide explains accounts versus person profiles,
+managed family members, and the family tree. Users can go back, change between
+Spanish and English, or skip at any step. Completion and skipping are remembered
+per account on the current device; reinstalling or using a new device can show
+it again. “How to use the app” on Home reopens the guide without clearing the
+current workspace or a draft form. Unavailable device storage never blocks entry.
+
+The tree navigation instructions accompany the visual family tree update in
+PR #7; ship those changes together. No server migration is needed.
+
 ## Step 3: people and families
 
 After signing in, create your Person or enter a claim code for an existing
