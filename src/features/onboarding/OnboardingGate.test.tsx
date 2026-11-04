@@ -15,20 +15,19 @@ jest.mock(
 jest.mock('@/lib/logger', () => ({ logger: { warn: jest.fn() } }));
 jest.useFakeTimers();
 
-function Workspace({ openHelp }: { openHelp: () => void }) {
+function Workspace() {
   const [count, setCount] = useState(0);
   return (
     <View>
       <Text>Workspace {count}</Text>
       <AppButton label="Edit draft" onPress={() => setCount(count + 1)} />
-      <AppButton label="Help" onPress={openHelp} />
     </View>
   );
 }
 function App({ userId = 'one' }: { userId?: string }) {
   return (
     <OnboardingGate userId={userId}>
-      {(openHelp) => <Workspace openHelp={openHelp} />}
+      <Workspace />
     </OnboardingGate>
   );
 }
@@ -68,7 +67,7 @@ it('guides a new account through four steps, supports back, and saves completion
   expect(screen.queryByText('Vamos paso a paso')).toBeNull();
 });
 
-it('remembers skipping and reopens Help without losing work underneath it', async () => {
+it('remembers skipping and preserves mounted workspace state', async () => {
   const user = userEvent.setup();
   await render(<App />);
   await user.press(
@@ -76,9 +75,7 @@ it('remembers skipping and reopens Help without losing work underneath it', asyn
   );
   expect(await AsyncStorage.getItem(guideStorageKey('one'))).toBe('seen');
   await user.press(screen.getByRole('button', { name: 'Edit draft' }));
-  await user.press(screen.getByRole('button', { name: 'Help' }));
-  expect(screen.getByText('Paso 1 de 4')).toBeOnTheScreen();
-  await user.press(screen.getByRole('button', { name: 'Omitir por ahora' }));
+  await screen.rerender(<App />);
   expect(screen.getByText('Workspace 1')).toBeOnTheScreen();
 });
 

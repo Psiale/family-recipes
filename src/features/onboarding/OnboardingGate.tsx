@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Text } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { colors } from '@/components/theme';
@@ -13,7 +12,7 @@ import { WelcomeGuide } from './components/WelcomeGuide';
 export const guideStorageKey = (userId: string) =>
   `family-recipes:welcome-guide:v1:${userId}`;
 
-type Props = { userId: string; children: (openHelp: () => void) => ReactNode };
+type Props = { userId: string; children: ReactNode };
 
 // Account changes remount the gate so another person's preference cannot leak
 // into this account, including while an earlier storage read is still pending.
@@ -26,7 +25,6 @@ function AccountGuide({ userId, children }: Props) {
   const [status, setStatus] = useState<'loading' | 'intro' | 'ready'>(
     'loading',
   );
-  const [helpOpen, setHelpOpen] = useState(false);
   useEffect(() => {
     let active = true;
     void AsyncStorage.getItem(guideStorageKey(userId))
@@ -43,7 +41,6 @@ function AccountGuide({ userId, children }: Props) {
 
   const finish = () => {
     setStatus('ready');
-    setHelpOpen(false);
     // The walkthrough is optional: storage failures must not block the app.
     void AsyncStorage.setItem(guideStorageKey(userId), 'seen').catch(() => {
       logger.warn('Unable to save welcome guide preference.');
@@ -59,20 +56,5 @@ function AccountGuide({ userId, children }: Props) {
       </Screen>
     );
   if (status === 'intro') return <WelcomeGuide onFinish={finish} />;
-  return (
-    <>
-      {children(() => setHelpOpen(true))}
-      {helpOpen ? (
-        <Modal
-          animationType="slide"
-          presentationStyle="pageSheet"
-          onRequestClose={finish}
-        >
-          <SafeAreaProvider>
-            <WelcomeGuide onFinish={finish} />
-          </SafeAreaProvider>
-        </Modal>
-      ) : null}
-    </>
-  );
+  return <>{children}</>;
 }

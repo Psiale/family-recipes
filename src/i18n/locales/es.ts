@@ -62,6 +62,14 @@ export const es = {
         'No pudimos cerrar la recuperación. Revisa tu conexión e inténtalo de nuevo.',
     },
   },
+  navigation: {
+    open: 'Abrir menú',
+    tree: 'Árbol familiar',
+    recipes: 'Recetas',
+    close: 'Cerrar menú',
+    recipesSoon:
+      'Aquí estarán las recetas de tu familia. Pronto podrás crear y consultar recetas.',
+  },
   home: {
     title: 'Inicio',
     welcome: 'Bienvenido a tu recetario',
@@ -83,7 +91,7 @@ export const es = {
     start: 'Empezar',
     tip: 'Para tener en cuenta',
     help: 'Cómo usar la app',
-    revisit: 'Puedes volver a esta guía desde «Cómo usar la app».',
+    revisit: 'Abre el menú y elige «Cómo usar la app» para volver a esta guía.',
     steps: {
       welcome: {
         title: 'Vamos paso a paso',
