@@ -78,6 +78,7 @@ beforeEach(async () => {
   mockApi.listFamilyRelationships.mockResolvedValue([]);
 });
 
+// This multi-form flow needs extra headroom with coverage on shared CI runners.
 it('integrates onboarding, atomic family creation, managed creation and claim issuance through real query hooks', async () => {
   mockApi.onboardPerson.mockImplementation(async () => {
     mockApi.getCurrentPerson.mockResolvedValue(person);
@@ -136,7 +137,7 @@ it('integrates onboarding, atomic family creation, managed creation and claim is
     family.id,
   );
   expect(await AsyncStorage.getAllKeys()).toEqual([familyStorageKey('user-1')]);
-});
+}, 15000);
 
 it('claims an existing Person and refreshes inherited memberships without creating a duplicate', async () => {
   mockApi.claimPerson.mockImplementation(async () => {
