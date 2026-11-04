@@ -7,6 +7,7 @@ import { Screen } from '@/components/Screen';
 import { colors, spacing } from '@/components/theme';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 import { FamilyWorkspace } from '@/features/families/components/FamilyWorkspace';
+import { OnboardingGate } from '@/features/onboarding/OnboardingGate';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -14,18 +15,27 @@ export default function HomeScreen() {
   const email = session?.user.email ?? '';
 
   return (
-    <Screen contentStyle={styles.screen}>
-      <View style={styles.card}>
-        <Text style={styles.body}>{t('home.signedInAs', { email })}</Text>
-      </View>
-      <FamilyWorkspace key={session!.user.id} userId={session!.user.id} />
-      <LanguageSwitcher />
-      <AppButton
-        label={t('auth.signOut')}
-        onPress={() => void signOut()}
-        variant="secondary"
-      />
-    </Screen>
+    <OnboardingGate userId={session!.user.id}>
+      {(openHelp) => (
+        <Screen contentStyle={styles.screen}>
+          <View style={styles.card}>
+            <Text style={styles.body}>{t('home.signedInAs', { email })}</Text>
+            <AppButton
+              label={t('guide.help')}
+              variant="secondary"
+              onPress={openHelp}
+            />
+          </View>
+          <FamilyWorkspace key={session!.user.id} userId={session!.user.id} />
+          <LanguageSwitcher />
+          <AppButton
+            label={t('auth.signOut')}
+            onPress={() => void signOut()}
+            variant="secondary"
+          />
+        </Screen>
+      )}
+    </OnboardingGate>
   );
 }
 

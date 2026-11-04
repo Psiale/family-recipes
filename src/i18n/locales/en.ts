@@ -74,6 +74,39 @@ export const en = {
     spanish: 'Español',
     english: 'English',
   },
+  guide: {
+    label: 'Welcome to your family',
+    progress: 'Step {{current}} of {{total}}',
+    next: 'Next',
+    back: 'Back',
+    skip: 'Skip for now',
+    start: 'Get started',
+    tip: 'Good to know',
+    help: 'How to use the app',
+    revisit: 'You can revisit this guide from “How to use the app”.',
+    steps: {
+      welcome: {
+        title: 'One step at a time',
+        body: 'You don’t need to set up your whole family today. We’ll cover the basics so you know where to go.',
+        tip: 'First, your profile. Then, your family and its connections.',
+      },
+      profile: {
+        title: 'Your place in the family',
+        body: 'Your account lets you sign in. Your person profile represents you across all your families.',
+        tip: 'If someone already created your profile, ask them for a code and choose “{{claimAction}}”. This avoids creating a duplicate.',
+      },
+      family: {
+        title: 'Start with those closest to you',
+        body: 'Create a family and add your relatives. They don’t need an account: you can create a managed profile with their name.',
+        tip: 'If you already belong to a family, select it. You can switch families without losing your profile.',
+      },
+      tree: {
+        title: 'Connect your tree',
+        body: 'Parent/child links organize the generations. Partners have their own connection. Owners and admins can add these relationships.',
+        tip: 'Tap a person to see their profile. Tap the family name to see its information. Swipe sideways to explore the tree.',
+      },
+    },
+  },
   families: {
     backToTree: 'Back to tree',
     openDetails: 'View details for {{name}}',

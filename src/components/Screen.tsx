@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { ComponentRef, PropsWithChildren, Ref } from 'react';
 import { ScrollView, StyleSheet, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,13 +6,15 @@ import { colors, spacing } from './theme';
 
 type ScreenProps = PropsWithChildren<{
   contentStyle?: ViewStyle;
+  scrollRef?: Ref<ComponentRef<typeof ScrollView>>;
 }>;
 
-export function Screen({ children, contentStyle }: ScreenProps) {
+export function Screen({ children, contentStyle, scrollRef }: ScreenProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <ScrollView
+      ref={scrollRef}
       contentContainerStyle={[
         styles.content,
         {
