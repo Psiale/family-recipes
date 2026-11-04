@@ -163,7 +163,9 @@ it('claims an existing Person and refreshes inherited memberships without creati
     'b'.repeat(64),
   );
   await user.press(screen.getByRole('button', { name: 'Vincular mi perfil' }));
-  expect(await screen.findByText('Hola, Abuela')).toBeOnTheScreen();
+  expect(
+    await screen.findByRole('button', { name: 'Mis familias' }),
+  ).toBeOnTheScreen();
   expect(await screen.findByText('Tu rol: Miembro')).toBeOnTheScreen();
   expect(mockApi.onboardPerson).not.toHaveBeenCalled();
   expect(
@@ -231,6 +233,9 @@ it('switches families with isolated member queries and persists the selection', 
   ]);
   const { user } = await setup();
   expect(await screen.findAllByText('Primera persona')).toHaveLength(1);
+  expect(screen.queryByRole('button', { name: second.name })).toBeNull();
+  expect(screen.queryByText('Hola, Alex')).toBeNull();
+  await user.press(screen.getByRole('button', { name: 'Mis familias' }));
   await user.press(screen.getByRole('button', { name: second.name }));
   expect(await screen.findAllByText('Segunda persona')).toHaveLength(1);
   expect(screen.queryByText('Primera persona')).not.toBeOnTheScreen();
@@ -600,7 +605,6 @@ it.each(['OWNER', 'READ_ONLY'] as const)(
     mockApi.listFamilyBranches.mockResolvedValue([
       { ...branch, branch_memberships: [{ person_id: managed.id }] },
     ]);
-    // The dashboard has a separate refresh control; use the branch screen's.
     await user.press(
       screen.getAllByRole('button', { name: 'Actualizar familias' }).at(-1)!,
     );
@@ -626,3 +630,49 @@ it.each(['OWNER', 'READ_ONLY'] as const)(
     }
   },
 );
+
+it('closes the family picker without changing selection and creates a family from it', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family]);
+  mockApi.createFamily.mockImplementation(async () => {
+    mockApi.listFamilies.mockResolvedValue([family, second]);
+    return second.id;
+  });
+  const { user } = await setup();
+  await user.press(await screen.findByRole('button', { name: 'Mis familias' }));
+  expect(
+    screen.getByRole('button', { name: family.name, selected: true }),
+  ).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: 'Volver al árbol' }));
+  expect(screen.queryByRole('button', { name: 'Crear familia' })).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'Ver detalles de Familia Uno' }),
+  ).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: 'Mis familias' }));
+  await user.press(screen.getByRole('button', { name: 'Crear familia' }));
+  await user.type(screen.getByLabelText('Nombre de la familia'), 'Familia Dos');
+  await user.press(screen.getByRole('button', { name: 'Crear familia' }));
+  expect(
+    await screen.findByRole('button', { name: 'Ver detalles de Familia Dos' }),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole('button', { name: 'Crear familia' })).toBeNull();
+  expect(await AsyncStorage.getItem(familyStorageKey('user-1'))).toBe(
+    second.id,
+  );
+});
+
+it('keeps family switching available when the selected family cannot load people', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([family, second]);
+  mockApi.listFamilyPeople.mockImplementation(async (_user, id) => {
+    if (id === family.id) throw new Error('network');
+    return [];
+  });
+  const { user } = await setup();
+  await screen.findByRole('alert');
+  await user.press(screen.getByRole('button', { name: 'Mis familias' }));
+  await user.press(screen.getByRole('button', { name: second.name }));
+  expect(
+    await screen.findByRole('button', { name: 'Ver detalles de Familia Dos' }),
+  ).toBeOnTheScreen();
+});

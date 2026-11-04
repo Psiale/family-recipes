@@ -162,7 +162,7 @@ export const es = {
     welcome: 'Hola, {{name}}',
     identityExplanation:
       'Tu perfil es el mismo en todas tus familias. Cambiar de familia no cambia a quién pertenece una receta.',
-    yourFamilies: 'Tus familias',
+    yourFamilies: 'Mis familias',
     noFamilies:
       'Aún no perteneces a una familia. Crea la primera para empezar.',
     createFamily: 'Crear familia',

@@ -163,7 +163,7 @@ export const en = {
     welcome: 'Hello, {{name}}',
     identityExplanation:
       'Your profile is the same across all your families. Switching families does not change who owns a recipe.',
-    yourFamilies: 'Your families',
+    yourFamilies: 'My families',
     noFamilies:
       'You do not belong to a family yet. Create your first one to begin.',
     createFamily: 'Create family',
