@@ -12,7 +12,7 @@ import { useSession } from '@/features/auth/providers/SessionProvider';
 export default function SignInScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { signIn } = useSession();
+  const { signIn, startPasswordRecovery } = useSession();
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -23,6 +23,11 @@ export default function SignInScreen() {
         <Text style={styles.subtitle}>{t('auth.signInSubtitle')}</Text>
       </View>
       <SignInForm onSignIn={({ email, password }) => signIn(email, password)} />
+      <AppButton
+        label={t('auth.recovery.forgot')}
+        onPress={startPasswordRecovery}
+        variant="secondary"
+      />
       <AppButton
         label={t('auth.needAccount')}
         onPress={() => router.push('/sign-up')}

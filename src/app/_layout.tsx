@@ -55,7 +55,7 @@ function SessionQueries() {
 }
 
 export function RootNavigator() {
-  const { isLoading, session } = useSession();
+  const { isLoading, session, recoveryMode } = useSession();
 
   useEffect(() => {
     if (!isLoading) {
@@ -69,12 +69,15 @@ export function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={Boolean(session)}>
+      <Stack.Protected guard={Boolean(session) && !recoveryMode}>
         <Stack.Screen name="(app)" />
       </Stack.Protected>
-      <Stack.Protected guard={!session}>
+      <Stack.Protected guard={!session && !recoveryMode}>
         <Stack.Screen name="sign-in" />
         <Stack.Screen name="sign-up" />
+      </Stack.Protected>
+      <Stack.Protected guard={Boolean(recoveryMode)}>
+        <Stack.Screen name="password-recovery" />
       </Stack.Protected>
     </Stack>
   );

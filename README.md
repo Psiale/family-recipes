@@ -101,3 +101,23 @@ Family selection is saved per account on the device and checked against active
 memberships. In-memory queries are discarded on account changes/sign-out.
 General family invitations, role administration, branches, and recipes remain
 outside this slice.
+
+## Password recovery
+
+Use **Forgot password? / ¿Olvidaste tu contraseña?** on the sign-in screen.
+Request the email from the installed app and open the newest link on that same
+device. Recovery uses Supabase Auth with PKCE and the existing
+`familyrecipes:///sign-in` callback; no database migration or new email provider
+is required. Email delivery is subject to the hosted Auth SMTP settings and limits.
+
+The app shows the new-password form only after a verified recovery session,
+resumes unfinished recovery after an app restart, and handles expired or reused
+links. Canceling verified recovery signs out that device. Passwords and one-time
+codes are never logged or stored by the recovery UI; the only UI progress marker
+is the recovering user's ID, alongside the SDK's existing session/PKCE storage.
+Recovery preserves the account, Person, family memberships, and recipe ownership.
+
+`npm run test:integration` captures a recovery email in local Mailpit and verifies
+PKCE exchange, recovery events, wrong-device denial, single-use codes, password
+updates, and login with the new password using a disposable account. It never
+sends a real user's recovery email or changes a real user's password.
