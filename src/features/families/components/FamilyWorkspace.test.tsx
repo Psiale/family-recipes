@@ -11,6 +11,10 @@ import { familyStorageKey } from '../useFamilySelection';
 import { FamilyWorkspace } from './FamilyWorkspace';
 
 jest.mock('../api');
+jest.mock(
+  'react-native-safe-area-context',
+  () => jest.requireActual('react-native-safe-area-context/jest/mock').default,
+);
 jest.useFakeTimers();
 const mockApi = jest.mocked(api);
 const person: api.Person = {
@@ -24,12 +28,16 @@ const person: api.Person = {
   updated_at: '',
 };
 const family: api.Family = {
+  created_at: '2026-11-03T12:00:00Z',
+  created_by_user_id: 'user-1',
   id: 'family-1',
   name: 'Familia Uno',
   description: null,
   role: 'OWNER',
 };
 const second: api.Family = {
+  created_at: '2026-11-03T12:00:00Z',
+  created_by_user_id: 'user-2',
   id: 'family-2',
   name: 'Familia Dos',
   description: null,
@@ -107,10 +115,13 @@ it('integrates onboarding, atomic family creation, managed creation and claim is
   await user.press(screen.getByRole('button', { name: 'Agregar persona' }));
   await user.type(screen.getByLabelText('Nombre de la persona'), 'Abuela');
   await user.press(screen.getByRole('button', { name: 'Agregar persona' }));
-  expect(await screen.findAllByText('Abuela')).toHaveLength(2);
+  expect(await screen.findAllByText('Abuela')).toHaveLength(1);
   expect(mockApi.createManagedPerson).toHaveBeenCalledWith(
     { name: 'Abuela', description: '', familyId: family.id },
     expect.anything(),
+  );
+  await user.press(
+    screen.getByRole('button', { name: 'Ver perfil de Abuela' }),
   );
   await user.press(
     screen.getByRole('button', { name: 'Vincular cuenta de Abuela' }),
@@ -214,9 +225,9 @@ it('switches families with isolated member queries and persists the selection', 
     },
   ]);
   const { user } = await setup();
-  expect(await screen.findAllByText('Primera persona')).toHaveLength(2);
+  expect(await screen.findAllByText('Primera persona')).toHaveLength(1);
   await user.press(screen.getByRole('button', { name: second.name }));
-  expect(await screen.findAllByText('Segunda persona')).toHaveLength(2);
+  expect(await screen.findAllByText('Segunda persona')).toHaveLength(1);
   expect(screen.queryByText('Primera persona')).not.toBeOnTheScreen();
   expect(await AsyncStorage.getItem(familyStorageKey('user-1'))).toBe(
     second.id,
@@ -257,7 +268,7 @@ it('hides managed-person writes for read-only users and claim issuance without a
     { person: managed, role: 'MEMBER', canIssueClaim: false },
   ]);
   await setup();
-  expect(await screen.findAllByText('Abuela')).toHaveLength(2);
+  expect(await screen.findAllByText('Abuela')).toHaveLength(1);
   expect(
     screen.queryByRole('button', { name: 'Agregar persona' }),
   ).not.toBeOnTheScreen();
@@ -289,7 +300,7 @@ it('keeps family people available when only the tree query fails', async () => {
 
   await setup();
 
-  expect(await screen.findByText('Personas de la familia')).toBeOnTheScreen();
+  expect(await screen.findByText('Árbol familiar')).toBeOnTheScreen();
   expect(screen.getAllByText('Abuela')).toHaveLength(1);
   expect(
     screen.getByText(
@@ -328,6 +339,9 @@ it('lets an owner promote a family member and refreshes their displayed role', a
   });
   const { user } = await setup();
   await user.press(
+    await screen.findByRole('button', { name: 'View profile for Abuela' }),
+  );
+  await user.press(
     await screen.findByRole('button', { name: 'Change role for Abuela' }),
   );
   expect(
@@ -335,6 +349,9 @@ it('lets an owner promote a family member and refreshes their displayed role', a
   ).toBeNull();
   await user.press(screen.getByRole('button', { name: 'Admin' }));
   await user.press(screen.getByRole('button', { name: 'Save role' }));
+  await user.press(
+    await screen.findByRole('button', { name: 'View profile for Abuela' }),
+  );
   await screen.findByText('Admin · Managed profile');
   expect(mockApi.changeFamilyRole).toHaveBeenCalledWith(
     {
@@ -362,6 +379,9 @@ it('limits admin controls to ordinary members and rejects a stale edit visibly',
   ]);
   mockApi.changeFamilyRole.mockRejectedValue({ code: 'PT409' });
   const { user } = await setup();
+  await user.press(
+    await screen.findByRole('button', { name: 'View profile for Abuela' }),
+  );
   await screen.findByRole('button', { name: 'Change role for Abuela' });
   expect(
     screen.queryByRole('button', { name: 'Change role for Alex' }),
@@ -389,10 +409,44 @@ it.each(['MEMBER', 'READ_ONLY'] as const)(
     mockApi.listFamilyPeople.mockResolvedValue([
       { person: managed, role: 'MEMBER', canIssueClaim: false },
     ]);
-    await setup();
+    const { user } = await setup();
+    await user.press(
+      await screen.findByRole('button', { name: 'View profile for Abuela' }),
+    );
     await screen.findByText('Member · Managed profile');
     expect(
       screen.queryByRole('button', { name: 'Change role for Abuela' }),
     ).toBeNull();
   },
 );
+
+it('opens family metadata separately from a person profile and returns to the tree', async () => {
+  mockApi.getCurrentPerson.mockResolvedValue(person);
+  mockApi.listFamilies.mockResolvedValue([
+    { ...family, description: 'Nuestra historia' },
+  ]);
+  mockApi.listFamilyPeople.mockResolvedValue([
+    { person, role: 'OWNER', canIssueClaim: false },
+    {
+      person: { ...managed, biography: 'Su historia' },
+      role: 'MEMBER',
+      canIssueClaim: true,
+    },
+  ]);
+  const { user } = await setup();
+  await user.press(
+    await screen.findByRole('button', { name: 'Ver detalles de Familia Uno' }),
+  );
+  expect(screen.getByText('Creada por: Alex')).toBeOnTheScreen();
+  expect(screen.getByText('Nuestra historia')).toBeOnTheScreen();
+  expect(screen.getByText('Personas: 2')).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: 'Volver al árbol' }));
+  await user.press(
+    screen.getByRole('button', { name: 'Ver perfil de Abuela' }),
+  );
+  expect(screen.getByText('Su historia')).toBeOnTheScreen();
+  expect(screen.getByText('Miembro · Perfil gestionado')).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: 'Volver al árbol' }));
+  expect(screen.queryByText('Su historia')).not.toBeOnTheScreen();
+  expect(screen.getByText('Árbol familiar')).toBeOnTheScreen();
+});

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 
@@ -17,6 +17,7 @@ import { useFamilySelection } from '../useFamilySelection';
 
 import { ClaimForm } from './ClaimForm';
 import { DetailsForm } from './DetailsForm';
+import { DetailsSheet } from './DetailsSheet';
 import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
 import { RoleForm } from './RoleForm';
@@ -169,12 +170,14 @@ function FamilyDashboard({
 }
 
 function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const people = useFamilyPeople(userId, family.id);
   const relationships = useFamilyRelationships(userId, family.id);
   const actions = useFamilyActions(userId);
   const [adding, setAdding] = useState(false);
   const [claimTarget, setClaimTarget] = useState<Person | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [roleTargetId, setRoleTargetId] = useState<string | null>(null);
   const canAdd = family.role === 'OWNER' || family.role === 'ADMIN';
   if (people.isPending)
@@ -249,50 +252,126 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
     );
   return (
     <View style={styles.card}>
-      <Text role="heading" style={styles.title}>
-        {family.name}
-      </Text>
-      {family.description ? (
-        <Text style={styles.body}>{family.description}</Text>
-      ) : null}
+      <Pressable
+        role="button"
+        accessibilityLabel={t('families.openDetails', { name: family.name })}
+        onPress={() => setDetailsOpen(true)}
+        style={styles.familyHeading}
+      >
+        <Text style={styles.title}>{family.name}</Text>
+        <Text style={styles.personNodeMeta}>{t('families.viewDetails')}</Text>
+      </Pressable>
       <Text style={styles.body}>
         {t('families.yourRole', { role: t(`families.roles.${family.role}`) })}
       </Text>
-      <Text role="heading" style={styles.subtitle}>
-        {t('families.people')}
-      </Text>
-      {people.data.map(({ person, role, canIssueClaim }) => (
-        <View style={styles.stack} key={person.id}>
-          <Text style={styles.subtitle}>{person.display_name}</Text>
+      {detailsOpen ? (
+        <DetailsSheet title={family.name} onClose={() => setDetailsOpen(false)}>
+          {family.description ? (
+            <Text style={styles.body}>{family.description}</Text>
+          ) : null}
           <Text style={styles.body}>
-            {t('families.personSummary', {
-              role: t(`families.roles.${role}`),
-              status: t(
-                person.user_id ? 'families.linked' : 'families.managed',
-              ),
+            {t('families.createdBy', {
+              name:
+                people.data.find(
+                  ({ person }) => person.user_id === family.created_by_user_id,
+                )?.person.display_name ?? t('families.unavailableCreator'),
             })}
           </Text>
-          {person.biography ? (
-            <Text style={styles.body}>{person.biography}</Text>
-          ) : null}
-          {allowedFamilyRoles(family.role, role).length > 0 ? (
-            <AppButton
-              label={t('families.roleManagement.edit', {
-                name: person.display_name,
+          {family.created_at &&
+          Number.isFinite(Date.parse(family.created_at)) ? (
+            <Text style={styles.body}>
+              {t('families.createdOn', {
+                date: new Date(family.created_at).toLocaleDateString(
+                  i18n.language,
+                ),
               })}
-              variant="secondary"
-              onPress={() => setRoleTargetId(person.id)}
-            />
+            </Text>
           ) : null}
-          {canIssueClaim ? (
-            <AppButton
-              label={t('families.claimFor', { name: person.display_name })}
-              variant="secondary"
-              onPress={() => setClaimTarget(person)}
-            />
-          ) : null}
-        </View>
-      ))}
+          <Text style={styles.body}>
+            {t('families.memberCount', { count: people.data.length })}
+          </Text>
+          <Text style={styles.body}>
+            {t('families.yourRole', {
+              role: t(`families.roles.${family.role}`),
+            })}
+          </Text>
+        </DetailsSheet>
+      ) : null}
+      {selectedPersonId &&
+      people.data.some(({ person }) => person.id === selectedPersonId) ? (
+        <DetailsSheet
+          title={t('families.personDetails')}
+          onClose={() => setSelectedPersonId(null)}
+        >
+          {people.data
+            .filter(({ person }) => person.id === selectedPersonId)
+            .map(({ person, role, canIssueClaim }) => (
+              <View style={styles.stack} key={person.id}>
+                <Text style={styles.subtitle}>{person.display_name}</Text>
+                <Text style={styles.body}>
+                  {t('families.personSummary', {
+                    role: t(`families.roles.${role}`),
+                    status: t(
+                      person.user_id ? 'families.linked' : 'families.managed',
+                    ),
+                  })}
+                </Text>
+                {person.biography ? (
+                  <Text style={styles.body}>{person.biography}</Text>
+                ) : null}
+                {(relationships.data ?? [])
+                  .filter(
+                    (link) =>
+                      link.from_person_id === person.id ||
+                      link.to_person_id === person.id,
+                  )
+                  .map((link) => {
+                    const from = people.data.find(
+                      (entry) => entry.person.id === link.from_person_id,
+                    )?.person.display_name;
+                    const to = people.data.find(
+                      (entry) => entry.person.id === link.to_person_id,
+                    )?.person.display_name;
+                    if (!from || !to) return null;
+                    return (
+                      <Text key={link.id} style={styles.body}>
+                        {t(
+                          link.kind === 'PARTNER'
+                            ? 'families.tree.partnerLink'
+                            : 'families.tree.parentLink',
+                          { from, to },
+                        )}
+                      </Text>
+                    );
+                  })}
+                {allowedFamilyRoles(family.role, role).length > 0 ? (
+                  <AppButton
+                    label={t('families.roleManagement.edit', {
+                      name: person.display_name,
+                    })}
+                    variant="secondary"
+                    onPress={() => {
+                      setSelectedPersonId(null);
+                      setRoleTargetId(person.id);
+                    }}
+                  />
+                ) : null}
+                {canIssueClaim ? (
+                  <AppButton
+                    label={t('families.claimFor', {
+                      name: person.display_name,
+                    })}
+                    variant="secondary"
+                    onPress={() => {
+                      setSelectedPersonId(null);
+                      setClaimTarget(person);
+                    }}
+                  />
+                ) : null}
+              </View>
+            ))}
+        </DetailsSheet>
+      ) : null}
       {canAdd ? (
         <AppButton
           label={t('families.addPerson')}
@@ -308,6 +387,14 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
           <Text role="heading" style={styles.subtitle}>
             {t('families.tree.title')}
           </Text>
+          {people.data.map(({ person }) => (
+            <AppButton
+              key={person.id}
+              label={person.display_name}
+              variant="secondary"
+              onPress={() => setSelectedPersonId(person.id)}
+            />
+          ))}
           <Text role="alert" style={styles.error}>
             {t('families.tree.errors.load')}
           </Text>
@@ -319,6 +406,7 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
         </View>
       ) : (
         <FamilyTree
+          onSelectPerson={setSelectedPersonId}
           canManage={canAdd}
           familyId={family.id}
           people={people.data}

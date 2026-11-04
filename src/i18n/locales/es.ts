@@ -44,6 +44,15 @@ export const es = {
     english: 'English',
   },
   families: {
+    backToTree: 'Volver al árbol',
+    openDetails: 'Ver detalles de {{name}}',
+    viewDetails: 'Ver información de la familia ›',
+    createdBy: 'Creada por: {{name}}',
+    unavailableCreator: 'Perfil no disponible',
+    createdOn: 'Fecha de creación: {{date}}',
+    memberCount: 'Personas: {{count}}',
+    personDetails: 'Perfil de la persona',
+
     onboardingTitle: 'Tu perfil de persona',
     onboardingExplanation:
       'Tu cuenta sirve para iniciar sesión. Tu perfil identifica a la persona a quien pertenecen sus recetas. Si alguien ya creó tu perfil, usa su código en lugar de crear otro.',
@@ -112,6 +121,11 @@ export const es = {
       },
     },
     tree: {
+      hint: 'Toca una persona para ver su perfil. Desliza hacia los lados para explorar.',
+      parentLegend: '━ Padre/madre → hijo/a',
+      partnerLegend: '┄ Pareja',
+      openPerson: 'Ver perfil de {{name}}',
+
       title: 'Árbol familiar',
       explanation:
         'Organiza los parentescos de esta familia. El árbol muestra cada generación y conserva los vínculos de pareja.',

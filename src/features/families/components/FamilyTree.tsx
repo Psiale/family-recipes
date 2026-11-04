@@ -1,57 +1,27 @@
-import { useMemo, useState } from 'react';
+import { type ComponentRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { colors } from '@/components/theme';
 
 import type {
   FamilyPerson,
   FamilyRelationship,
   RelationshipValues,
 } from '../api';
+import { AVATAR_SIZE, layoutFamilyTree } from '../treeLayout';
 
 import { RelationshipForm } from './RelationshipForm';
 import { styles } from './styles';
 
-export function buildTreeGenerations(
-  people: FamilyPerson[],
-  relationships: FamilyRelationship[],
-) {
-  const parentLinks = relationships.filter(
-    ({ kind }) => kind === 'PARENT_CHILD',
-  );
-  const childIds = new Set(parentLinks.map(({ to_person_id }) => to_person_id));
-  const generations = new Map<string, number>();
-
-  people.forEach(({ person }) => {
-    if (!childIds.has(person.id)) generations.set(person.id, 0);
-  });
-
-  for (let pass = 0; pass < people.length; pass += 1) {
-    let changed = false;
-    parentLinks.forEach(({ from_person_id, to_person_id }) => {
-      const parentGeneration = generations.get(from_person_id);
-      if (parentGeneration === undefined) return;
-      const nextGeneration = parentGeneration + 1;
-      if ((generations.get(to_person_id) ?? -1) < nextGeneration) {
-        generations.set(to_person_id, nextGeneration);
-        changed = true;
-      }
-    });
-    if (!changed) break;
-  }
-
-  people.forEach(({ person }) => {
-    if (!generations.has(person.id)) generations.set(person.id, 0);
-  });
-
-  const grouped = new Map<number, FamilyPerson[]>();
-  people.forEach((entry) => {
-    const generation = generations.get(entry.person.id) ?? 0;
-    grouped.set(generation, [...(grouped.get(generation) ?? []), entry]);
-  });
-  return [...grouped.entries()].sort(([left], [right]) => left - right);
-}
+export { buildTreeGenerations } from '../treeLayout';
 
 export function FamilyTree({
   canManage,
@@ -60,7 +30,9 @@ export function FamilyTree({
   relationships,
   onCreate,
   onDelete,
+  onSelectPerson,
 }: {
+  onSelectPerson?: (personId: string) => void;
   canManage: boolean;
   familyId: string;
   people: FamilyPerson[];
@@ -69,16 +41,27 @@ export function FamilyTree({
   onDelete: (relationshipId: string) => Promise<unknown>;
 }) {
   const { t } = useTranslation();
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const { fontScale } = useWindowDimensions();
+  const [showRelationships, setShowRelationships] = useState(false);
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const peopleById = useMemo(
     () => new Map(people.map(({ person }) => [person.id, person])),
     [people],
   );
-  const generations = useMemo(
-    () => buildTreeGenerations(people, relationships),
-    [people, relationships],
+  const layout = useMemo(
+    () => layoutFamilyTree(people, relationships, fontScale, viewportWidth),
+    [people, relationships, fontScale, viewportWidth],
   );
+  useEffect(() => {
+    if (viewportWidth > 0)
+      scrollRef.current?.scrollTo({
+        x: Math.max(0, (layout.width - viewportWidth) / 2),
+        animated: false,
+      });
+  }, [layout.width, viewportWidth, adding]);
   const parentsByChild = useMemo(() => {
     const result = new Map<string, string[]>();
     relationships
@@ -138,43 +121,111 @@ export function FamilyTree({
       {relationships.length === 0 ? (
         <Text style={styles.body}>{t('families.tree.empty')}</Text>
       ) : null}
-      <View accessibilityLabel={t('families.tree.title')} style={styles.tree}>
-        {generations.map(([generation, entries], index) => (
-          <View key={generation} style={styles.generation}>
-            {index > 0 ? <View style={styles.treeConnector} /> : null}
-            <Text style={styles.generationLabel}>
-              {t('families.tree.generation', { number: generation + 1 })}
-            </Text>
-            <View style={styles.treeRow}>
-              {entries.map(({ person }) => {
-                const parents = parentsByChild.get(person.id) ?? [];
-                const partners = partnersByPerson.get(person.id) ?? [];
-                return (
-                  <View key={person.id} style={styles.personNode}>
-                    <Text style={styles.personNodeName}>
-                      {person.display_name}
-                    </Text>
-                    {parents.length ? (
-                      <Text style={styles.personNodeMeta}>
-                        {t('families.tree.parents', {
-                          names: parents.join(', '),
-                        })}
-                      </Text>
-                    ) : null}
-                    {partners.length ? (
-                      <Text style={styles.personNodeMeta}>
-                        {t('families.tree.partners', {
-                          names: partners.join(', '),
-                        })}
-                      </Text>
-                    ) : null}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ))}
+      <Text style={styles.body}>{t('families.tree.hint')}</Text>
+      <View style={styles.treeLegend}>
+        <Text style={styles.personNodeMeta}>
+          {t('families.tree.parentLegend')}
+        </Text>
+        <Text style={styles.personNodeMeta}>
+          {t('families.tree.partnerLegend')}
+        </Text>
       </View>
+      <ScrollView
+        horizontal
+        ref={scrollRef}
+        onLayout={(event) => setViewportWidth(event.nativeEvent.layout.width)}
+        style={styles.treeCanvas}
+        accessibilityLabel={t('families.tree.title')}
+      >
+        <View style={{ width: layout.width, height: layout.height }}>
+          <View
+            pointerEvents="none"
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            style={styles.edgeLayer}
+          >
+            {layout.edges.map(({ relationship, points }) => (
+              <View
+                key={relationship.id}
+                testID={`tree-edge-${relationship.id}`}
+              >
+                {points.slice(1).map(([x2, y2], index) => {
+                  const [x1, y1] = points[index]!;
+                  const partner = relationship.kind === 'PARTNER';
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        left: Math.min(x1, x2),
+                        top: Math.min(y1, y2),
+                        width: Math.max(2, Math.abs(x2 - x1)),
+                        height: Math.max(2, Math.abs(y2 - y1)),
+                        borderColor: partner ? colors.partner : colors.primary,
+                        borderStyle: partner ? 'dashed' : 'solid',
+                        ...(x1 === x2
+                          ? { borderLeftWidth: 2 }
+                          : { borderTopWidth: 2 }),
+                      }}
+                    />
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+          {layout.nodes.map(({ person, generation, x, y }) => (
+            <Pressable
+              key={person.id}
+              role="button"
+              accessibilityLabel={t('families.tree.openPerson', {
+                name: person.display_name,
+              })}
+              accessibilityHint={[
+                t('families.tree.generation', { number: generation + 1 }),
+                parentsByChild.has(person.id)
+                  ? t('families.tree.parents', {
+                      names: parentsByChild.get(person.id)!.join(', '),
+                    })
+                  : '',
+                partnersByPerson.has(person.id)
+                  ? t('families.tree.partners', {
+                      names: partnersByPerson.get(person.id)!.join(', '),
+                    })
+                  : '',
+              ]
+                .filter(Boolean)
+                .join('. ')}
+              onPress={() => onSelectPerson?.(person.id)}
+              style={({ pressed }) => [
+                styles.treeNode,
+                {
+                  left: x,
+                  top: y,
+                  width: layout.nodeWidth,
+                  height: layout.nodeHeight,
+                  opacity: pressed ? 0.65 : 1,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.avatar,
+                  { width: AVATAR_SIZE, height: AVATAR_SIZE },
+                ]}
+              >
+                <Text style={styles.initial} maxFontSizeMultiplier={1.4}>
+                  {Array.from(
+                    person.display_name.trim(),
+                  )[0]?.toLocaleUpperCase() ?? '?'}
+                </Text>
+              </View>
+              <Text numberOfLines={2} style={styles.nodeName}>
+                {person.display_name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
       {canManage && people.length >= 2 ? (
         <AppButton
           label={t('families.tree.add')}
@@ -182,6 +233,14 @@ export function FamilyTree({
         />
       ) : null}
       {canManage && relationships.length ? (
+        <AppButton
+          label={t('families.tree.relationships')}
+          variant="secondary"
+          onPress={() => setShowRelationships(!showRelationships)}
+          accessibilityState={{ expanded: showRelationships }}
+        />
+      ) : null}
+      {canManage && showRelationships && relationships.length ? (
         <View style={styles.stack}>
           <Text style={styles.fieldLabel}>
             {t('families.tree.relationships')}
