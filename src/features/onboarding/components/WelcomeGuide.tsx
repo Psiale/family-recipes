@@ -1,6 +1,13 @@
-import { useState } from 'react';
+import { type ComponentRef, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -12,11 +19,28 @@ const steps = ['welcome', 'profile', 'family', 'tree'] as const;
 export function WelcomeGuide({ onFinish }: { onFinish: () => void }) {
   const { t } = useTranslation();
   const [index, setIndex] = useState(0);
+  const headingRef = useRef<ComponentRef<typeof Text>>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const previousIndex = useRef(index);
+
+  useEffect(() => {
+    if (previousIndex.current === index) return;
+    previousIndex.current = index;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    // Wait for the updated native text/layout before moving screen-reader focus.
+    const frame = requestAnimationFrame(() => {
+      const heading = headingRef.current;
+      if (!heading) return;
+      if (Platform.OS === 'web') heading.focus();
+      else AccessibilityInfo.sendAccessibilityEvent(heading, 'focus');
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [index]);
   const step = steps[index]!;
   const last = index === steps.length - 1;
 
   return (
-    <Screen contentStyle={styles.screen} key={step}>
+    <Screen contentStyle={styles.screen} scrollRef={scrollRef}>
       <View style={styles.header}>
         <Text style={styles.eyebrow}>{t('guide.label')}</Text>
         <Text style={styles.progress}>
@@ -46,8 +70,10 @@ export function WelcomeGuide({ onFinish }: { onFinish: () => void }) {
           </Text>
         </View>
         <Text
+          ref={headingRef}
+          accessible
           role="heading"
-          accessibilityLiveRegion="polite"
+          {...(Platform.OS === 'web' ? { tabIndex: -1 } : {})}
           style={styles.title}
         >
           {t(`guide.steps.${step}.title`)}
