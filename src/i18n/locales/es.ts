@@ -30,6 +30,37 @@ export const es = {
     existingAccount:
       'Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña.',
     signUpGenericError: 'No pudimos crear tu cuenta. Inténtalo de nuevo.',
+    recovery: {
+      forgot: '¿Olvidaste tu contraseña?',
+      title: 'Restablece tu contraseña',
+      instructions:
+        'Ingresa el correo de tu cuenta. Solicita el enlace aquí y ábrelo en este mismo dispositivo. Usa solo el correo más reciente.',
+      send: 'Enviar correo de recuperación',
+      sent: 'Si existe una cuenta con este correo, recibirás un enlace de recuperación. Revisa tu bandeja de entrada y spam. Abre el enlace más reciente en este dispositivo.',
+      sendError:
+        'No pudimos solicitar el correo. Revisa tu conexión o espera unos minutos antes de intentarlo de nuevo.',
+      newTitle: 'Elige una nueva contraseña',
+      newPassword: 'Nueva contraseña',
+      newInstructions:
+        'Usa al menos 8 caracteres y confirma tu nueva contraseña.',
+      save: 'Guardar nueva contraseña',
+      updateError:
+        'No pudimos actualizar tu contraseña. Revisa tu conexión. Si el enlace venció, cancela y solicita un nuevo correo.',
+      samePassword: 'Elige una contraseña distinta de la actual.',
+      weakPassword:
+        'La contraseña no cumple los requisitos de seguridad. Elige una más segura.',
+      invalidTitle: 'No se pudo verificar este enlace',
+      invalid:
+        'El enlace puede haber vencido, ya haberse usado o haberse solicitado en otro dispositivo. Solicita un nuevo correo desde este dispositivo.',
+      sendAnother: 'Solicitar un nuevo correo',
+      completeTitle: 'Contraseña actualizada',
+      complete:
+        'Tu nueva contraseña está guardada. Tu cuenta, perfil y datos familiares siguen intactos.',
+      continue: 'Continuar a mis familias',
+      cancel: 'Cancelar y volver',
+      cancelError:
+        'No pudimos cerrar la recuperación. Revisa tu conexión e inténtalo de nuevo.',
+    },
   },
   home: {
     title: 'Inicio',
@@ -77,6 +108,15 @@ export const es = {
     },
   },
   families: {
+    backToTree: 'Volver al árbol',
+    openDetails: 'Ver detalles de {{name}}',
+    viewDetails: 'Ver información de la familia ›',
+    createdBy: 'Creada por: {{name}}',
+    unavailableCreator: 'Perfil no disponible',
+    createdOn: 'Fecha de creación: {{date}}',
+    memberCount: 'Personas: {{count}}',
+    personDetails: 'Perfil de la persona',
+
     onboardingTitle: 'Tu perfil de persona',
     onboardingExplanation:
       'Tu cuenta sirve para iniciar sesión. Tu perfil identifica a la persona a quien pertenecen sus recetas. Si alguien ya creó tu perfil, usa su código en lugar de crear otro.',
@@ -145,6 +185,11 @@ export const es = {
       },
     },
     tree: {
+      hint: 'Toca una persona para ver su perfil. Desliza hacia los lados para explorar.',
+      parentLegend: '━ Padre/madre → hijo/a',
+      partnerLegend: '┄ Pareja',
+      openPerson: 'Ver perfil de {{name}}',
+
       title: 'Árbol familiar',
       explanation:
         'Organiza los parentescos de esta familia. El árbol muestra cada generación y conserva los vínculos de pareja.',

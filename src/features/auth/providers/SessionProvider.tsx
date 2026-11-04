@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
 import * as ExpoLinking from 'expo-linking';
 import type { PropsWithChildren } from 'react';
@@ -7,12 +8,17 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
 
 import { logger } from '@/lib/logger';
 import { getSupabaseClient } from '@/lib/supabase/client';
+
+import { readAuthCallback, recoveryStorageKey } from '../recovery';
+
+export type RecoveryMode = 'request' | 'update' | 'invalid' | 'complete' | null;
 
 export type SignUpResult = {
   status: 'confirmationRequired' | 'existingAccount' | 'signedIn';
@@ -23,6 +29,11 @@ type SessionContextValue = {
   session: Session | null;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  recoveryMode: RecoveryMode;
+  startPasswordRecovery: () => void;
+  cancelPasswordRecovery: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  updateRecoveredPassword: (password: string) => Promise<void>;
   signUp: (
     email: string,
     password: string,
@@ -35,16 +46,57 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 export function SessionProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingLink, setIsProcessingLink] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState<RecoveryMode>(null);
+  const [recoveryUserId, setRecoveryUserId] = useState<string | null>(null);
+  const sessionRef = useRef<Session | null>(null);
+  const recoveryUserRef = useRef<string | null>(null);
+  const authRevision = useRef(0);
+  const markerRevision = useRef(0);
+  const storageWrites = useRef(Promise.resolve());
+  const handledCodes = useRef(new Set<string>());
+
+  const rememberRecovery = useCallback((userId: string | null) => {
+    recoveryUserRef.current = userId;
+    markerRevision.current += 1;
+    setRecoveryUserId(userId);
+    storageWrites.current = storageWrites.current
+      .then(() =>
+        userId
+          ? AsyncStorage.setItem(recoveryStorageKey, userId)
+          : AsyncStorage.removeItem(recoveryStorageKey),
+      )
+      .catch(() => logger.warn('Unable to save password recovery progress.'));
+    return storageWrites.current;
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
     const supabase = getSupabaseClient();
+    const startingAuthRevision = authRevision.current;
+    const startingMarkerRevision = markerRevision.current;
 
-    void supabase.auth
-      .getSession()
-      .then(({ data }) => {
+    void Promise.all([
+      supabase.auth.getSession(),
+      AsyncStorage.getItem(recoveryStorageKey).catch(() => null),
+    ])
+      .then(([{ data }, savedRecoveryUser]) => {
         if (isMounted) {
-          setSession(data.session);
+          const currentSession =
+            authRevision.current === startingAuthRevision
+              ? data.session
+              : sessionRef.current;
+          sessionRef.current = currentSession;
+          setSession(currentSession);
+          if (
+            markerRevision.current === startingMarkerRevision &&
+            savedRecoveryUser &&
+            savedRecoveryUser === currentSession?.user.id
+          ) {
+            recoveryUserRef.current = savedRecoveryUser;
+            setRecoveryUserId(savedRecoveryUser);
+            setRecoveryMode('update');
+          }
         }
       })
       .catch(() => logger.warn('Unable to restore the Supabase session.'))
@@ -54,16 +106,35 @@ export function SessionProvider({ children }: PropsWithChildren) {
         }
       });
 
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!isMounted) return;
+      if (
+        event === 'INITIAL_SESSION' &&
+        authRevision.current !== startingAuthRevision
+      )
+        return;
+      authRevision.current += 1;
+      sessionRef.current = nextSession;
       setSession(nextSession);
-      setIsLoading(false);
+      if (event === 'PASSWORD_RECOVERY' && nextSession) {
+        void rememberRecovery(nextSession.user.id);
+        setRecoveryMode('update');
+      } else if (
+        event === 'SIGNED_OUT' ||
+        (recoveryUserRef.current &&
+          nextSession &&
+          recoveryUserRef.current !== nextSession.user.id)
+      ) {
+        void rememberRecovery(null);
+        setRecoveryMode(null);
+      }
     });
 
     return () => {
       isMounted = false;
       data.subscription.unsubscribe();
     };
-  }, []);
+  }, [rememberRecovery]);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -73,16 +144,30 @@ export function SessionProvider({ children }: PropsWithChildren) {
         return;
       }
 
-      const code = ExpoLinking.parse(url).queryParams?.code;
-      if (typeof code !== 'string') {
+      const callback = readAuthCallback(url, ExpoLinking.createURL('sign-in'));
+      if (!callback) return;
+      if ('error' in callback) {
+        setRecoveryMode('invalid');
         return;
       }
-
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) {
-        logger.warn('Unable to exchange email confirmation code.', {
-          code: error.code,
-        });
+      if (handledCodes.current.has(callback.code)) return;
+      handledCodes.current.add(callback.code);
+      setIsProcessingLink(true);
+      try {
+        const { error } = await supabase.auth.exchangeCodeForSession(
+          callback.code,
+        );
+        if (error) {
+          setRecoveryMode('invalid');
+          logger.warn('Unable to verify authentication link.', {
+            code: error.code,
+          });
+        }
+      } catch {
+        setRecoveryMode('invalid');
+        logger.warn('Unable to verify authentication link.');
+      } finally {
+        setIsProcessingLink(false);
       }
     };
 
@@ -112,15 +197,57 @@ export function SessionProvider({ children }: PropsWithChildren) {
     return () => subscription.remove();
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await getSupabaseClient().auth.signInWithPassword({
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const { error } = await getSupabaseClient().auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        throw error;
+      }
+      await rememberRecovery(null);
+      setRecoveryMode(null);
+    },
+    [rememberRecovery],
+  );
+
+  const startPasswordRecovery = useCallback(
+    () => setRecoveryMode('request'),
+    [],
+  );
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const { error } = await getSupabaseClient().auth.resetPasswordForEmail(
       email,
-      password,
-    });
-    if (error) {
-      throw error;
-    }
+      {
+        redirectTo: ExpoLinking.createURL('sign-in'),
+      },
+    );
+    if (error && error.code !== 'user_not_found') throw error;
   }, []);
+
+  const updateRecoveredPassword = useCallback(
+    async (password: string) => {
+      if (!session || recoveryUserId !== session.user.id)
+        throw new Error('Verified recovery session required');
+      const { error } = await getSupabaseClient().auth.updateUser({ password });
+      if (error) throw error;
+      await rememberRecovery(null);
+      setRecoveryMode('complete');
+    },
+    [session, recoveryUserId, rememberRecovery],
+  );
+
+  const cancelPasswordRecovery = useCallback(async () => {
+    if (recoveryUserRef.current) {
+      const { error } = await getSupabaseClient().auth.signOut({
+        scope: 'local',
+      });
+      if (error) throw error;
+    }
+    await rememberRecovery(null);
+    setRecoveryMode(null);
+  }, [rememberRecovery]);
 
   const signUp = useCallback(
     async (
@@ -158,8 +285,31 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, []);
 
   const value = useMemo(
-    () => ({ isLoading, session, signIn, signOut, signUp }),
-    [isLoading, session, signIn, signOut, signUp],
+    () => ({
+      isLoading: isLoading || isProcessingLink,
+      session,
+      signIn,
+      signOut,
+      signUp,
+      recoveryMode,
+      startPasswordRecovery,
+      cancelPasswordRecovery,
+      requestPasswordReset,
+      updateRecoveredPassword,
+    }),
+    [
+      isLoading,
+      isProcessingLink,
+      session,
+      signIn,
+      signOut,
+      signUp,
+      recoveryMode,
+      startPasswordRecovery,
+      cancelPasswordRecovery,
+      requestPasswordReset,
+      updateRecoveredPassword,
+    ],
   );
 
   return (

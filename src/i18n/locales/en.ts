@@ -30,6 +30,37 @@ export const en = {
     existingAccount:
       'An account with this email already exists. Sign in or reset your password.',
     signUpGenericError: 'We could not create your account. Try again.',
+    recovery: {
+      forgot: 'Forgot password?',
+      title: 'Reset your password',
+      instructions:
+        'Enter your account email. Request the link here, then open it on this same device. Use only the latest email.',
+      send: 'Send reset email',
+      sent: 'If an account exists for this email, you will receive a reset link. Check your inbox and spam folder. Open the latest link on this device.',
+      sendError:
+        'We could not request the email. Check your connection or wait a few minutes before trying again.',
+      newTitle: 'Choose a new password',
+      newPassword: 'New password',
+      newInstructions:
+        'Use at least 8 characters and confirm your new password below.',
+      save: 'Save new password',
+      updateError:
+        'We could not update your password. Check your connection. If the link expired, cancel and request a new email.',
+      samePassword: 'Choose a password different from your current password.',
+      weakPassword:
+        'This password does not meet the account security requirements. Choose a stronger password.',
+      invalidTitle: 'This email link could not be verified',
+      invalid:
+        'The link may have expired, already been used, or been requested on another device. Request a new email from this device.',
+      sendAnother: 'Request a new reset email',
+      completeTitle: 'Password updated',
+      complete:
+        'Your new password is saved. Your account, profile, and family data are unchanged.',
+      continue: 'Continue to my families',
+      cancel: 'Cancel and return',
+      cancelError:
+        'We could not close recovery. Check your connection and try again.',
+    },
   },
   home: {
     title: 'Home',
@@ -77,6 +108,15 @@ export const en = {
     },
   },
   families: {
+    backToTree: 'Back to tree',
+    openDetails: 'View details for {{name}}',
+    viewDetails: 'View family details ›',
+    createdBy: 'Created by: {{name}}',
+    unavailableCreator: 'Profile unavailable',
+    createdOn: 'Created on: {{date}}',
+    memberCount: 'People: {{count}}',
+    personDetails: 'Person profile',
+
     onboardingTitle: 'Your person profile',
     onboardingExplanation:
       'Your account signs you in. Your profile identifies the person who owns their recipes. If someone already created your profile, use their code instead of creating another.',
@@ -145,6 +185,11 @@ export const en = {
       },
     },
     tree: {
+      hint: 'Tap a person to view their profile. Swipe sideways to explore.',
+      parentLegend: '━ Parent → child',
+      partnerLegend: '┄ Partner',
+      openPerson: 'View profile for {{name}}',
+
       title: 'Family tree',
       explanation:
         'Organize this family’s relationships. The tree shows each generation and keeps partner connections.',

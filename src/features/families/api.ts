@@ -17,7 +17,9 @@ export async function getCurrentPerson(userId: string) {
 export async function listFamilies(personId: string) {
   const { data, error } = await getSupabaseClient()
     .from('family_memberships')
-    .select('role, family:families!inner(id, name, description)')
+    .select(
+      'role, family:families!inner(id, name, description, created_at, created_by_user_id)',
+    )
     .eq('person_id', personId)
     .eq('status', 'ACTIVE')
     .order('joined_at');
