@@ -1,3 +1,4 @@
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -6,7 +7,7 @@ import { AppButton } from '@/components/AppButton';
 
 import type { Family, FamilyPerson } from '../api';
 import { onboardingErrorKey } from '../forms';
-import { useFamilyActions, useFamilyBranches } from '../queries';
+import { familyKeys, useFamilyActions, useFamilyBranches } from '../queries';
 
 import { DetailsForm } from './DetailsForm';
 import { styles } from './styles';
@@ -24,6 +25,8 @@ export function FamilyBranches({
 }) {
   const { t } = useTranslation();
   const branches = useFamilyBranches(userId, family.id);
+  const queryClient = useQueryClient();
+  const refreshing = useIsFetching({ queryKey: familyKeys.root(userId) }) > 0;
   const actions = useFamilyActions(userId);
   const [creating, setCreating] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -36,7 +39,7 @@ export function FamilyBranches({
   const busy = actions.setBranchMember.isPending;
   const refresh = () => {
     setError(null);
-    void branches.refetch();
+    void queryClient.invalidateQueries({ queryKey: familyKeys.root(userId) });
   };
   const changeMember = async (personId: string, expectedMember: boolean) => {
     if (!selected) return;
@@ -184,7 +187,7 @@ export function FamilyBranches({
           )}
           <AppButton
             label={t('families.refresh')}
-            disabled={busy || branches.isFetching}
+            disabled={busy || refreshing}
             variant="secondary"
             onPress={refresh}
           />
