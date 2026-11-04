@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { colors, spacing } from '@/components/theme';
 
 import type { Family, Person, FamilyRole } from '../api';
 import {
@@ -100,6 +101,7 @@ function FamilyDashboard({
   const actions = useFamilyActions(userId);
   const selection = useFamilySelection(userId, families.data ?? noFamilies);
   const [creating, setCreating] = useState(false);
+  const [choosing, setChoosing] = useState(false);
   if (families.isPending || !selection.ready)
     return (
       <Text role="status" style={styles.body}>
@@ -123,59 +125,85 @@ function FamilyDashboard({
             const id = await actions.createFamily.mutateAsync(values);
             selection.select(id);
             setCreating(false);
+            setChoosing(false);
           }}
         />
       </View>
     );
-  return (
-    <View style={styles.stack}>
-      <View style={styles.card}>
-        <Text role="heading" style={styles.title}>
-          {t('families.welcome', { name: person.display_name })}
-        </Text>
-        <Text style={styles.body}>{t('families.identityExplanation')}</Text>
+  const familyList = (
+    <View style={selection.selected ? styles.stack : styles.card}>
+      <Text role="heading" style={styles.title}>
+        {t('families.welcome', { name: person.display_name })}
+      </Text>
+      <Text style={styles.body}>{t('families.identityExplanation')}</Text>
+      {!selection.selected ? (
         <Text role="heading" style={styles.subtitle}>
           {t('families.yourFamilies')}
         </Text>
-        {families.data.length === 0 ? (
-          <Text style={styles.body}>{t('families.noFamilies')}</Text>
-        ) : null}
-        {families.data.map((family) => (
-          <AppButton
-            key={family.id}
-            label={family.name}
-            variant={
-              family.id === selection.selected?.id ? 'primary' : 'secondary'
-            }
-            accessibilityState={{
-              selected: family.id === selection.selected?.id,
-            }}
-            onPress={() => selection.select(family.id)}
-          />
-        ))}
+      ) : null}
+      {families.data.length === 0 ? (
+        <Text style={styles.body}>{t('families.noFamilies')}</Text>
+      ) : null}
+      {families.data.map((family) => (
         <AppButton
-          label={t('families.createFamily')}
-          variant="secondary"
-          onPress={() => setCreating(true)}
+          key={family.id}
+          label={family.name}
+          variant={
+            family.id === selection.selected?.id ? 'primary' : 'secondary'
+          }
+          accessibilityState={{
+            selected: family.id === selection.selected?.id,
+          }}
+          onPress={() => {
+            selection.select(family.id);
+            setChoosing(false);
+          }}
         />
-        <AppButton
-          label={t('families.refresh')}
-          variant="secondary"
-          onPress={() => void families.refetch()}
-        />
-      </View>
+      ))}
+      <AppButton
+        label={t('families.createFamily')}
+        variant="secondary"
+        onPress={() => setCreating(true)}
+      />
+      <AppButton
+        label={t('families.refresh')}
+        variant="secondary"
+        onPress={() => void families.refetch()}
+      />
+    </View>
+  );
+  return (
+    <View style={styles.stack}>
+      {!selection.selected ? familyList : null}
+      {choosing && selection.selected ? (
+        <DetailsSheet
+          title={t('families.yourFamilies')}
+          onClose={() => setChoosing(false)}
+        >
+          {familyList}
+        </DetailsSheet>
+      ) : null}
       {selection.selected ? (
         <FamilyPanel
           key={selection.selected.id}
           family={selection.selected}
           userId={userId}
+          onChooseFamily={() => setChoosing(true)}
         />
       ) : null}
     </View>
   );
 }
 
-function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
+function FamilyPanel({
+  family,
+  userId,
+  onChooseFamily,
+}: {
+  family: Family;
+  userId: string;
+  onChooseFamily: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const people = useFamilyPeople(userId, family.id);
   const relationships = useFamilyRelationships(userId, family.id);
@@ -198,7 +226,20 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
         {t('app.loading')}
       </Text>
     );
-  if (people.isError) return <LoadError retry={() => void people.refetch()} />;
+  if (people.isError)
+    return (
+      <View style={styles.card}>
+        <Text role="heading" style={styles.title}>
+          {family.name}
+        </Text>
+        <AppButton
+          label={t('families.yourFamilies')}
+          variant="secondary"
+          onPress={onChooseFamily}
+        />
+        <LoadError retry={() => void people.refetch()} />
+      </View>
+    );
   if (branchesOpen)
     return (
       <FamilyBranches
@@ -319,6 +360,25 @@ function FamilyPanel({ family, userId }: { family: Family; userId: string }) {
       >
         <Text style={styles.title}>{family.name}</Text>
         <Text style={styles.personNodeMeta}>{t('families.viewDetails')}</Text>
+      </Pressable>
+      <Pressable
+        role="button"
+        onPress={onChooseFamily}
+        style={{
+          paddingVertical: spacing.sm,
+          minHeight: 44,
+          justifyContent: 'center',
+          alignSelf: 'flex-start',
+        }}
+      >
+        <Text
+          style={[
+            styles.body,
+            { color: colors.primary, textDecorationLine: 'underline' },
+          ]}
+        >
+          {t('families.yourFamilies')}
+        </Text>
       </Pressable>
       <Text style={styles.body}>
         {t('families.yourRole', { role: t(`families.roles.${family.role}`) })}
