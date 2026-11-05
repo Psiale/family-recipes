@@ -62,18 +62,23 @@ async function setup(role: api.Family['role'] = 'MEMBER', userId = 'member') {
     },
   });
   const onSelect = jest.fn();
-  await render(
+  const picker = (families: api.Family[]) => (
     <QueryClientProvider client={client}>
       <FamilyPicker
         userId={userId}
-        families={[{ ...family, role }]}
+        families={families}
         selectedId={family.id}
         onSelect={onSelect}
       />
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  const view = await render(picker([{ ...family, role }]));
   await waitFor(() => expect(mocks.getFamilyLifecycle).toHaveBeenCalled());
-  return { user: userEvent.setup(), onSelect };
+  return {
+    user: userEvent.setup(),
+    onSelect,
+    showFamilies: (families: api.Family[]) => view.rerender(picker(families)),
+  };
 }
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -179,4 +184,23 @@ it('independent approval requires name and preserves failed confirmation for ret
     expect.objectContaining({ action: 'approve', requestId: request.id }),
     expect.anything(),
   );
+});
+
+it('closes options after leaving even when the membership disappears before other queries refresh', async () => {
+  const { user, showFamilies } = await setup();
+  const refresh =
+    Promise.withResolvers<Awaited<ReturnType<typeof api.getFamilyLifecycle>>>();
+  mocks.getFamilyLifecycle.mockReturnValueOnce(refresh.promise);
+  await user.longPress(screen.getByRole('button', { name: family.name }));
+  await user.press(screen.getByRole('button', { name: 'Salir de la familia' }));
+  await user.press(screen.getByRole('button', { name: 'Confirmar' }));
+  await waitFor(() =>
+    expect(mocks.getFamilyLifecycle).toHaveBeenCalledTimes(2),
+  );
+  await showFamilies([]);
+  refresh.resolve({ superAdmin: false, requests: [] });
+  expect(
+    await screen.findByText(i18n.t('familyLifecycle.done')),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText(family.name)).toBeNull();
 });

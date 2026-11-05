@@ -17,7 +17,10 @@ async function openScreen(superAdmin: boolean, cachedRole?: boolean) {
   await i18n.changeLanguage('es');
   mocks.isSuperAdmin.mockResolvedValue(superAdmin);
   const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+      mutations: { gcTime: 0 },
+    },
   });
   if (cachedRole !== undefined) {
     client.setQueryData(

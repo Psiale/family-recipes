@@ -87,6 +87,7 @@ async function openApp(superAdmin: boolean, initialUrl = '/') {
       index: TreeFixture,
       'how-to-use': GuideScreen,
       recipes: RecipesScreen,
+      delegates: () => null,
     },
     { initialUrl },
   );
@@ -132,7 +133,7 @@ it('opens the family directory from the hamburger menu for a Super Admin', async
 it('denies a direct administration link for an ordinary account before reading family data', async () => {
   await openApp(false, '/family-administration');
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    'Solo los súper administradores',
+    'Solo los súper administradores pueden acceder a esta pantalla.',
   );
   expect(familyApi.searchFamilies).not.toHaveBeenCalled();
   expect(familyApi.listDeletionRequests).not.toHaveBeenCalled();

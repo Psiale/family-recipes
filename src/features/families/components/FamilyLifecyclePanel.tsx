@@ -53,7 +53,11 @@ export function FamilyLifecyclePanel({
   const mutation = useMutation({
     mutationKey: [...familyKeys.root(userId), 'lifecycle-action'],
     mutationFn: familyLifecycleAction,
-    onSuccess: refresh,
+    onSuccess: () => {
+      onClose();
+      onComplete();
+      return refresh();
+    },
     onError: refresh,
     networkMode: 'always',
     retry: false,
@@ -85,15 +89,12 @@ export function FamilyLifecyclePanel({
       setSecond(true);
       return;
     }
-    mutation.mutate(
-      { familyId: target.id, action, requestId, confirmName: target.name },
-      {
-        onSuccess: () => {
-          reset();
-          onComplete();
-        },
-      },
-    );
+    mutation.mutate({
+      familyId: target.id,
+      action,
+      requestId,
+      confirmName: target.name,
+    });
   };
   const destructive = action === 'approve' || action === 'delete';
   const code =
