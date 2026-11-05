@@ -1,6 +1,36 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  familyLifecycle: {
+    options: 'Options',
+    gestureHint: 'Swipe either way or hold a family to see its options.',
+    done: 'Action completed.',
+    pending: 'Deletion request: {{family}}',
+    review: 'Review request',
+    leave: 'Leave family',
+    ownerLeave:
+      'Before leaving, transfer ownership to another linked account in family information. If there is no other account, you can request deletion with super admin approval.',
+    request: 'Request deletion',
+    approve: 'Approve and delete family',
+    cancelRequest: 'Cancel request',
+    delete: 'Delete as super admin',
+    waiting:
+      'Awaiting approval from another linked family member or the super admin. Approval deletes the family. Requests expire after 7 days.',
+    expired: 'This request expired. The owner can renew it.',
+    leaveExplanation:
+      'You will leave {{family}} and lose member access. Your profile, recipes and other families will remain. Global delegations are unchanged.',
+    requestExplanation:
+      'You will request deletion of {{family}} for everyone. Another linked member or the super admin must approve it. This family’s memberships, branches, relationships and collections will be removed. Profiles and recipes will remain.',
+    cancelExplanation: 'You will cancel the deletion request for {{family}}.',
+    approveExplanation:
+      'You will approve the owner’s request and immediately delete {{family}} for everyone. Its memberships, branches, relationships, invitations, collections and shared recipe access will be removed. Profiles and recipes will remain. This cannot be undone.',
+    deleteExplanation:
+      'You will delete {{family}} for everyone using super admin permission, without another approval. Its memberships, branches, relationships, invitations, collections and shared recipe access will be removed. Profiles and recipes will remain. This cannot be undone.',
+    second: 'Second confirmation: deletion is permanent.',
+    typeName: 'Type the exact family name',
+    confirm: 'Confirm',
+    continue: 'Continue to second confirmation',
+  },
   app: {
     name: 'Family Recipe Tree',
     loading: 'Loading…',

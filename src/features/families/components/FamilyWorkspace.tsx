@@ -25,6 +25,7 @@ import { DetailsForm } from './DetailsForm';
 import { DetailsSheet } from './DetailsSheet';
 import { FamilyBranches } from './FamilyBranches';
 import { FamilyTree } from './FamilyTree';
+import { FamilyPicker } from './FamilyPicker';
 import { IssueClaimForm } from './IssueClaimForm';
 import { MembershipConfirmation } from './MembershipConfirmation';
 import { RoleForm } from './RoleForm';
@@ -144,22 +145,15 @@ function FamilyDashboard({
       {families.data.length === 0 ? (
         <Text style={styles.body}>{t('families.noFamilies')}</Text>
       ) : null}
-      {families.data.map((family) => (
-        <AppButton
-          key={family.id}
-          label={family.name}
-          variant={
-            family.id === selection.selected?.id ? 'primary' : 'secondary'
-          }
-          accessibilityState={{
-            selected: family.id === selection.selected?.id,
-          }}
-          onPress={() => {
-            selection.select(family.id);
-            setChoosing(false);
-          }}
-        />
-      ))}
+      <FamilyPicker
+        userId={userId}
+        families={families.data}
+        selectedId={selection.selected?.id}
+        onSelect={(id) => {
+          selection.select(id);
+          setChoosing(false);
+        }}
+      />
       <AppButton
         label={t('families.createFamily')}
         variant="secondary"
