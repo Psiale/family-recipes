@@ -4,12 +4,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { colors } from '@/components/theme';
 import { useSession } from '@/features/auth/providers/SessionProvider';
+import { useSuperAdmin } from '@/features/families/queries';
 import { AppMenu } from '@/features/navigation/AppMenu';
 import { OnboardingGate } from '@/features/onboarding/OnboardingGate';
 
 export default function AuthenticatedLayout() {
   const { t } = useTranslation();
   const { session } = useSession();
+  const role = useSuperAdmin(session!.user.id);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <OnboardingGate userId={session!.user.id}>
@@ -42,6 +44,14 @@ export default function AuthenticatedLayout() {
           <Drawer.Screen
             name="delegates"
             options={{ title: t('delegation.title') }}
+          />
+          <Drawer.Screen
+            name="family-administration"
+            options={{
+              title: t('administration.title'),
+              drawerItemStyle:
+                role.isSuccess && role.data ? undefined : { display: 'none' },
+            }}
           />
           <Drawer.Screen
             name="recipes"

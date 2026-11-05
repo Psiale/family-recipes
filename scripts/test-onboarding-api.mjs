@@ -215,6 +215,82 @@ try {
       p_expected_role: 'MEMBER',
     }),
   );
+  // Both clients lead a different family. Even with a known family and request
+  // ID, the directory, roster, pending request and audited actions stay scoped.
+  const privateName = 'Private *_% integration family';
+  const privateId = unwrap(
+    await claimant.rpc('create_family', { p_name: privateName }),
+  );
+  familyIds.push(privateId);
+  assert.deepEqual(
+    unwrap(
+      await claimant
+        .from('families')
+        .select('id')
+        .regexIMatch('name', '***=*_% INTEGRATION'),
+    ),
+    [{ id: privateId }],
+  );
+  assert.deepEqual(
+    unwrap(
+      await owner.from('families').select('id').regexIMatch('name', '***=*'),
+    ),
+    [],
+  );
+  for (const [actor, requester, familyId, name] of [
+    [claimant, owner, familyIds[1], 'Integration Two'],
+    [owner, claimant, privateId, privateName],
+  ]) {
+    const requestId = unwrap(
+      await requester.rpc('family_lifecycle_action', {
+        p_family_id: familyId,
+        p_action: 'request',
+        p_confirm_name: name,
+      }),
+    );
+    assert.deepEqual(
+      unwrap(await actor.from('families').select('id,name').eq('id', familyId)),
+      [],
+    );
+    assert.deepEqual(
+      unwrap(
+        await actor
+          .from('family_memberships')
+          .select('role,person_id')
+          .eq('family_id', familyId),
+      ),
+      [],
+    );
+    assert.deepEqual(
+      unwrap(
+        await actor
+          .from('family_deletion_requests')
+          .select('id')
+          .eq('family_id', familyId),
+      ),
+      [],
+    );
+    for (const action of ['approve', 'cancel', 'delete']) {
+      assert.equal(
+        (
+          await actor.rpc('family_lifecycle_action', {
+            p_family_id: familyId,
+            p_action: action,
+            p_request_id: requestId,
+            p_confirm_name: name,
+          })
+        ).error?.code,
+        '42501',
+      );
+    }
+    unwrap(
+      await requester.rpc('family_lifecycle_action', {
+        p_family_id: familyId,
+        p_action: 'cancel',
+        p_request_id: requestId,
+      }),
+    );
+  }
   const roleTarget = unwrap(
     await claimant.rpc('create_managed_person', {
       p_family_id: familyIds[0],

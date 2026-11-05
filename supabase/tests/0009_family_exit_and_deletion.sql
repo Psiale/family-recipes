@@ -80,7 +80,34 @@ select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','de
 select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000002',true);
 select set_config('test.req',(select public.family_lifecycle_action('09000000-0000-0000-0000-000000000020','request',null,'Family 20'))::text,true);
 select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000001',true);
+select public.exit_assert(exists(select 1 from public.families where name='Family 20'),'Nonmember super admin finds family');
+select public.exit_assert(exists(
+  select 1 from public.family_memberships m join public.people p on p.id=m.person_id
+  where m.family_id='09000000-0000-0000-0000-000000000020' and m.status='ACTIVE' and p.display_name='Person 2'
+),'Nonmember super admin sees active roster');
+select public.exit_assert(exists(select 1 from public.family_deletion_requests where id=current_setting('test.req')::uuid),'Nonmember super admin reads request');
+select public.family_lifecycle_action('09000000-0000-0000-0000-000000000020','cancel',current_setting('test.req')::uuid);
+select public.exit_assert(not exists(select 1 from public.family_deletion_requests where id=current_setting('test.req')::uuid),'Super admin cancellation clears request');
+reset role;
+select public.exit_assert(exists(
+  select 1 from public.audit_events where action='FAMILY_DELETION_CANCELLED'
+    and actor_user_id='09000000-0000-0000-0000-000000000001'
+    and target_id='09000000-0000-0000-0000-000000000020' and metadata->>'request_id'=current_setting('test.req')
+),'Super admin cancellation is attributed to the actor and request');
+-- An Owner who also holds the platform role still cannot approve their own request.
+update public.app_users set platform_role='SUPER_ADMIN' where id='09000000-0000-0000-0000-000000000002';
+set local role authenticated;
+select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000002',true);
+select set_config('test.req',(select public.family_lifecycle_action('09000000-0000-0000-0000-000000000020','request',null,'Family 20'))::text,true);
+select public.exit_denied($q$select public.family_lifecycle_action('09000000-0000-0000-0000-000000000020','approve',current_setting('test.req')::uuid,'Family 20')$q$,'42501');
+select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000001',true);
 select public.family_lifecycle_action('09000000-0000-0000-0000-000000000020','approve',current_setting('test.req')::uuid,'Family 20');
 reset role;
 select public.exit_assert(not exists(select 1 from public.families where id::text like '09000000%'),'Nonmember super admin approval works');
+select public.exit_assert(exists(
+  select 1 from public.audit_events where action='FAMILY_DELETED'
+    and actor_user_id='09000000-0000-0000-0000-000000000001'
+    and target_id='09000000-0000-0000-0000-000000000020' and metadata->>'request_id'=current_setting('test.req')
+    and metadata->>'super_admin_override'='false'
+),'Super admin approval is attributed to the independent actor and request');
 rollback;

@@ -21,6 +21,7 @@ service transactions additionally enforce multi-row invariants and auditing.
 | Transfer family ownership | No | No | No | Yes | No | No | Yes |
 | Transfer recipe ownership | No | No | No | No | No | No | Yes |
 | Manage family Owners | No | No | No | Owner transfer only | No | No | Yes |
+| Search the platform family directory and inspect unrelated families | No | No | No | No | No | No | Yes |
 | Grant/revoke Super Admin | No | No | No | No | No | No | Yes, audited |
 
 ## Clarifications encoded by the model

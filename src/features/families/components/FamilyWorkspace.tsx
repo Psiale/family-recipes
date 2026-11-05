@@ -24,6 +24,7 @@ import { ClaimForm } from './ClaimForm';
 import { DetailsForm } from './DetailsForm';
 import { DetailsSheet } from './DetailsSheet';
 import { FamilyBranches } from './FamilyBranches';
+import { FamilyDetailsSummary } from './FamilyDetailsSummary';
 import { FamilyPicker } from './FamilyPicker';
 import { FamilyTree } from './FamilyTree';
 import { IssueClaimForm } from './IssueClaimForm';
@@ -198,7 +199,7 @@ function FamilyPanel({
   userId: string;
   onChooseFamily: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const people = useFamilyPeople(userId, family.id);
   const relationships = useFamilyRelationships(userId, family.id);
   const actions = useFamilyActions(userId);
@@ -379,30 +380,7 @@ function FamilyPanel({
       </Text>
       {detailsOpen ? (
         <DetailsSheet title={family.name} onClose={() => setDetailsOpen(false)}>
-          {family.description ? (
-            <Text style={styles.body}>{family.description}</Text>
-          ) : null}
-          <Text style={styles.body}>
-            {t('families.createdBy', {
-              name:
-                people.data.find(
-                  ({ person }) => person.user_id === family.created_by_user_id,
-                )?.person.display_name ?? t('families.unavailableCreator'),
-            })}
-          </Text>
-          {family.created_at &&
-          Number.isFinite(Date.parse(family.created_at)) ? (
-            <Text style={styles.body}>
-              {t('families.createdOn', {
-                date: new Date(family.created_at).toLocaleDateString(
-                  i18n.language,
-                ),
-              })}
-            </Text>
-          ) : null}
-          <Text style={styles.body}>
-            {t('families.memberCount', { count: people.data.length })}
-          </Text>
+          <FamilyDetailsSummary family={family} people={people.data} />
           <Text style={styles.body}>
             {t('families.yourRole', {
               role: t(`families.roles.${family.role}`),
