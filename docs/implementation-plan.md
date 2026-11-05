@@ -119,12 +119,12 @@ concurrent demotion during privileged writes.
 - SQL/RLS, concurrent removal, real Auth/API, and localized UI tests cover this slice.
 - Membership administration and branches migrations must be deployed before an APK using these features is released.
 
-Next: person-manager delegation and Super Admin administration. Invitations and
+Next: Super Admin administration. Invitations and
 email delivery remain deferred. Recipe workflows begin in Phase 3.
 
 ## Decisions to resolve before recipe migrations stabilize
 
-1. Whether a manager grant is global to a person or scoped to selected families.
+1. Resolved: manager grants are global to the person, with explicit confirmation and revocation.
 2. Whether recipe owners may delegate only editing or also visibility changes.
 3. Whether family Admins/Owners may view all branch-scoped recipes (the current
    authorization matrix says yes).
@@ -132,3 +132,15 @@ email delivery remain deferred. Recipe workflows begin in Phase 3.
    localized “Version unavailable” placeholder.
 5. Media copy/retention policy for forks and account erasure.
 6. Whether preserving a recipe is reversible by its owner or only Super Admin.
+
+## Person-manager delegation
+
+The linked person can grant global management access to another linked active
+member of a shared family, regardless of family role. Family leadership and
+existing delegates cannot grant access on behalf of another linked person.
+The Profile delegates screen is reachable from the menu even without family
+memberships. It explains private-recipe access and supports explicit revocation
+without requiring a shared family. Family removal does not revoke global grants.
+Recipe editing remains a future feature; delegation does not transfer ownership
+or bypass recipe preservation. The initial manager of an unlinked profile still
+uses the existing claim flow; claiming continues to remove pre-claim grants.

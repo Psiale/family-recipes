@@ -1063,6 +1063,13 @@ export type Database = {
         Args: { p_email: string; p_person_id: string };
         Returns: string;
       };
+      list_my_person_managers: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          display_name: string;
+          manager_user_id: string;
+        }[];
+      };
       onboard_person: {
         Args: { p_biography?: string; p_display_name: string };
         Returns: string;
@@ -1082,6 +1089,15 @@ export type Database = {
           p_family_id: string;
           p_is_member: boolean;
           p_person_id: string;
+        };
+        Returns: undefined;
+      };
+      set_person_manager: {
+        Args: {
+          p_enabled?: boolean;
+          p_expected_enabled?: boolean;
+          p_family_id?: string;
+          p_manager_user_id: string;
         };
         Returns: undefined;
       };

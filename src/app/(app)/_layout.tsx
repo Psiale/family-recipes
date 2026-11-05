@@ -40,6 +40,10 @@ export default function AuthenticatedLayout() {
             options={{ title: t('guide.help') }}
           />
           <Drawer.Screen
+            name="delegates"
+            options={{ title: t('delegation.title') }}
+          />
+          <Drawer.Screen
             name="recipes"
             options={{ title: t('navigation.recipes') }}
           />
