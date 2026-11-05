@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
@@ -8,6 +8,7 @@ import Swipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 import { AppButton } from '@/components/AppButton';
+import { ScrollIntoView } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
 import { colors, spacing } from '@/components/theme';
 
@@ -170,23 +171,162 @@ export function FamilyPicker({
   const destructive = action === 'approve' || action === 'delete';
   const code =
     mutation.error && 'code' in mutation.error ? mutation.error.code : null;
+  const panel = target ? (
+    <View style={styles.card}>
+      {!second && (
+        <ScrollIntoView key={`${target.id}:${action ?? 'options'}`}>
+          <Text role="heading" style={styles.subtitle}>
+            {target.name}
+          </Text>
+        </ScrollIntoView>
+      )}
+      {second && (
+        <Text role="heading" style={styles.subtitle}>
+          {target.name}
+        </Text>
+      )}
+      {!action ? (
+        <>
+          {target.role ? (
+            <>
+              <AppButton
+                label={t('familyLifecycle.leave')}
+                onPress={() => start('leave')}
+                disabled={target.role === 'OWNER'}
+              />
+              {target.role === 'OWNER' ? (
+                <Text style={styles.body}>
+                  {t('familyLifecycle.ownerLeave')}
+                </Text>
+              ) : null}
+            </>
+          ) : null}
+          {target.role === 'OWNER' && (!pending || isExpired) ? (
+            <AppButton
+              label={t('familyLifecycle.request')}
+              onPress={() => start('request')}
+              disabled={!query.data || query.isError}
+            />
+          ) : null}
+          {pending ? (
+            <>
+              <Text style={styles.body}>
+                {t(
+                  isExpired
+                    ? 'familyLifecycle.expired'
+                    : 'familyLifecycle.waiting',
+                )}
+              </Text>
+              {!isExpired && pending.requested_by_user_id !== userId ? (
+                <AppButton
+                  label={t('familyLifecycle.approve')}
+                  onPress={() => start('approve', pending.id)}
+                />
+              ) : null}
+              {target.role === 'OWNER' || superAdmin ? (
+                <AppButton
+                  label={t('familyLifecycle.cancelRequest')}
+                  onPress={() => start('cancel', pending.id)}
+                />
+              ) : null}
+            </>
+          ) : null}
+          {superAdmin ? (
+            <AppButton
+              label={t('familyLifecycle.delete')}
+              onPress={() => start('delete')}
+            />
+          ) : null}
+        </>
+      ) : (
+        <>
+          <Text style={styles.body}>
+            {t(`familyLifecycle.${action}Explanation`, {
+              family: target.name,
+            })}
+          </Text>
+          {second ? (
+            <ScrollIntoView>
+              <Text role="alert" style={styles.error}>
+                {t('familyLifecycle.second')}
+              </Text>
+            </ScrollIntoView>
+          ) : null}
+          {destructive && (action !== 'delete' || second) ? (
+            <TextField
+              label={t('familyLifecycle.typeName')}
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!mutation.isPending}
+            />
+          ) : null}
+          {mutation.isError ? (
+            <ScrollIntoView>
+              <Text role="alert" style={styles.error}>
+                {t(
+                  code === 'PT412'
+                    ? 'familyLifecycle.ownerLeave'
+                    : code === 'PT409'
+                      ? 'families.membership.stale'
+                      : code === '42501'
+                        ? 'families.errors.permission'
+                        : 'families.errors.save',
+                )}
+              </Text>
+            </ScrollIntoView>
+          ) : null}
+          <AppButton
+            label={t(
+              action === 'delete' && !second
+                ? 'familyLifecycle.continue'
+                : 'familyLifecycle.confirm',
+            )}
+            loading={mutation.isPending}
+            disabled={
+              destructive &&
+              (action !== 'delete' || second) &&
+              name !== target.name
+            }
+            onPress={confirm}
+          />
+        </>
+      )}
+      <AppButton
+        label={t('families.cancel')}
+        variant="secondary"
+        disabled={mutation.isPending}
+        onPress={reset}
+      />
+    </View>
+  ) : null;
   return (
     <View style={styles.stack}>
-      {!target &&
-        families.map((family) => (
+      {families.map((family) => (
+        <Fragment key={family.id}>
           <FamilyPickerRow
-            key={family.id}
             family={family}
             selected={family.id === selectedId}
-            onSelect={() => onSelect(family.id)}
-            onOptions={() => choose(family)}
+            onSelect={() => {
+              if (!mutation.isPending) onSelect(family.id);
+            }}
+            onOptions={() => {
+              if (!mutation.isPending) choose(family);
+            }}
           />
-        ))}
-      <Text style={styles.body}>{t('familyLifecycle.gestureHint')}</Text>
+          {target?.id === family.id ? panel : null}
+        </Fragment>
+      ))}
+      {!target && (
+        <Text style={styles.body}>{t('familyLifecycle.gestureHint')}</Text>
+      )}
       {done ? (
-        <Text role="status" style={styles.body}>
-          {t('familyLifecycle.done')}
-        </Text>
+        <ScrollIntoView>
+          <Text role="status" style={styles.body}>
+            {t('familyLifecycle.done')}
+          </Text>
+        </ScrollIntoView>
       ) : null}
       {query.isPending ? <Text role="status">{t('app.loading')}</Text> : null}
       {query.isError ? (
@@ -218,128 +358,10 @@ export function FamilyPicker({
             />
           </View>
         ))}
-      {target ? (
-        <View style={styles.card}>
-          <Text role="heading" style={styles.subtitle}>
-            {target.name}
-          </Text>
-          {!action ? (
-            <>
-              {target.role ? (
-                <>
-                  <AppButton
-                    label={t('familyLifecycle.leave')}
-                    onPress={() => start('leave')}
-                    disabled={target.role === 'OWNER'}
-                  />
-                  {target.role === 'OWNER' ? (
-                    <Text style={styles.body}>
-                      {t('familyLifecycle.ownerLeave')}
-                    </Text>
-                  ) : null}
-                </>
-              ) : null}
-              {target.role === 'OWNER' && (!pending || isExpired) ? (
-                <AppButton
-                  label={t('familyLifecycle.request')}
-                  onPress={() => start('request')}
-                  disabled={!query.data || query.isError}
-                />
-              ) : null}
-              {pending ? (
-                <>
-                  <Text style={styles.body}>
-                    {t(
-                      isExpired
-                        ? 'familyLifecycle.expired'
-                        : 'familyLifecycle.waiting',
-                    )}
-                  </Text>
-                  {!isExpired && pending.requested_by_user_id !== userId ? (
-                    <AppButton
-                      label={t('familyLifecycle.approve')}
-                      onPress={() => start('approve', pending.id)}
-                    />
-                  ) : null}
-                  {target.role === 'OWNER' || superAdmin ? (
-                    <AppButton
-                      label={t('familyLifecycle.cancelRequest')}
-                      onPress={() => start('cancel', pending.id)}
-                    />
-                  ) : null}
-                </>
-              ) : null}
-              {superAdmin ? (
-                <AppButton
-                  label={t('familyLifecycle.delete')}
-                  onPress={() => start('delete')}
-                />
-              ) : null}
-            </>
-          ) : (
-            <>
-              <Text style={styles.body}>
-                {t(`familyLifecycle.${action}Explanation`, {
-                  family: target.name,
-                })}
-              </Text>
-              {second ? (
-                <Text role="alert" style={styles.error}>
-                  {t('familyLifecycle.second')}
-                </Text>
-              ) : null}
-              {destructive && (action !== 'delete' || second) ? (
-                <>
-                  <Text style={styles.body}>
-                    {t('familyLifecycle.typeName')}
-                  </Text>
-                  <TextField
-                    label={t('familyLifecycle.typeName')}
-                    value={name}
-                    onChangeText={setName}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    editable={!mutation.isPending}
-                  />
-                </>
-              ) : null}
-              {mutation.isError ? (
-                <Text role="alert" style={styles.error}>
-                  {t(
-                    code === 'PT412'
-                      ? 'familyLifecycle.ownerLeave'
-                      : code === 'PT409'
-                        ? 'families.membership.stale'
-                        : code === '42501'
-                          ? 'families.errors.permission'
-                          : 'families.errors.save',
-                  )}
-                </Text>
-              ) : null}
-              <AppButton
-                label={t(
-                  action === 'delete' && !second
-                    ? 'familyLifecycle.continue'
-                    : 'familyLifecycle.confirm',
-                )}
-                loading={mutation.isPending}
-                disabled={
-                  destructive &&
-                  (action !== 'delete' || second) &&
-                  name !== target.name
-                }
-                onPress={confirm}
-              />
-            </>
-          )}
-          <AppButton
-            label={t('families.cancel')}
-            variant="secondary"
-            disabled={mutation.isPending}
-            onPress={reset}
-          />
-        </View>
-      ) : null}
+
+      {target && !families.some((family) => family.id === target.id)
+        ? panel
+        : null}
     </View>
   );
 }

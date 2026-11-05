@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Text, View } from 'react-native';
+import { Keyboard, Modal, Platform, Text, TextInput, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -15,11 +15,22 @@ export function DetailsSheet({
   children,
 }: PropsWithChildren<{ title: string; onClose: () => void }>) {
   const { t } = useTranslation();
+  const handleRequestClose = () => {
+    // A modal can receive Android Back before the keyboard visibility event.
+    if (
+      Platform.OS === 'android' &&
+      (Keyboard.isVisible() || TextInput.State.currentlyFocusedInput())
+    ) {
+      Keyboard.dismiss();
+      return;
+    }
+    onClose();
+  };
   return (
     <Modal
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      onRequestClose={handleRequestClose}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
