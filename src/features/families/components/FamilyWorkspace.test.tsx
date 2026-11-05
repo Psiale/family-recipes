@@ -79,6 +79,10 @@ beforeEach(async () => {
   await i18n.changeLanguage('es');
   mockApi.getCurrentPerson.mockResolvedValue(null);
   mockApi.listFamilies.mockResolvedValue([]);
+  mockApi.getFamilyLifecycle.mockResolvedValue({
+    superAdmin: false,
+    requests: [],
+  });
   mockApi.listFamilyPeople.mockResolvedValue([]);
   mockApi.listFamilyRelationships.mockResolvedValue([]);
 });

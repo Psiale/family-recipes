@@ -88,3 +88,20 @@ service transactions additionally enforce multi-row invariants and auditing.
 - Revocation and listing remain available without a current shared family.
 - Delegate changes are serialized, reject stale expected state, and are audited.
 - Delegation does not change ownership or override preserved recipe rules.
+
+## Family exit and deletion
+
+- Linked active non-owners may leave their own family. Owners must transfer
+  ownership first; leaving preserves profiles, recipes and global delegation.
+- An active owner may request family deletion. Another linked active member
+  (including Read-only) or a different Super Admin account can approve it.
+  Approval immediately deletes the family. The requester cannot self-approve.
+- Requests expire after seven days. Ownership/status changes invalidate them;
+  the owner or Super Admin may cancel a request. Direct request-table writes
+  are forbidden; RLS exposes requests only to members and Super Admins.
+- Super Admins can delete directly after two UI confirmations, the second
+  requiring the exact family name. Approval also requires typing that name.
+- Deletion removes family memberships, branches, relationships, invitations,
+  collections and recipe visibility grants. People, recipes, global manager
+  grants and immutable audit history remain. All mutations recheck current
+  authorization and serialize on the family's advisory lock.

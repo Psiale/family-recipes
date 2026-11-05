@@ -6,6 +6,7 @@ import pg from 'pg';
 import { parseDatabaseEnv } from './server-env.mjs';
 import { testBranchConcurrency } from './test-branch-concurrency.mjs';
 import { testDelegationConcurrency } from './test-delegation-concurrency.mjs';
+import { testFamilyLifecycleConcurrency } from './test-family-lifecycle-concurrency.mjs';
 import { testFamilyRoleConcurrency } from './test-family-role-concurrency.mjs';
 import { testMembershipConcurrency } from './test-membership-concurrency.mjs';
 import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
@@ -74,6 +75,7 @@ try {
   await testMembershipConcurrency(testUrl.toString());
   await testBranchConcurrency(testUrl.toString());
   await testDelegationConcurrency(testUrl.toString());
+  await testFamilyLifecycleConcurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

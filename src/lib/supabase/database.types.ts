@@ -252,6 +252,46 @@ export type Database = {
           },
         ];
       };
+      family_deletion_requests: {
+        Row: {
+          created_at: string;
+          expires_at: string;
+          family_id: string;
+          id: string;
+          requested_by_user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          expires_at?: string;
+          family_id: string;
+          id?: string;
+          requested_by_user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          expires_at?: string;
+          family_id?: string;
+          id?: string;
+          requested_by_user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'family_deletion_requests_family_id_fkey';
+            columns: ['family_id'];
+            isOneToOne: true;
+            referencedRelation: 'families';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'family_deletion_requests_requested_by_user_id_fkey';
+            columns: ['requested_by_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'app_users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       family_invitations: {
         Row: {
           accepted_at: string | null;
@@ -1058,6 +1098,15 @@ export type Database = {
       delete_family_relationship: {
         Args: { p_relationship_id: string };
         Returns: undefined;
+      };
+      family_lifecycle_action: {
+        Args: {
+          p_action: string;
+          p_confirm_name?: string;
+          p_family_id: string;
+          p_request_id?: string;
+        };
+        Returns: string;
       };
       issue_person_claim: {
         Args: { p_email: string; p_person_id: string };

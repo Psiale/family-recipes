@@ -21,7 +21,7 @@ import { familyKeys } from '../queries';
 
 import { styles } from './styles';
 
-type Target = { id: string; name: string; role?: Family['role'] };
+type Target = { id: string; name: string; role?: Family['role'] | undefined };
 
 export function FamilyPickerRow({
   family,
@@ -64,7 +64,9 @@ export function FamilyPickerRow({
         accessibilityActions={[
           { name: 'longpress', label: t('familyLifecycle.options') },
         ]}
-        onAccessibilityAction={openOptions}
+        onAccessibilityAction={({ nativeEvent }) => {
+          if (nativeEvent.actionName === 'longpress') openOptions();
+        }}
         onPress={onSelect}
         onLongPress={openOptions}
         style={{
@@ -99,7 +101,7 @@ export function FamilyPicker({
 }: {
   userId: string;
   families: Family[];
-  selectedId?: string;
+  selectedId?: string | undefined;
   onSelect: (id: string) => void;
 }) {
   const { t } = useTranslation();
@@ -110,6 +112,7 @@ export function FamilyPicker({
   const [second, setSecond] = useState(false);
   const [name, setName] = useState('');
   const [done, setDone] = useState(false);
+  const [reviewedAt] = useState(() => Date.now());
   const query = useQuery({
     queryKey: [...familyKeys.root(userId), 'lifecycle'],
     queryFn: () => getFamilyLifecycle(userId),
@@ -139,7 +142,7 @@ export function FamilyPicker({
   const superAdmin = query.data?.superAdmin ?? false;
   const pending = query.data?.requests.find((r) => r.family_id === target?.id);
   const isExpired = pending
-    ? new Date(pending.expires_at).getTime() <= Date.now()
+    ? new Date(pending.expires_at).getTime() <= reviewedAt
     : false;
   const start = (value: LifecycleAction, id?: string) => {
     setAction(value);
@@ -169,15 +172,16 @@ export function FamilyPicker({
     mutation.error && 'code' in mutation.error ? mutation.error.code : null;
   return (
     <View style={styles.stack}>
-      {families.map((family) => (
-        <FamilyPickerRow
-          key={family.id}
-          family={family}
-          selected={family.id === selectedId}
-          onSelect={() => onSelect(family.id)}
-          onOptions={() => choose(family)}
-        />
-      ))}
+      {!target &&
+        families.map((family) => (
+          <FamilyPickerRow
+            key={family.id}
+            family={family}
+            selected={family.id === selectedId}
+            onSelect={() => onSelect(family.id)}
+            onOptions={() => choose(family)}
+          />
+        ))}
       <Text style={styles.body}>{t('familyLifecycle.gestureHint')}</Text>
       {done ? (
         <Text role="status" style={styles.body}>
@@ -196,23 +200,24 @@ export function FamilyPicker({
           />
         </>
       ) : null}
-      {query.data?.requests.map((request) => (
-        <View key={request.id} style={styles.card}>
-          <Text style={styles.subtitle}>
-            {t('familyLifecycle.pending', { family: request.family.name })}
-          </Text>
-          <AppButton
-            label={t('familyLifecycle.review')}
-            variant="secondary"
-            onPress={() =>
-              choose({
-                ...request.family,
-                role: families.find((f) => f.id === request.family_id)?.role,
-              })
-            }
-          />
-        </View>
-      ))}
+      {!target &&
+        query.data?.requests.map((request) => (
+          <View key={request.id} style={styles.card}>
+            <Text style={styles.subtitle}>
+              {t('familyLifecycle.pending', { family: request.family.name })}
+            </Text>
+            <AppButton
+              label={t('familyLifecycle.review')}
+              variant="secondary"
+              onPress={() =>
+                choose({
+                  ...request.family,
+                  role: families.find((f) => f.id === request.family_id)?.role,
+                })
+              }
+            />
+          </View>
+        ))}
       {target ? (
         <View style={styles.card}>
           <Text role="heading" style={styles.subtitle}>

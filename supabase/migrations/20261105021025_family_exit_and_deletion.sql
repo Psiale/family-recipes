@@ -9,7 +9,7 @@ create table public.family_deletion_requests (
 );
 create index family_deletion_requests_requester_idx on public.family_deletion_requests(requested_by_user_id);
 alter table public.family_deletion_requests enable row level security;
-revoke all on public.family_deletion_requests from anon, authenticated, service_role;
+revoke all on public.family_deletion_requests from public, anon, authenticated, service_role;
 grant select on public.family_deletion_requests to authenticated;
 create policy family_deletion_requests_read on public.family_deletion_requests
   for select to authenticated using (
@@ -135,5 +135,39 @@ revoke all on function private.family_lifecycle_action(uuid,text,uuid,text), pub
   from public,anon,authenticated,service_role;
 grant execute on function private.family_lifecycle_action(uuid,text,uuid,text), public.family_lifecycle_action(uuid,text,uuid,text)
   to authenticated;
+-- Serialize member creation with deletion before acquiring membership/FK locks.
+create or replace function private.create_managed_person(p_family_id uuid, p_display_name text, p_biography text)
+returns uuid language plpgsql security definer set search_path = '' as $$
+declare actor uuid; person_id uuid;
+begin
+  actor := auth.uid();
+  perform 1 from public.app_users where id = actor for key share;
+  if not found then
+    raise exception 'Authentication required' using errcode = '42501';
+  end if;
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_family_id::text,1947758031));
+  perform private.validate_onboarding_text(p_display_name, p_biography);
+  perform 1 from public.family_memberships fm
+    join public.people p on p.id = fm.person_id
+    where fm.family_id = p_family_id and p.user_id = actor
+      and fm.status = 'ACTIVE' and fm.role in ('OWNER', 'ADMIN')
+    for share of fm, p;
+  if not found then
+    raise exception 'Active family owner or admin required' using errcode = '42501';
+  end if;
+  insert into public.people (display_name, biography, created_by_user_id)
+  values (btrim(p_display_name), nullif(btrim(p_biography), ''), actor)
+  returning id into person_id;
+  insert into public.family_memberships (family_id, person_id, role, status, created_by_user_id)
+  values (p_family_id, person_id, 'MEMBER', 'ACTIVE', actor);
+  insert into public.person_managers (person_id, manager_user_id, granted_by_user_id)
+  values (person_id, actor, actor);
+  insert into public.audit_events (actor_user_id, action, target_type, target_id, metadata)
+  values (actor, 'MANAGED_PERSON_CREATED', 'person', person_id,
+    jsonb_build_object('family_id', p_family_id));
+  return person_id;
+end;
+$$;
+
 notify pgrst, 'reload schema';
 commit;

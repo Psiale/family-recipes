@@ -61,6 +61,16 @@ select public.exit_assert((select count(*)=1 from public.audit_events where acti
 set local role authenticated;
 select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000002',true);
 select set_config('test.req',(select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','request',null,'Family 22'))::text,true);
+select public.exit_denied($q$delete from public.family_deletion_requests$q$,'42501');
+select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','cancel',current_setting('test.req')::uuid);
+select set_config('test.req',(select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','request',null,'Family 22'))::text,true);
+reset role;
+update public.family_deletion_requests set expires_at=now()-interval '1 second' where family_id='09000000-0000-0000-0000-000000000022';
+set local role authenticated;
+select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000003',true);
+select public.exit_denied($q$select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','approve',current_setting('test.req')::uuid,'Family 22')$q$,'PT409');
+select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000002',true);
+select set_config('test.req',(select public.family_lifecycle_action('09000000-0000-0000-0000-000000000022','request',null,'Family 22'))::text,true);
 select public.transfer_family_ownership('09000000-0000-0000-0000-000000000022','09000000-0000-0000-0000-000000000013','READ_ONLY');
 select public.exit_assert(not exists(select 1 from public.family_deletion_requests where family_id='09000000-0000-0000-0000-000000000022'),'Transfer invalidates request');
 select set_config('request.jwt.claim.sub','09000000-0000-0000-0000-000000000001',true);

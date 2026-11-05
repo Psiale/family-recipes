@@ -285,16 +285,16 @@ export async function familyLifecycleAction({
 }: {
   familyId: string;
   action: LifecycleAction;
-  requestId?: string;
-  confirmName?: string;
+  requestId?: string | undefined;
+  confirmName?: string | undefined;
 }) {
   const { data, error } = await getSupabaseClient().rpc(
     'family_lifecycle_action',
     {
       p_family_id: familyId,
       p_action: action,
-      p_request_id: requestId,
-      p_confirm_name: confirmName,
+      ...(requestId === undefined ? {} : { p_request_id: requestId }),
+      ...(confirmName === undefined ? {} : { p_confirm_name: confirmName }),
     },
   );
   if (error) throw error;
