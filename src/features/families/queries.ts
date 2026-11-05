@@ -103,3 +103,11 @@ export function useFamilyActions(userId: string) {
     changeRole: useMutation({ mutationFn: api.changeFamilyRole, ...options }),
   };
 }
+
+export function useSuperAdmin(userId: string) {
+  return useQuery({
+    queryKey: [...familyKeys.root(userId), 'super-admin'],
+    queryFn: () => api.isSuperAdmin(userId),
+    staleTime: 0,
+  });
+}

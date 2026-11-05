@@ -1,6 +1,19 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  administration: {
+    denied: 'Only Super Admins can access this screen.',
+    requestedBy: 'Requested by {{name}}',
+    expires: 'Expiration date: {{date}}',
+    title: 'Family administration',
+    name: 'Find a family by name',
+    search: 'Search',
+    empty: 'No matching families.',
+    previous: 'Previous',
+    next: 'Next',
+    noRequest: 'No pending deletion request.',
+    back: 'Back to results',
+  },
   familyLifecycle: {
     options: 'Options',
     gestureHint: 'Swipe either way or hold a family to see its options.',

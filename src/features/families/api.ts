@@ -261,22 +261,60 @@ export async function setBranchMembership({
 
 export type LifecycleAction =
   'leave' | 'request' | 'cancel' | 'approve' | 'delete';
+export async function isSuperAdmin(userId: string) {
+  const { data, error } = await getSupabaseClient()
+    .from('app_users')
+    .select('platform_role')
+    .eq('id', userId)
+    .single();
+  if (error) throw error;
+  return data.platform_role === 'SUPER_ADMIN';
+}
+export async function listDeletionRequests(familyId?: string) {
+  const query = getSupabaseClient()
+    .from('family_deletion_requests')
+    .select('*, family:families!inner(id, name)')
+    .order('created_at');
+  const { data, error } = await (familyId
+    ? query.eq('family_id', familyId)
+    : query);
+  if (error) throw error;
+  return data;
+}
+export type FamilyDeletionRequest = Awaited<
+  ReturnType<typeof listDeletionRequests>
+>[number];
+
 export async function getFamilyLifecycle(userId: string) {
-  const client = getSupabaseClient();
-  const [user, requests] = await Promise.all([
-    client.from('app_users').select('platform_role').eq('id', userId).single(),
-    client
-      .from('family_deletion_requests')
-      .select('*, family:families!inner(id, name)')
-      .order('created_at'),
+  const [superAdmin, requests] = await Promise.all([
+    isSuperAdmin(userId),
+    listDeletionRequests(),
   ]);
-  if (user.error) throw user.error;
-  if (requests.error) throw requests.error;
+  return { superAdmin, requests };
+}
+
+export const directoryPageSize = 25;
+export async function searchFamilies(name: string, page: number) {
+  const start = page * directoryPageSize;
+  const query = getSupabaseClient()
+    .from('families')
+    .select('id,name,description,created_at,created_by_user_id')
+    .order('name')
+    .order('id')
+    .range(start, start + directoryPageSize);
+  // PostgreSQL's ***= prefix treats the rest as literal text, including '*',
+  // which PostgREST otherwise interprets as a wildcard in an ilike filter.
+  if (name) query.regexIMatch('name', `***=${name}`);
+  const { data, error } = await query;
+  if (error) throw error;
   return {
-    superAdmin: user.data.platform_role === 'SUPER_ADMIN',
-    requests: requests.data,
+    families: data.slice(0, directoryPageSize),
+    more: data.length > directoryPageSize,
   };
 }
+export type DirectoryFamily = Awaited<
+  ReturnType<typeof searchFamilies>
+>['families'][number];
 export async function familyLifecycleAction({
   familyId,
   action,

@@ -1,4 +1,17 @@
 export const es = {
+  administration: {
+    denied: 'Solo los súper administradores pueden acceder a esta pantalla.',
+    requestedBy: 'Solicitud de {{name}}',
+    expires: 'Fecha de vencimiento: {{date}}',
+    title: 'Administración de familias',
+    name: 'Buscar una familia por nombre',
+    search: 'Buscar',
+    empty: 'No se encontraron familias.',
+    previous: 'Anterior',
+    next: 'Siguiente',
+    noRequest: 'No hay solicitud de eliminación pendiente.',
+    back: 'Volver a los resultados',
+  },
   familyLifecycle: {
     options: 'Opciones',
     gestureHint:

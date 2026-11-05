@@ -119,7 +119,7 @@ concurrent demotion during privileged writes.
 - SQL/RLS, concurrent removal, real Auth/API, and localized UI tests cover this slice.
 - Membership administration and branches migrations must be deployed before an APK using these features is released.
 
-Next: Super Admin administration. Invitations and
+The first Super Admin administration screen is described below. Invitations and
 email delivery remain deferred. Recipe workflows begin in Phase 3.
 
 ## Decisions to resolve before recipe migrations stabilize
@@ -158,3 +158,11 @@ requires two confirmations and typing the family name. Profiles and recipes surv
 Migration `20261105021025_family_exit_and_deletion` is required for this slice.
 SQL/RLS, concurrent member creation/deletion, real Auth/PostgREST, and UI tests
 cover the workflow. Delivery does not include merging the preceding delegation PR.
+
+## Super Admin family administration
+
+The drawer opens a searchable, paginated family directory for Super Admins.
+A Super Admin can inspect an unrelated family's roster and review its deletion
+request without joining the family or changing their active family. The directory
+uses the existing family RLS policies and the same audited lifecycle RPC and
+confirmation screens as Mis familias. Platform-role management is separate.
