@@ -86,8 +86,8 @@ tests. See [ADR 0001](adr/0001-step-3-onboarding.md) for claim and manager rules
 
 This completes the first slice of Phase 2, not the entire phase. Role changes,
 member removal, ownership transfer, branches, person-manager delegation, and
-Super Admin override screens remain before recipe workflows. General family
-invitations and email delivery are deferred to Phase 5.
+Super Admin override screens are covered by the completed slices below. General
+family invitations and email delivery are deferred to Phase 5.
 
 ## Completed slice — Family roles
 
@@ -109,7 +109,7 @@ Role changes retain existing Person identities, manager grants, and recipe
 ownership. Regression tests cover authorization denials, stale edits, and
 concurrent demotion during privileged writes.
 
-## Current slice — Family branches
+## Completed slice — Family branches
 
 - Open Family branches from family details to view named groups and their members.
 - Owners and Admins create branches and add/remove active family members.
@@ -166,3 +166,28 @@ A Super Admin can inspect an unrelated family's roster and review its deletion
 request without joining the family or changing their active family. The directory
 uses the existing family RLS policies and the same audited lifecycle RPC and
 confirmation screens as Mis familias. Platform-role management is separate.
+
+## Completed slice — Super Admin person administration
+
+From the unrelated-family roster, a Super Admin can rename linked or unclaimed
+people globally, or remove a person only from the selected family. Each action
+requires an explicit reason and review before confirmation. Support requests and
+tickets are optional; a Super Admin may act on their own initiative.
+
+The server checks and locks the caller's current platform role, rejects stale
+confirmations, and commits the change and immutable audit event atomically.
+Renames preserve identity, login credentials, memberships and ownership. Family
+removal uses the existing membership transition and audited branch cleanup;
+profiles, linked accounts, other families, recipes and manager grants survive.
+The last active Owner must transfer ownership first, or the Super Admin can use
+the existing family-deletion workflow. Ordinary family administration is unchanged.
+
+Apply `20261105185536_super_admin_person_administration` before using this slice.
+App, SQL/RLS, concurrency and real Auth/PostgREST tests cover authorization,
+confirmation snapshots, preservation and audit attribution.
+
+Phase 2's planned family/person administration is complete. Global profile
+deletion is deferred to a separate, explicitly named action and its own PR:
+linked accounts, owned recipes and historical attribution need a product decision.
+Platform-role management stays separate. Invitations remain in Phase 5; recipe
+implementation is still pending in Phase 3.

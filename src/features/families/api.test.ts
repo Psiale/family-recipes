@@ -1,6 +1,8 @@
 import { getSupabaseClient } from '@/lib/supabase/client';
 
 import {
+  adminRenamePerson,
+  adminRemoveFamilyMember,
   claimPerson,
   createFamilyRelationship,
   createFamily,
@@ -129,3 +131,48 @@ it.each([
     ).rejects.toEqual({ code: 'PT409' });
   },
 );
+
+it('sends immutable confirmation snapshots and reasons to dedicated admin RPCs', async () => {
+  await adminRenamePerson({
+    personId: 'person',
+    expectedName: 'Ana',
+    expectedUpdatedAt: 'person-version',
+    name: 'Anita',
+    reason: 'Correction',
+  });
+  expect(rpc).toHaveBeenLastCalledWith('admin_rename_person', {
+    p_person_id: 'person',
+    p_expected_name: 'Ana',
+    p_expected_updated_at: 'person-version',
+    p_display_name: 'Anita',
+    p_reason: 'Correction',
+  });
+  await adminRemoveFamilyMember({
+    personId: 'person',
+    familyId: 'family',
+    expectedRole: 'OWNER',
+    expectedUpdatedAt: 'member-version',
+    expectedName: 'Ana',
+    expectedFamilyName: 'Luna',
+    reason: 'Correction',
+  });
+  expect(rpc).toHaveBeenLastCalledWith('admin_remove_family_member', {
+    p_family_id: 'family',
+    p_person_id: 'person',
+    p_expected_role: 'OWNER',
+    p_expected_updated_at: 'member-version',
+    p_expected_name: 'Ana',
+    p_expected_family_name: 'Luna',
+    p_reason: 'Correction',
+  });
+  rpc.mockResolvedValue({ error: { code: '42501' } });
+  await expect(
+    adminRenamePerson({
+      personId: 'person',
+      expectedName: 'Ana',
+      expectedUpdatedAt: 'version',
+      name: 'Anita',
+      reason: 'Correction',
+    }),
+  ).rejects.toEqual({ code: '42501' });
+});

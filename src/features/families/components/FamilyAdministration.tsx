@@ -11,11 +11,13 @@ import {
   listDeletionRequests,
   searchFamilies,
   type DirectoryFamily,
+  type FamilyPerson,
 } from '../api';
 import { familyKeys, useFamilyPeople, useSuperAdmin } from '../queries';
 
 import { FamilyDetailsSummary } from './FamilyDetailsSummary';
 import { FamilyLifecyclePanel } from './FamilyLifecyclePanel';
+import { PersonAdministration } from './PersonAdministration';
 import { styles } from './styles';
 
 function LoadError({ retry }: { retry: () => void }) {
@@ -138,10 +140,30 @@ function Inspection({
 }) {
   const { t, i18n } = useTranslation();
   const people = useFamilyPeople(userId, family.id);
+  // Keep the exact roster snapshot the user chose, even during a refetch.
+  const [selection, setSelection] = useState<{
+    member: FamilyPerson;
+    action: 'rename' | 'remove';
+  } | null>(null);
+  const [personDone, setPersonDone] = useState(false);
   const requests = useQuery({
     queryKey: [...familyKeys.root(userId), 'request', family.id],
     queryFn: () => listDeletionRequests(family.id),
   });
+  if (selection)
+    return (
+      <PersonAdministration
+        userId={userId}
+        family={family}
+        member={selection.member}
+        action={selection.action}
+        onClose={() => setSelection(null)}
+        onDone={() => {
+          setSelection(null);
+          setPersonDone(true);
+        }}
+      />
+    );
   if (
     people.isError ||
     requests.isError ||
@@ -176,10 +198,29 @@ function Inspection({
           </Text>
         </ScrollIntoView>
         <FamilyDetailsSummary family={family} people={people.data} />
-        {people.data.map(({ person, role }) => (
-          <Text key={person.id} style={styles.body}>
-            {person.display_name} · {t(`families.roles.${role}`)}
-          </Text>
+        {personDone && (
+          <Text role="status">{t('personAdministration.done')}</Text>
+        )}
+        {people.data.map((member) => (
+          <View key={member.person.id} style={styles.card}>
+            <Text style={styles.body}>
+              {member.person.display_name} ·{' '}
+              {t(`families.roles.${member.role}`)}
+            </Text>
+            {(['rename', 'remove'] as const).map((action) => (
+              <AppButton
+                key={action}
+                variant="secondary"
+                label={t(`personAdministration.${action}`, {
+                  name: member.person.display_name,
+                })}
+                onPress={() => {
+                  setPersonDone(false);
+                  setSelection({ member, action });
+                }}
+              />
+            ))}
+          </View>
         ))}
       </View>
       {request ? (

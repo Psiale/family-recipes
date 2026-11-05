@@ -1060,6 +1060,28 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      admin_remove_family_member: {
+        Args: {
+          p_expected_family_name: string;
+          p_expected_name: string;
+          p_expected_role: Database['public']['Enums']['family_role'];
+          p_expected_updated_at: string;
+          p_family_id: string;
+          p_person_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      admin_rename_person: {
+        Args: {
+          p_display_name: string;
+          p_expected_name: string;
+          p_expected_updated_at: string;
+          p_person_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
       change_family_role: {
         Args: {
           p_expected_role: Database['public']['Enums']['family_role'];

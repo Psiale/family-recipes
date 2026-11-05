@@ -1,4 +1,26 @@
 export const es = {
+  personAdministration: {
+    rename: 'Cambiar el nombre de {{name}}',
+    remove: 'Quitar a {{name}} de esta familia',
+    renameExplanation:
+      'Este cambio se aplica en todas partes donde aparece esta persona, en todas sus familias. Conserva su identidad, acceso, membresías y propiedad.',
+    removeExplanation:
+      'Quitar a {{name}} de la familia {{family}} termina solo esta membresía y elimina sus asignaciones a ramas de esta familia. Conserva el perfil global, la cuenta vinculada, otras familias, recetas y permisos de gestión.',
+    lastOwner:
+      'No se puede quitar al último propietario activo. Primero debe transferir la propiedad desde su familia, o un súper administrador puede usar la eliminación de la familia.',
+    currentName: 'Nombre actual: {{name}}',
+    proposedName: 'Nombre propuesto: {{name}}',
+    newName: 'Nuevo nombre',
+    reason: 'Motivo obligatorio',
+    reviewReason: 'Motivo: {{reason}}',
+    reasonHint:
+      'Describe el motivo (máximo 2000 caracteres). Puedes actuar por solicitud o por iniciativa propia; no se requiere un ticket.',
+    review: 'Revisar cambio',
+    confirm: 'Confirmar cambio de persona',
+    done: 'Cambio de persona guardado y auditado.',
+    stale:
+      'La persona o membresía cambió. Cancela y vuelve a abrir la acción para revisar los datos actuales.',
+  },
   administration: {
     denied: 'Solo los súper administradores pueden acceder a esta pantalla.',
     requestedBy: 'Solicitud de {{name}}',

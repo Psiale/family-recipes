@@ -12,6 +12,7 @@ const people = [
   {
     person: { id: 'p', display_name: 'Alex' },
     role: 'MEMBER',
+    membershipUpdatedAt: '2026-11-05T00:00:00Z',
     canIssueClaim: true,
   },
 ] as api.FamilyPerson[];

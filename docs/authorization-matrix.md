@@ -22,6 +22,8 @@ service transactions additionally enforce multi-row invariants and auditing.
 | Transfer recipe ownership | No | No | No | No | No | No | Yes |
 | Manage family Owners | No | No | No | Owner transfer only | No | No | Yes |
 | Search the platform family directory and inspect unrelated families | No | No | No | No | No | No | Yes |
+| Rename a person globally (reason required) | No | No | No | No | No | No | Yes, audited |
+| Remove a person from an unrelated family (reason required) | No | No | No | No | No | No | Yes, audited |
 | Grant/revoke Super Admin | No | No | No | No | No | No | Yes, audited |
 
 ## Clarifications encoded by the model
@@ -106,3 +108,26 @@ service transactions additionally enforce multi-row invariants and auditing.
   collections and recipe visibility grants. People, recipes, global manager
   grants and immutable audit history remain. All mutations recheck current
   authorization and serialize on the family's advisory lock.
+
+
+## Super Admin person administration
+
+- Dedicated RPCs check the authenticated caller's current `app_users.platform_role`
+  and retain its row lock for the transaction. Family leadership or manager grants
+  never authorize these operations, even for a known person/family ID.
+- Both actions require a reason, whether acting on a support request or on the
+  Super Admin's own initiative. Formal requests and tickets are optional.
+- A global display-name change covers linked accounts and unclaimed profiles;
+  the confirmation shows old/new names and explains its global effect. The
+  server locks the Person and checks the expected name and update timestamp.
+  It records actor, target, reason and old/new values atomically with the change.
+- Family removal confirms both person and family, checks the membership snapshot,
+  and serializes with ownership/lifecycle operations. It ends only the selected
+  membership and triggers the existing audited branch cleanup. The last active
+  Owner cannot be removed: transfer ownership first or use family deletion.
+- Neither operation deletes a profile/account, changes login credentials,
+  ownership, other memberships, recipes or global manager grants. Existing
+  Owner/Admin workflows within their own families remain unchanged.
+- Global profile deletion is deferred to a separate explicitly named action/PR;
+  account links, owned recipes and historical attribution remain undecided.
+  Platform-role management, invitations and Phase 3 recipes are outside this slice.
