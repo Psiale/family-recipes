@@ -258,3 +258,45 @@ export async function setBranchMembership({
   });
   if (error) throw error;
 }
+
+export type LifecycleAction =
+  'leave' | 'request' | 'cancel' | 'approve' | 'delete';
+export async function getFamilyLifecycle(userId: string) {
+  const client = getSupabaseClient();
+  const [user, requests] = await Promise.all([
+    client.from('app_users').select('platform_role').eq('id', userId).single(),
+    client
+      .from('family_deletion_requests')
+      .select('*, family:families!inner(id, name)')
+      .order('created_at'),
+  ]);
+  if (user.error) throw user.error;
+  if (requests.error) throw requests.error;
+  return {
+    superAdmin: user.data.platform_role === 'SUPER_ADMIN',
+    requests: requests.data,
+  };
+}
+export async function familyLifecycleAction({
+  familyId,
+  action,
+  requestId,
+  confirmName,
+}: {
+  familyId: string;
+  action: LifecycleAction;
+  requestId?: string | undefined;
+  confirmName?: string | undefined;
+}) {
+  const { data, error } = await getSupabaseClient().rpc(
+    'family_lifecycle_action',
+    {
+      p_family_id: familyId,
+      p_action: action,
+      ...(requestId === undefined ? {} : { p_request_id: requestId }),
+      ...(confirmName === undefined ? {} : { p_confirm_name: confirmName }),
+    },
+  );
+  if (error) throw error;
+  return data;
+}

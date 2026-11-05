@@ -1,4 +1,36 @@
 export const es = {
+  familyLifecycle: {
+    options: 'Opciones',
+    gestureHint:
+      'Desliza hacia cualquier lado o mantén presionada una familia para ver sus opciones.',
+    done: 'Acción completada.',
+    pending: 'Solicitud para eliminar: {{family}}',
+    review: 'Revisar solicitud',
+    leave: 'Salir de la familia',
+    ownerLeave:
+      'Antes de salir, transfiere la propiedad a otra cuenta vinculada desde la información de la familia. Si no hay otra cuenta, puedes solicitar el borrado con aprobación del súper admin.',
+    request: 'Solicitar eliminación',
+    approve: 'Autorizar y eliminar familia',
+    cancelRequest: 'Cancelar solicitud',
+    delete: 'Eliminar como súper admin',
+    waiting:
+      'Pendiente de aprobación de otro miembro con cuenta vinculada o del súper admin. La aprobación eliminará la familia. La solicitud caduca a los 7 días.',
+    expired: 'La solicitud caducó. El propietario puede renovarla.',
+    leaveExplanation:
+      'Saldrás de {{family}} y perderás el acceso de miembro. Tu perfil, tus recetas y tus otras familias se conservarán. Las delegaciones globales no cambian.',
+    requestExplanation:
+      'Solicitarás eliminar {{family}} para todos. Otro miembro con cuenta vinculada o el súper admin deberá autorizarlo. Se eliminarán las membresías, ramas, relaciones y colecciones de esta familia. Los perfiles y las recetas se conservarán.',
+    cancelExplanation: 'Cancelarás la solicitud de eliminación de {{family}}.',
+    approveExplanation:
+      'Autorizarás la solicitud del propietario y eliminarás {{family}} para todos inmediatamente. Se eliminarán sus membresías, ramas, relaciones, invitaciones, colecciones y accesos compartidos a recetas. Los perfiles y las recetas se conservarán. No se puede deshacer.',
+    deleteExplanation:
+      'Eliminarás {{family}} para todos usando tu permiso de súper admin, sin otra aprobación. Se eliminarán sus membresías, ramas, relaciones, invitaciones, colecciones y accesos compartidos a recetas. Los perfiles y las recetas se conservarán. No se puede deshacer.',
+    second: 'Segunda confirmación: este borrado es definitivo.',
+    typeName: 'Escribe el nombre exacto de la familia',
+    confirm: 'Confirmar',
+    continue: 'Continuar a la segunda confirmación',
+  },
+
   app: {
     name: 'Recetario Familiar',
     loading: 'Cargando…',

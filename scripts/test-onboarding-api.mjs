@@ -418,6 +418,74 @@ try {
     0,
     'Revocation works without a shared-family argument',
   );
+  // Real PostgREST exposes only the audited lifecycle RPC; independent consent
+  // comes from the second authenticated client, never a supplied user ID.
+  const exitFamily = unwrap(
+    await claimant.rpc('create_family', { p_name: 'Exit integration' }),
+  );
+  familyIds.push(exitFamily);
+  await db.query(
+    "insert into public.family_memberships(family_id,person_id,role) values($1,$2,'READ_ONLY')",
+    [exitFamily, oldOwner.id],
+  );
+  unwrap(
+    await owner.rpc('family_lifecycle_action', {
+      p_family_id: exitFamily,
+      p_action: 'leave',
+    }),
+  );
+  assert.equal(
+    unwrap(await owner.from('families').select('id').eq('id', exitFamily))
+      .length,
+    0,
+  );
+  await db.query(
+    "update public.family_memberships set status='ACTIVE',ended_at=null where family_id=$1 and person_id=$2",
+    [exitFamily, oldOwner.id],
+  );
+  const deleteRequest = unwrap(
+    await claimant.rpc('family_lifecycle_action', {
+      p_family_id: exitFamily,
+      p_action: 'request',
+      p_confirm_name: 'Exit integration',
+    }),
+  );
+  assert.equal(
+    unwrap(
+      await owner
+        .from('family_deletion_requests')
+        .select('id')
+        .eq('family_id', exitFamily),
+    )[0].id,
+    deleteRequest,
+  );
+  assert.equal(
+    (
+      await claimant.rpc('family_lifecycle_action', {
+        p_family_id: exitFamily,
+        p_action: 'approve',
+        p_request_id: deleteRequest,
+        p_confirm_name: 'Exit integration',
+      })
+    ).error?.code,
+    '42501',
+  );
+  unwrap(
+    await owner.rpc('family_lifecycle_action', {
+      p_family_id: exitFamily,
+      p_action: 'approve',
+      p_request_id: deleteRequest,
+      p_confirm_name: 'Exit integration',
+    }),
+  );
+  assert.equal(
+    unwrap(await claimant.from('families').select('id').eq('id', exitFamily))
+      .length,
+    0,
+  );
+  console.log(
+    'Real Auth/PostgREST personal exit, request visibility, self-approval denial and independent deletion passed.',
+  );
   unwrap(await owner.auth.signOut());
   unwrap(await claimant.auth.signOut());
   await testPasswordRecovery(config, db);

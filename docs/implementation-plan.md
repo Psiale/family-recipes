@@ -144,3 +144,17 @@ without requiring a shared family. Family removal does not revoke global grants.
 Recipe editing remains a future feature; delegation does not transfer ownership
 or bypass recipe preservation. The initial manager of an unlinked profile still
 uses the existing claim flow; claiming continues to remove pre-claim grants.
+
+## Family exit and deletion requests
+
+Mis familias supports swiping in either direction or long-pressing a family to
+open its options. Non-owners confirm their own exit. Owners transfer ownership
+before leaving, or request deletion with another linked member's or Super Admin's
+approval. Pending requests are visible in Mis familias, including requests from
+other families for Super Admin review. Approval executes deletion; cancellation,
+expiry and ownership changes invalidate requests. A Super Admin's direct deletion
+requires two confirmations and typing the family name. Profiles and recipes survive.
+
+Migration `20261105021025_family_exit_and_deletion` is required for this slice.
+SQL/RLS, concurrent member creation/deletion, real Auth/PostgREST, and UI tests
+cover the workflow. Delivery does not include merging the preceding delegation PR.
