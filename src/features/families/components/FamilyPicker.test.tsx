@@ -89,6 +89,7 @@ it('long press opens personal leave; cancellation never mutates and confirmed le
   const { user, onSelect } = await setup();
   await user.longPress(screen.getByRole('button', { name: family.name }));
   expect(onSelect).not.toHaveBeenCalled();
+  expect(screen.getByRole('button', { name: family.name })).toBeOnTheScreen();
   await user.press(screen.getByRole('button', { name: 'Salir de la familia' }));
   await user.press(screen.getByRole('button', { name: 'Cancelar' }));
   expect(mocks.familyLifecycleAction).not.toHaveBeenCalled();
