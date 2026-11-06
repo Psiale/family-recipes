@@ -233,24 +233,28 @@ recipe slice. This is not the whole of Phase 3: managed-person recipe creation,
 media upload, editing multi-family/branch audiences, collections/defaults and
 preservation controls remain. Forks, lineage and suggestions stay in Phase 4.
 
-### In progress: private on-device recipe capture
+### Current slice — Local recipe photo import
 
-Photo/text OCR, speech transcription and video narration plus sparse frame OCR
-feed the same create-recipe form through a local draft. Original files never go
-to the backend or an AI service. Initial public model downloads require an
-explicit capture action; subsequent extraction uses the cached models offline.
-The source text is reviewed/corrected first, then structured locally; only an
-explicit save in the existing recipe form persists reviewed recipe content.
-No migration or hosted AI key is needed.
+Import one existing recipe photo, read its text on-device, correct it beside the
+photo preview and propose ingredients/ordered steps in the existing recipe form.
+The full corrected source remains visible while completing the draft. Only an
+explicit save persists recipe fields through the existing audited operation;
+images and source reference text are not uploaded or attached to recipes.
 
-The first slice accepts one file up to 30 MB, audio/video up to two minutes,
-and at most eight video frames. Spanish is the default with English support.
-Text fields must be excerpts of the source; vague quantities remain verbatim.
-Times and year require manual entry. The source text and temporary media are
-discarded on leaving capture. It is a native custom-build feature, unavailable
-on web/Expo Go; manual authoring remains available. Real native inference and
-offline verification are required before marking this slice shipped.
+Use maintained official Expo packages, Google ML Kit on Android and Apple Vision
+on iOS through a small local Expo module. Android's current Google Play services
+SDK prepares the reader once with a connection; recognition then works offline.
+There is no generative model or large model download. The prior JPEG decoder,
+blob utility, background downloader, ExecuTorch, audio and video dependencies are
+removed. See [photo capture](photo-capture.md) for versions, support and limits.
 
-In-app camera/microphone recording, multi-page/batch imports, long clips,
-visual inference of unspoken cooking actions, source attachment storage,
-automatic time/unit conversion and cloud processing are not in this slice.
+Draft mapping recognizes Spanish/English headings, preserves stated quantities
+and section labels, and leaves ambiguous/unmapped text available for human review.
+It does not invent ingredients or times. Spanish stays default with English
+support. One photo up to 30 MB, normalized to at most 2000×2000 pixels, and 10000
+source characters are supported. No migration or hosted AI key is needed.
+
+Audio transcription and video extraction are deferred to a separate future PR.
+Camera/microphone recording, batch/multi-page import, media storage/attachments,
+unit/time conversion and cloud processing remain outside this slice. Real native
+OCR, offline behavior and the final signed APK must be verified before delivery.

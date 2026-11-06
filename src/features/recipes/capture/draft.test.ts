@@ -39,9 +39,6 @@ const result: CaptureResult = {
       kind: 'missing',
       note: 'La fuente no indica un tiempo concreto.',
       evidence: 'hasta que esté listo',
-      source_index: 0,
-      start_seconds: null,
-      end_seconds: null,
     },
   ],
 };
@@ -69,7 +66,7 @@ it('allows an incomplete extraction draft while rejecting ownership or privilege
     }).success,
   ).toBe(false);
 });
-it('rejects malformed or excessively large provider output instead of passing it into the form', () => {
+it('rejects malformed or excessively large draft output instead of passing it into the form', () => {
   expect(
     captureResultSchema.safeParse({
       ...result,
@@ -77,7 +74,7 @@ it('rejects malformed or excessively large provider output instead of passing it
     }).success,
   ).toBe(false);
   expect(
-    captureResultSchema.safeParse({ ...result, source_text: 'x'.repeat(40001) })
+    captureResultSchema.safeParse({ ...result, source_text: 'x'.repeat(10001) })
       .success,
   ).toBe(false);
 });

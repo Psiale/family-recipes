@@ -46,7 +46,7 @@ export const extractedRecipeSchema = z
 export const captureResultSchema = z
   .object({
     recipe: extractedRecipeSchema,
-    source_text: z.string().max(40000),
+    source_text: z.string().max(10000),
     issues: z
       .array(
         z
@@ -55,9 +55,6 @@ export const captureResultSchema = z
             kind: z.enum(['missing', 'unclear', 'conflict']),
             note: z.string().max(500),
             evidence: z.string().max(1000).nullable(),
-            source_index: z.number().int().min(0).max(9),
-            start_seconds: z.number().nonnegative().nullable(),
-            end_seconds: z.number().nonnegative().nullable(),
           })
           .strict(),
       )
@@ -65,12 +62,15 @@ export const captureResultSchema = z
   })
   .strict();
 export type CaptureResult = z.infer<typeof captureResultSchema>;
-export type RecipeDraft = Omit<RecipeContent, 'change_summary'>;
+export type RecipeDraft = Omit<RecipeContent, 'change_summary'> & {
+  capture_source_text?: string;
+};
 const clean = (value: string | null) =>
   value === null ? null : value.trim() || null;
 export function normalizeRecipeDraft(result: CaptureResult): RecipeDraft {
   const recipe = result.recipe;
   return {
+    capture_source_text: result.source_text,
     title: clean(recipe.title) ?? '',
     description: clean(recipe.description),
     origin_location: clean(recipe.origin_location),

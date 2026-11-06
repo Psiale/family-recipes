@@ -1,0 +1,14 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+group = 'com.familyrecipetree.photo'
+version = '0.1.0'
+android {
+  namespace 'com.familyrecipetree.photo'
+  defaultConfig { consumerProguardFiles 'consumer-rules.pro' }
+}
+dependencies {
+  // Official current Google SDK. Google Play services installs the on-device model.
+  implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.2'
+}

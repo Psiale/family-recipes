@@ -20,10 +20,14 @@ const mocks = jest.mocked(engine);
 beforeEach(async () => {
   jest.clearAllMocks();
   await i18n.changeLanguage('es');
-  mocks.chooseAndRead.mockResolvedValue('Sopa\nsal\nHervir');
+  mocks.chooseAndRead.mockResolvedValue({
+    text: 'Sopa\nsal\nHervir',
+    previewUri: 'file:///cache/photo.jpg',
+    dispose: jest.fn(),
+  });
 });
 it.each(['es', 'en'])(
-  'requires transcript review and explicit draft acceptance without saving in %s',
+  'requires photo-text review and explicit draft acceptance without saving in %s',
   async (language) => {
     await i18n.changeLanguage(language);
     const use = jest.fn();
@@ -105,4 +109,25 @@ it('keeps source text after model failure and offers a manual fallback', async (
     screen.getByRole('button', { name: i18n.t('capture.manual') }),
   );
   expect(cancel).toHaveBeenCalledTimes(1);
+});
+
+it('shows the local photo for comparison and deletes its temporary preview on leaving', async () => {
+  const dispose = jest.fn();
+  mocks.chooseAndRead.mockResolvedValue({
+    text: 'Sopa',
+    previewUri: 'file:///cache/photo.jpg',
+    dispose,
+  });
+  const view = await render(
+    <CapturePanel onUse={jest.fn()} onCancel={jest.fn()} />,
+  );
+  await userEvent
+    .setup()
+    .press(screen.getByRole('button', { name: i18n.t('capture.choose') }));
+  expect(
+    await screen.findByLabelText(i18n.t('capture.photo')),
+  ).toBeOnTheScreen();
+  expect(dispose).not.toHaveBeenCalled();
+  await view.unmount();
+  expect(dispose).toHaveBeenCalledTimes(1);
 });

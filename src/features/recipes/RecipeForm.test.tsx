@@ -21,6 +21,8 @@ it('makes captured section labels reviewable and saves only explicitly accepted 
       onCancel={jest.fn()}
       draft={{
         title: 'Sopa',
+        capture_source_text:
+          'Sopa\nIngredientes\nun puñito de sal\nPreparación\nHervir',
         description: null,
         story: null,
         origin_location: null,
@@ -49,6 +51,7 @@ it('makes captured section labels reviewable and saves only explicitly accepted 
     />,
   );
   expect(save).not.toHaveBeenCalled();
+  expect(screen.getByText(i18n.t('capture.reference'))).toBeOnTheScreen();
   await fireEvent.changeText(
     screen.getByLabelText(
       i18n.t('recipes.fields.ingredient_section', { number: 1 }),
@@ -82,6 +85,9 @@ it('makes captured section labels reviewable and saves only explicitly accepted 
     }),
   );
   expect(save.mock.calls[0]?.[0].content).not.toHaveProperty('source_text');
+  expect(save.mock.calls[0]?.[0].content).not.toHaveProperty(
+    'capture_source_text',
+  );
 });
 beforeEach(async () => {
   await i18n.changeLanguage('es');

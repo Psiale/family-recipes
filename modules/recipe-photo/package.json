@@ -1,0 +1,8 @@
+{
+  "name": "recipe-photo",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "description": "Local photo OCR using the official Google and Apple SDKs",
+  "license": "MIT"
+}

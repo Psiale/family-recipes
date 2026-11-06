@@ -159,6 +159,12 @@ export function RecipeForm({
           {t(initial ? 'recipes.edit' : 'recipes.create')}
         </Text>
       </ScrollIntoView>
+      {draft?.capture_source_text && (
+        <View style={styles.card}>
+          <Text style={styles.subtitle}>{t('capture.reference')}</Text>
+          <Text selectable>{draft.capture_source_text}</Text>
+        </View>
+      )}
       {(Object.keys(fields) as (keyof typeof fields)[])
         .filter((key) => key !== 'change_summary' || initial)
         .map((key) => (

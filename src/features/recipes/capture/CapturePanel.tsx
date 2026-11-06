@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, Platform, Text, View } from 'react-native';
+import { AppState, Image, Platform, Text, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { TextField } from '@/components/TextField';
@@ -26,17 +26,15 @@ export function CapturePanel({
   onCancel: () => void;
 }) {
   const { t, i18n } = useTranslation();
-  const captureSupported = Platform.OS === 'android' || Platform.OS === 'ios';
+  const supported = Platform.OS === 'android' || Platform.OS === 'ios';
   const [source, setSource] = useState('');
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
   const [result, setResult] = useState<CaptureResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState<CaptureStage>('read');
-  const [progress, setProgress] = useState<number>();
   const [error, setError] = useState<string | null>(null);
-  const [language, setLanguage] = useState<'es' | 'en'>(
-    i18n.language.startsWith('en') ? 'en' : 'es',
-  );
   const controller = useRef<AbortController | null>(null);
+  const disposePreview = useRef<(() => void) | null>(null);
   const mounted = useRef(true);
   const activeWork = useRef(false);
   useEffect(() => {
@@ -47,6 +45,7 @@ export function CapturePanel({
     return () => {
       mounted.current = false;
       controller.current?.abort();
+      disposePreview.current?.();
       listener.remove();
     };
   }, []);
@@ -58,27 +57,32 @@ export function CapturePanel({
     setBusy(true);
     setError(null);
     setResult(null);
-    setProgress(undefined);
     const options: CaptureOptions = {
       signal: abort.signal,
-      language,
-      onProgress: (nextStage, nextProgress) => {
-        if (!mounted.current) return;
-        activeWork.current = true;
-        setStage(nextStage);
-        setProgress(nextProgress);
+      language: i18n.language.startsWith('en') ? 'en' : 'es',
+      onProgress: (nextStage) => {
+        if (mounted.current) {
+          activeWork.current = true;
+          setStage(nextStage);
+        }
       },
     };
     try {
-      // Avoid initializing native AI modules until capture is explicitly used.
+      // Keep custom native initialization out of normal recipe browsing and web.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const engine = require('./engine') as typeof import('./engine');
-      const { chooseAndRead, organizeSource } = engine;
       if (read) {
-        const text = await chooseAndRead(options);
-        if (mounted.current && text !== null) setSource(text);
+        const photo = await engine.chooseAndRead(options);
+        if (photo) {
+          if (mounted.current) {
+            disposePreview.current?.();
+            disposePreview.current = photo.dispose;
+            setPreviewUri(photo.previewUri);
+            setSource(photo.text);
+          } else photo.dispose();
+        }
       } else {
-        const next = await organizeSource(source, options);
+        const next = await engine.organizeSource(source, options);
         if (mounted.current) setResult(next);
       }
     } catch (failure) {
@@ -99,19 +103,11 @@ export function CapturePanel({
       <Text role="heading" style={styles.title}>
         {t('capture.title')}
       </Text>
-      <Text>{captureSupported ? t('capture.privacy') : t('capture.web')}</Text>
-      {captureSupported && (
+      <Text>{supported ? t('capture.privacy') : t('capture.web')}</Text>
+      {supported && (
         <>
           <Text>{t('capture.limits')}</Text>
-          <Text>{t('capture.models')}</Text>
-          <AppButton
-            variant="secondary"
-            label={t(
-              language === 'es' ? 'capture.languageEs' : 'capture.languageEn',
-            )}
-            disabled={busy}
-            onPress={() => setLanguage(language === 'es' ? 'en' : 'es')}
-          />
+          <Text>{t('capture.reader')}</Text>
           <AppButton
             label={t('capture.choose')}
             disabled={busy}
@@ -121,10 +117,7 @@ export function CapturePanel({
       )}
       {busy && (
         <>
-          <Text role="status">
-            {t(`capture.${stage}`)}
-            {progress === undefined ? '' : ` ${Math.round(progress * 100)}%`}
-          </Text>
+          <Text role="status">{t(`capture.${stage}`)}</Text>
           <AppButton
             variant="secondary"
             label={t('capture.stop')}
@@ -136,6 +129,14 @@ export function CapturePanel({
         <Text role="alert" style={styles.error}>
           {error}
         </Text>
+      )}
+      {previewUri && (
+        <Image
+          source={{ uri: previewUri }}
+          accessibilityLabel={t('capture.photo')}
+          resizeMode="contain"
+          style={{ width: '100%', height: 240 }}
+        />
       )}
       {source !== '' && (
         <>
@@ -168,6 +169,7 @@ export function CapturePanel({
             {result.recipe.title ?? t('capture.untitled')}
           </Text>
           <Text>{t('capture.reviewDraft')}</Text>
+          {result.issues.length > 0 && <Text>{t('capture.incomplete')}</Text>}
           <Text>
             {t('recipes.ingredients')}: {result.recipe.ingredients.length} ·{' '}
             {t('recipes.steps')}: {result.recipe.steps.length}

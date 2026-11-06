@@ -1,10 +1,13 @@
 import type { CaptureResult } from './draft';
-import { CaptureError, type CaptureOptions } from './pipeline';
+import {
+  CaptureError,
+  type CaptureOptions,
+  type PhotoReadResult,
+} from './pipeline';
 
-export const captureSupported = false;
 export async function chooseAndRead(
   _options: CaptureOptions,
-): Promise<string | null> {
+): Promise<PhotoReadResult | null> {
   throw new CaptureError('unsupported');
 }
 export async function organizeSource(
