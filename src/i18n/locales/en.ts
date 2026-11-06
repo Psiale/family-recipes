@@ -1,6 +1,64 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  recipes: {
+    moveUp: 'Move up: {{item}}',
+    moveDown: 'Move down: {{item}}',
+    create: 'Create recipe',
+    edit: 'Edit recipe',
+    save: 'Save recipe',
+    search: 'Search recipes by title',
+    empty: 'No visible recipes yet. Create a recipe or change your search.',
+    back: 'Back to recipes',
+    familyContext: 'Family context',
+    privateExplanation:
+      'A new recipe is private: only you, your managers and Super Admins can see it. Enable sharing to let the entire selected family see it. Editing content does not change existing visibility.',
+    shareFamily: 'Share with the entire selected family',
+    ingredients: 'Ingredients',
+    steps: 'Preparation',
+    ingredientNumber: 'Ingredient {{number}}',
+    stepNumber: 'Step {{number}}',
+    addIngredient: 'Add ingredient',
+    removeIngredient: 'Remove ingredient {{number}}',
+    addStep: 'Add step',
+    removeStep: 'Remove step {{number}}',
+    owner: 'Owned by: {{name}}',
+    creator: 'Originally created by: {{name}}',
+    anonymous: 'Deleted person',
+    preserved: 'Preserved recipe',
+    editable: 'Editable recipe',
+    history: 'History: latest 20 versions',
+    version: 'Version {{number}} · {{date}}',
+    historical: 'Historical version {{number}} (read only)',
+    current: 'View current recipe',
+    preservedOverride:
+      'This recipe is preserved. Only a Super Admin can change it with an explicit reason recorded in the audit history.',
+    invalid:
+      'Check the title, at least one ingredient and one step. Use nonnegative whole numbers for times and year.',
+    stale:
+      'This recipe changed. Cancel and reopen it to review the current version before saving.',
+    denied: 'You no longer have permission to edit this recipe.',
+    onboard:
+      'Create or claim your profile in My families before writing recipes.',
+    joinFamily:
+      'You need a family with Member, Admin or Owner access to create recipes.',
+    fields: {
+      title: 'Title',
+      description: 'Description',
+      origin_location: 'Place of origin',
+      origin_year: 'Year of origin',
+      story: 'Recipe story',
+      servings: 'Servings',
+      prep_time_minutes: 'Preparation (minutes)',
+      cook_time_minutes: 'Cooking (minutes)',
+      rest_time_minutes: 'Rest (minutes)',
+      change_summary: 'Change summary',
+      ingredient: 'Ingredient {{number}}: name',
+      quantity: 'Ingredient {{number}}: quantity',
+      unit: 'Ingredient {{number}}: unit',
+      preparation_note: 'Ingredient {{number}}: note',
+    },
+  },
   profileDeletion: {
     title: 'Delete profile globally',
     explanation:

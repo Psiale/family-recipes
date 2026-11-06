@@ -145,3 +145,22 @@ grant revocations, account detachment, anonymization and audits commit atomicall
 The login account survives and may create a new Person. Recipe ownership and
 history remain attached to an immutable anonymous identity; old audit events are
 not erased. Deleted profiles cannot be renamed, claimed or reactivated.
+
+
+## Recipe core writes
+
+- Creation derives owner/original creator from the caller's linked live Person,
+  and entering account from Auth. An ordinary caller needs an ACTIVE non-read-only
+  membership in the selected family, even when creating a private recipe.
+- Optional initial family-wide sharing is explicit; edits do not change audiences.
+  Multi-family/branch audience editing is a separate subsequent recipe slice.
+- Only recipe ownership, an explicit global manager grant, or current Super Admin
+  role authorizes content edits. Family Owner/Admin status alone is insufficient.
+  Existing independently authorized ownership/delegation survives family loss.
+- Writes lock current platform/person/grant authority and the recipe, compare the
+  expected revision, and atomically save ordered children, the complete immutable
+  aggregate revision and an audit event. Direct client aggregate writes are denied.
+- Preserved content requires current Super Admin authority and an explicit audited
+  reason. Archival and preservation controls are separate from content editing.
+- Recipe readers may view immutable revisions. Deleted profile attribution is
+  anonymous, preserving identity references without restoring account access.

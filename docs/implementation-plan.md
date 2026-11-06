@@ -210,3 +210,25 @@ resolved first. Migration `20261106165127_global_profile_deletion` is required.
 
 Next: Phase 3 recipe authoring, ingredient/step editing, detail/list/search and
 revision history. Invitations and platform-role management remain separate.
+
+
+## Current slice — Recipe core
+
+The Recipes menu now supports paginated literal title search, recipe details,
+private-by-default creation with optional initial family-wide sharing, and editing
+of title, provenance/story, servings, times, ordered ingredients and steps.
+Ownership, original authorship and entering account are distinct and server-set.
+Owners and explicit global delegates can edit; family leadership alone cannot.
+Read-only users may read shared recipes but cannot create them.
+
+Every accepted aggregate write commits a complete immutable revision and audit
+atomically, rejects stale expected revision numbers and retains current authority
+under concurrent changes. Existing preservation is enforced; a Super Admin
+requires a reason to override it. Historical versions are read-only. Globally
+deleted people display anonymous attribution while recipe content/IDs survive.
+
+Migration `20261106165709_recipe_core` is required after global profile deletion.
+App, SQL/RLS, concurrency and real Auth/PostgREST checks cover the first usable
+recipe slice. This is not the whole of Phase 3: managed-person recipe creation,
+media upload, editing multi-family/branch audiences, collections/defaults and
+preservation controls remain. Forks, lineage and suggestions stay in Phase 4.
