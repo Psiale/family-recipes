@@ -383,17 +383,33 @@ function RecipeContentView({
       )}
       <Text style={styles.subtitle}>{t('recipes.ingredients')}</Text>
       {data.ingredients.map((v, i) => (
-        <Text key={i} style={styles.body}>
-          {[v.quantity, v.unit, v.ingredient, v.preparation_note]
-            .filter(Boolean)
-            .join(' · ')}
-        </Text>
+        <View key={i} style={styles.stack}>
+          {v.section_name &&
+            v.section_name !== data.ingredients[i - 1]?.section_name && (
+              <Text role="heading" style={styles.fieldLabel}>
+                {v.section_name}
+              </Text>
+            )}
+          <Text style={styles.body}>
+            {[v.quantity, v.unit, v.ingredient, v.preparation_note]
+              .filter(Boolean)
+              .join(' · ')}
+          </Text>
+        </View>
       ))}
       <Text style={styles.subtitle}>{t('recipes.steps')}</Text>
       {data.steps.map((v, i) => (
-        <Text key={i} style={styles.body}>
-          {i + 1}. {v.instruction}
-        </Text>
+        <View key={i} style={styles.stack}>
+          {v.section_name &&
+            v.section_name !== data.steps[i - 1]?.section_name && (
+              <Text role="heading" style={styles.fieldLabel}>
+                {v.section_name}
+              </Text>
+            )}
+          <Text style={styles.body}>
+            {i + 1}. {v.instruction}
+          </Text>
+        </View>
       ))}
     </View>
   );

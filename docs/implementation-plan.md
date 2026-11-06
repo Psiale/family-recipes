@@ -251,3 +251,21 @@ Saved research: [deferred extraction options and illustrative API costs](researc
 and [manual recipe-entry patterns and public adoption signals](research/manual-recipe-entry.md).
 The comparison recommends a focused editor with easy ingredient/step entry and
 optional metadata. It does not implement a new wizard, autosave or bulk paste.
+
+### Current slice — Manual recipe editor layout
+
+Use Samsung Food's single-page authoring pattern as the primary reference, with
+Paprika-style collapsed optional details. Title and description lead into compact
+ingredient rows (name, quantity and unit) and numbered preparation steps. Small,
+labeled controls reorder/remove rows; adding a row reveals it in the editor.
+Optional ingredient notes and section names, servings/timing and family
+story/provenance expand on demand. Collapsing a section retains its draft values;
+existing section names and per-step durations survive edits. Current and
+historical recipe views display section labels.
+
+Privacy stays explicit and private by default. Sharing names the selected family;
+editing retains the existing audience. Spanish remains the default, with English
+coverage. Stale-save/permission errors and preserved-recipe override reasons keep
+the existing behavior. No authorization/RPC/schema changes, new dependencies,
+media attachments or automatic extraction are introduced. Bulk paste and draft
+autosave remain separate decisions.

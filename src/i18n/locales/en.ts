@@ -2,6 +2,39 @@ import type { TranslationResources } from './es';
 
 export const en = {
   recipes: {
+    editor: {
+      rowNotes: 'Notes and section',
+      stepSection: 'Step section',
+      optional: 'Optional',
+      privateVisibility: 'Private',
+      familyVisibility: 'Shared with {{family}}',
+      familyVisibilityHint:
+        'Everyone in {{family}} will be able to view this recipe.',
+      intro:
+        'Start with the recipe, ingredients and steps. Add the extra details whenever you need them.',
+      ingredientsHint:
+        'One ingredient per row. Quantities can be exact or in your own words.',
+      stepsHint:
+        'Write one action at a time. Use the arrows to change the order.',
+      quantity: 'Quantity',
+      unit: 'Unit',
+      quantityExample: '2 or ½',
+      unitExample: 'e.g. cups',
+      ingredientExample: 'e.g. flour',
+      stepExample: 'Describe what to do and how to know it is ready.',
+      ingredientDetails: 'Ingredient {{number}}: notes and section',
+      stepDetails: 'Details for step {{number}}',
+      timing: 'Servings and timing',
+      timingHint: 'Optional · yield, preparation, cooking and resting time',
+      story: 'Story and origin',
+      storyHint: 'Optional · where it comes from and who taught you to make it',
+      storyAdded: 'Family story added',
+      servingsSummary: 'Servings: {{value}}',
+      sharing: 'Privacy and sharing',
+      existingSharing:
+        'Saving an edit keeps the recipe’s current sharing settings.',
+      remove: 'Remove: {{item}}',
+    },
     moveUp: 'Move up: {{item}}',
     moveDown: 'Move down: {{item}}',
     create: 'Create recipe',
@@ -12,7 +45,7 @@ export const en = {
     back: 'Back to recipes',
     familyContext: 'Family context',
     privateExplanation:
-      'A new recipe is private: only you, your managers and Super Admins can see it. Enable sharing to let the entire selected family see it. Editing content does not change existing visibility.',
+      'Only you, your managers and Super Admins can see it. Enable sharing to let the entire selected family see it.',
     shareFamily: 'Share with the entire selected family',
     ingredients: 'Ingredients',
     steps: 'Preparation',
@@ -57,6 +90,8 @@ export const en = {
       quantity: 'Ingredient {{number}}: quantity',
       unit: 'Ingredient {{number}}: unit',
       preparation_note: 'Ingredient {{number}}: note',
+      ingredient_section: 'Ingredient {{number}}: section',
+      step_section: 'Step {{number}}: section',
     },
   },
   profileDeletion: {

@@ -133,3 +133,39 @@ it('uses anonymous attribution for a globally deleted profile', async () => {
     screen.getByText('Creación original: Persona eliminada'),
   ).toBeOnTheScreen();
 });
+
+it('shows ingredient and step section labels in current and historical recipes', async () => {
+  mocks.getRecipe.mockResolvedValue({
+    ...detail,
+    ingredients: detail.ingredients.map((v) => ({
+      ...v,
+      section_name: 'Caldo',
+    })),
+    steps: detail.steps.map((v) => ({ ...v, section_name: 'Cocción' })),
+  });
+  mocks.getRevision.mockResolvedValue({
+    ...detail,
+    ingredients: detail.ingredients.map((v) => ({
+      ...v,
+      section_name: 'Base original',
+    })),
+    steps: detail.steps.map((v) => ({
+      ...v,
+      section_name: 'Preparación original',
+    })),
+  });
+  await open();
+  const user = userEvent.setup();
+  await user.press(await screen.findByRole('button', { name: 'Sopa' }));
+  expect(
+    await screen.findByRole('heading', { name: 'Caldo' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('heading', { name: 'Cocción' })).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: /Versión 1 ·/ }));
+  expect(
+    await screen.findByRole('heading', { name: 'Base original' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('heading', { name: 'Preparación original' }),
+  ).toBeOnTheScreen();
+});

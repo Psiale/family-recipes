@@ -1,5 +1,38 @@
 export const es = {
   recipes: {
+    editor: {
+      rowNotes: 'Notas y sección',
+      stepSection: 'Sección del paso',
+      optional: 'Opcional',
+      privateVisibility: 'Privada',
+      familyVisibility: 'Compartida con {{family}}',
+      familyVisibilityHint:
+        'Las personas de {{family}} podrán ver esta receta.',
+      intro:
+        'Empieza por la receta, los ingredientes y los pasos. Añade los detalles extra cuando los necesites.',
+      ingredientsHint:
+        'Un ingrediente por fila. Puedes usar cantidades exactas o expresarlas con tus palabras.',
+      stepsHint:
+        'Escribe una acción a la vez. Usa las flechas para cambiar el orden.',
+      quantity: 'Cantidad',
+      unit: 'Unidad',
+      quantityExample: '2 o ½',
+      unitExample: 'Ej. tazas',
+      ingredientExample: 'Ej. harina',
+      stepExample: 'Describe qué hacer y cómo saber que está listo.',
+      ingredientDetails: 'Ingrediente {{number}}: notas y sección',
+      stepDetails: 'Detalles del paso {{number}}',
+      timing: 'Porciones y tiempos',
+      timingHint: 'Opcional · porciones, preparación, cocción y reposo',
+      story: 'Historia y procedencia',
+      storyHint: 'Opcional · de dónde viene y quién te enseñó a prepararla',
+      storyAdded: 'Con historia familiar',
+      servingsSummary: 'Porciones: {{value}}',
+      sharing: 'Privacidad y compartir',
+      existingSharing:
+        'Guardar una edición conserva los permisos actuales de la receta.',
+      remove: 'Quitar: {{item}}',
+    },
     moveUp: 'Subir: {{item}}',
     moveDown: 'Bajar: {{item}}',
     create: 'Crear receta',
@@ -11,7 +44,7 @@ export const es = {
     back: 'Volver a recetas',
     familyContext: 'Familia de referencia',
     privateExplanation:
-      'Una receta nueva es privada: solo tú, tus gestores y los súper administradores pueden verla. Activa compartir si quieres que toda la familia elegida pueda verla. Editar el contenido no cambia la visibilidad existente.',
+      'Solo tú, tus gestores y los súper administradores pueden verla. Activa compartir si quieres que toda la familia elegida pueda verla.',
     shareFamily: 'Compartir con toda la familia elegida',
     ingredients: 'Ingredientes',
     steps: 'Preparación',
@@ -56,6 +89,8 @@ export const es = {
       quantity: 'Ingrediente {{number}}: cantidad',
       unit: 'Ingrediente {{number}}: unidad',
       preparation_note: 'Ingrediente {{number}}: nota',
+      ingredient_section: 'Ingrediente {{number}}: sección',
+      step_section: 'Paso {{number}}: sección',
     },
   },
   profileDeletion: {
