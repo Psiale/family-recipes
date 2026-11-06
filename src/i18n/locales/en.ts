@@ -1,6 +1,28 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  personAdministration: {
+    rename: 'Change name for {{name}}',
+    remove: 'Remove {{name}} from this family',
+    renameExplanation:
+      'This change applies everywhere this person appears, across all their families. It preserves their identity, login, memberships and ownership.',
+    removeExplanation:
+      'Removing {{name}} from family {{family}} ends only this membership and clears their branch assignments in this family. It preserves their global profile, linked account, other families, recipes and manager grants.',
+    lastOwner:
+      'The last active Owner cannot be removed. They must transfer ownership from their family first, or a Super Admin can use family deletion.',
+    currentName: 'Current name: {{name}}',
+    proposedName: 'Proposed name: {{name}}',
+    newName: 'New name',
+    reason: 'Required reason',
+    reviewReason: 'Reason: {{reason}}',
+    reasonHint:
+      'Describe the reason (up to 2000 characters). You may act on a request or on your own initiative; a ticket is optional.',
+    review: 'Review change',
+    confirm: 'Confirm person change',
+    done: 'Person change saved and audited.',
+    stale:
+      'The person or membership changed. Cancel and reopen the action to review the current details.',
+  },
   administration: {
     denied: 'Only Super Admins can access this screen.',
     requestedBy: 'Requested by {{name}}',

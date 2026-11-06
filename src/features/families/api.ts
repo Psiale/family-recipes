@@ -33,7 +33,7 @@ export async function listFamilyPeople(userId: string, familyId: string) {
   const [members, managers] = await Promise.all([
     client
       .from('family_memberships')
-      .select('role, person:people!inner(*)')
+      .select('role, membershipUpdatedAt:updated_at, person:people!inner(*)')
       .eq('family_id', familyId)
       .eq('status', 'ACTIVE')
       .order('joined_at'),
@@ -45,9 +45,10 @@ export async function listFamilyPeople(userId: string, familyId: string) {
   if (members.error) throw members.error;
   if (managers.error) throw managers.error;
   const managedIds = new Set(managers.data.map(({ person_id }) => person_id));
-  return members.data.map(({ person, role }) => ({
+  return members.data.map(({ person, role, membershipUpdatedAt }) => ({
     person,
     role,
+    membershipUpdatedAt,
     canIssueClaim: !person.user_id && managedIds.has(person.id),
   }));
 }
@@ -315,6 +316,45 @@ export async function searchFamilies(name: string, page: number) {
 export type DirectoryFamily = Awaited<
   ReturnType<typeof searchFamilies>
 >['families'][number];
+
+export type AdminRenameValues = {
+  personId: string;
+  expectedName: string;
+  expectedUpdatedAt: string;
+  name: string;
+  reason: string;
+};
+export async function adminRenamePerson(values: AdminRenameValues) {
+  const { error } = await getSupabaseClient().rpc('admin_rename_person', {
+    p_person_id: values.personId,
+    p_expected_name: values.expectedName,
+    p_expected_updated_at: values.expectedUpdatedAt,
+    p_display_name: values.name,
+    p_reason: values.reason,
+  });
+  if (error) throw error;
+}
+export type AdminRemovalValues = MembershipChangeValues & {
+  expectedUpdatedAt: string;
+  expectedName: string;
+  expectedFamilyName: string;
+  reason: string;
+};
+export async function adminRemoveFamilyMember(values: AdminRemovalValues) {
+  const { error } = await getSupabaseClient().rpc(
+    'admin_remove_family_member',
+    {
+      p_family_id: values.familyId,
+      p_person_id: values.personId,
+      p_expected_role: values.expectedRole,
+      p_expected_updated_at: values.expectedUpdatedAt,
+      p_expected_name: values.expectedName,
+      p_expected_family_name: values.expectedFamilyName,
+      p_reason: values.reason,
+    },
+  );
+  if (error) throw error;
+}
 export async function familyLifecycleAction({
   familyId,
   action,

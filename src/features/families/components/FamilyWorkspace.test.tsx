@@ -98,7 +98,12 @@ it('integrates onboarding, atomic family creation, managed creation and claim is
   });
   mockApi.createManagedPerson.mockImplementation(async () => {
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person: managed, role: 'MEMBER', canIssueClaim: true },
+      {
+        person: managed,
+        role: 'MEMBER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: true,
+      },
     ]);
     return managed.id;
   });
@@ -232,6 +237,7 @@ it('switches families with isolated member queries and persists the selection', 
           familyId === family.id ? 'Primera persona' : 'Segunda persona',
       },
       role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: false,
     },
   ]);
@@ -279,7 +285,12 @@ it('hides managed-person writes for read-only users and claim issuance without a
   mockApi.getCurrentPerson.mockResolvedValue(person);
   mockApi.listFamilies.mockResolvedValue([{ ...family, role: 'READ_ONLY' }]);
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person: managed, role: 'MEMBER', canIssueClaim: false },
+    {
+      person: managed,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
   ]);
   await setup();
   expect(await screen.findAllByText('Abuela')).toHaveLength(1);
@@ -308,7 +319,12 @@ it('keeps family people available when only the tree query fails', async () => {
   mockApi.getCurrentPerson.mockResolvedValue(person);
   mockApi.listFamilies.mockResolvedValue([family]);
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person: managed, role: 'MEMBER', canIssueClaim: false },
+    {
+      person: managed,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
   ]);
   mockApi.listFamilyRelationships.mockRejectedValue({ code: 'PGRST205' });
 
@@ -342,13 +358,33 @@ it('lets an owner promote a family member and refreshes their displayed role', a
   mockApi.getCurrentPerson.mockResolvedValue(person);
   mockApi.listFamilies.mockResolvedValue([family]);
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person, role: 'OWNER', canIssueClaim: false },
-    { person: managed, role: 'MEMBER', canIssueClaim: true },
+    {
+      person,
+      role: 'OWNER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
+    {
+      person: managed,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: true,
+    },
   ]);
   mockApi.changeFamilyRole.mockImplementation(async () => {
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person, role: 'OWNER', canIssueClaim: false },
-      { person: managed, role: 'ADMIN', canIssueClaim: true },
+      {
+        person,
+        role: 'OWNER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
+      {
+        person: managed,
+        role: 'ADMIN',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: true,
+      },
     ]);
   });
   const { user } = await setup();
@@ -383,11 +419,22 @@ it('limits admin controls to ordinary members and rejects a stale edit visibly',
   mockApi.getCurrentPerson.mockResolvedValue(person);
   mockApi.listFamilies.mockResolvedValue([{ ...family, role: 'ADMIN' }]);
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person, role: 'ADMIN', canIssueClaim: false },
-    { person: managed, role: 'MEMBER', canIssueClaim: false },
+    {
+      person,
+      role: 'ADMIN',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
+    {
+      person: managed,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
     {
       person: { ...person, id: 'owner', display_name: 'Owner' },
       role: 'OWNER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: false,
     },
   ]);
@@ -421,7 +468,12 @@ it.each(['MEMBER', 'READ_ONLY'] as const)(
     mockApi.getCurrentPerson.mockResolvedValue(person);
     mockApi.listFamilies.mockResolvedValue([{ ...family, role }]);
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person: managed, role: 'MEMBER', canIssueClaim: false },
+      {
+        person: managed,
+        role: 'MEMBER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
     ]);
     const { user } = await setup();
     await user.press(
@@ -440,10 +492,16 @@ it('opens family metadata separately from a person profile and returns to the tr
     { ...family, description: 'Nuestra historia' },
   ]);
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person, role: 'OWNER', canIssueClaim: false },
+    {
+      person,
+      role: 'OWNER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
     {
       person: { ...managed, biography: 'Su historia' },
       role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: true,
     },
   ]);
@@ -468,10 +526,20 @@ it('opens family metadata separately from a person profile and returns to the tr
 it('confirms removal, preserves cancellation, and removes inactive people and links from the tree', async () => {
   mockApi.getCurrentPerson.mockResolvedValue(person);
   mockApi.listFamilies.mockResolvedValue([family]);
-  const ownerEntry = { person, role: 'OWNER' as const, canIssueClaim: false };
+  const ownerEntry = {
+    person,
+    role: 'OWNER' as const,
+    membershipUpdatedAt: '2026-11-05T00:00:00Z',
+    canIssueClaim: false,
+  };
   mockApi.listFamilyPeople.mockResolvedValue([
     ownerEntry,
-    { person: managed, role: 'MEMBER', canIssueClaim: true },
+    {
+      person: managed,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: true,
+    },
   ]);
   mockApi.listFamilyRelationships.mockResolvedValue([
     {
@@ -523,14 +591,34 @@ it('offers ownership only for linked non-owners and refreshes the former ownerâ€
   mockApi.listFamilies.mockResolvedValue([family]);
   const linked = { ...managed, user_id: 'user-2' };
   mockApi.listFamilyPeople.mockResolvedValue([
-    { person, role: 'OWNER', canIssueClaim: false },
-    { person: linked, role: 'READ_ONLY', canIssueClaim: false },
+    {
+      person,
+      role: 'OWNER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
+    {
+      person: linked,
+      role: 'READ_ONLY',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
   ]);
   mockApi.transferFamilyOwnership.mockImplementation(async () => {
     mockApi.listFamilies.mockResolvedValue([{ ...family, role: 'ADMIN' }]);
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person, role: 'ADMIN', canIssueClaim: false },
-      { person: linked, role: 'OWNER', canIssueClaim: false },
+      {
+        person,
+        role: 'ADMIN',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
+      {
+        person: linked,
+        role: 'OWNER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
     ]);
   });
   const { user } = await setup();
@@ -576,7 +664,12 @@ it.each(['OWNER', 'READ_ONLY'] as const)(
     mockApi.getCurrentPerson.mockResolvedValue(person);
     mockApi.listFamilies.mockResolvedValue([family]);
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person, role: 'OWNER', canIssueClaim: false },
+      {
+        person,
+        role: 'OWNER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
     ]);
     const branch = {
       id: 'branch-1',
@@ -602,8 +695,18 @@ it.each(['OWNER', 'READ_ONLY'] as const)(
     ).toBeOnTheScreen();
 
     mockApi.listFamilyPeople.mockResolvedValue([
-      { person, role: updatedRole, canIssueClaim: false },
-      { person: managed, role: 'MEMBER', canIssueClaim: false },
+      {
+        person,
+        role: updatedRole,
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
+      {
+        person: managed,
+        role: 'MEMBER',
+        membershipUpdatedAt: '2026-11-05T00:00:00Z',
+        canIssueClaim: false,
+      },
     ]);
     mockApi.listFamilies.mockResolvedValue([{ ...family, role: updatedRole }]);
     mockApi.listFamilyBranches.mockResolvedValue([

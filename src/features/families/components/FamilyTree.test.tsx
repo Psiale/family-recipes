@@ -7,6 +7,7 @@ import { buildTreeGenerations, FamilyTree } from './FamilyTree';
 jest.useFakeTimers();
 
 const makePerson = (id: string, displayName: string): FamilyPerson => ({
+  membershipUpdatedAt: '2026-11-05T00:00:00Z',
   canIssueClaim: false,
   person: {
     biography: null,

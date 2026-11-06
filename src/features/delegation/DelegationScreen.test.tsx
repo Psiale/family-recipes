@@ -30,15 +30,22 @@ beforeEach(() => {
   jest.mocked(familyApi.getCurrentPerson).mockResolvedValue(person);
   jest.mocked(familyApi.listFamilies).mockResolvedValue([family]);
   jest.mocked(familyApi.listFamilyPeople).mockResolvedValue([
-    { person, role: 'MEMBER', canIssueClaim: false },
+    {
+      person,
+      role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
+      canIssueClaim: false,
+    },
     {
       person: { ...person, id: 'p2', user_id: 'u2', display_name: 'Rosa' },
       role: 'READ_ONLY',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: false,
     },
     {
       person: { ...person, id: 'p3', user_id: null, display_name: 'Managed' },
       role: 'MEMBER',
+      membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: false,
     },
   ]);
