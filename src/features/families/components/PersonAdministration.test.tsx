@@ -14,6 +14,7 @@ const member: api.FamilyPerson = {
     id: 'person',
     user_id: 'linked',
     display_name: 'Ana',
+    deleted_at: null,
     biography: null,
     profile_photo_path: null,
     created_by_user_id: null,

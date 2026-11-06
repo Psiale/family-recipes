@@ -26,6 +26,7 @@ const person: api.Person = {
   id: 'person-1',
   user_id: 'user-1',
   display_name: 'Alex',
+  deleted_at: null,
   biography: null,
   created_by_user_id: 'user-1',
   profile_photo_path: null,
@@ -499,7 +500,7 @@ it('opens family metadata separately from a person profile and returns to the tr
       canIssueClaim: false,
     },
     {
-      person: { ...managed, biography: 'Su historia' },
+      person: { ...managed, deleted_at: null, biography: 'Su historia' },
       role: 'MEMBER',
       membershipUpdatedAt: '2026-11-05T00:00:00Z',
       canIssueClaim: true,

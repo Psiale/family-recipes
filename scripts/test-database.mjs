@@ -11,6 +11,7 @@ import { testFamilyRoleConcurrency } from './test-family-role-concurrency.mjs';
 import { testMembershipConcurrency } from './test-membership-concurrency.mjs';
 import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
 import { testPersonAdministrationConcurrency } from './test-person-administration-concurrency.mjs';
+import { testProfileDeletionConcurrency } from './test-profile-deletion-concurrency.mjs';
 
 const env = parseDatabaseEnv();
 
@@ -78,6 +79,7 @@ try {
   await testDelegationConcurrency(testUrl.toString());
   await testFamilyLifecycleConcurrency(testUrl.toString());
   await testPersonAdministrationConcurrency(testUrl.toString());
+  await testProfileDeletionConcurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

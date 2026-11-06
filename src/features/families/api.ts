@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { Enums, Tables } from '@/lib/supabase/database.types';
 
@@ -378,3 +380,64 @@ export async function familyLifecycleAction({
   if (error) throw error;
   return data;
 }
+
+export type ProfileDeletionImpact = {
+  person_id: string;
+  name: string;
+  linked: boolean;
+  families: {
+    id: string;
+    name: string;
+    role: FamilyRole;
+    last_owner: boolean;
+  }[];
+  manager_grants: number;
+  owned_recipes: number;
+  platform_admin: boolean;
+  expected_state: string;
+};
+export async function getProfileDeletionImpact(
+  personId: string,
+): Promise<ProfileDeletionImpact> {
+  const { data, error } = await getSupabaseClient().rpc(
+    'admin_profile_deletion_preview',
+    { p_person_id: personId },
+  );
+  if (error) throw error;
+  return profileDeletionImpactSchema.parse(data);
+}
+export async function adminDeletePersonProfile(values: {
+  personId: string;
+  expectedState: string;
+  confirmName: string;
+  reason: string;
+}) {
+  const { error } = await getSupabaseClient().rpc(
+    'admin_delete_person_profile',
+    {
+      p_person_id: values.personId,
+      p_expected_state: values.expectedState,
+      p_confirm_name: values.confirmName,
+      p_reason: values.reason,
+    },
+  );
+  if (error) throw error;
+}
+
+const profileDeletionImpactSchema = z.object({
+  person_id: z.string(),
+  name: z.string(),
+  linked: z.boolean(),
+  families: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'READ_ONLY']),
+      last_owner: z.boolean(),
+    }),
+  ),
+  manager_grants: z.number(),
+  owned_recipes: z.number(),
+  platform_admin: z.boolean(),
+  expected_state: z.string(),
+});

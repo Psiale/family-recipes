@@ -1,5 +1,18 @@
 export const es = {
+  profileDeletion: {
+    title: 'Eliminar perfil globalmente',
+    explanation:
+      'Esta acción es permanente. Anonimiza el perfil y lo quita de todas sus familias y ramas. Revoca los permisos de gestión que tiene y los otorgados sobre su perfil, y los códigos de reclamación. La cuenta y sus credenciales se conservan; puede crear un perfil nuevo. Las recetas, su propiedad y las referencias históricas permanecen bajo la identidad anónima. Los registros de auditoría previos no se borran.',
+    impact:
+      'Impacto: {{families}} familias, {{grants}} permisos de gestión; {{recipes}} recetas propias se conservan.',
+    lastOwner: 'último propietario activo',
+    blocked:
+      'Primero transfiere la propiedad en cada familia donde sea el último propietario, o elimina esa familia por separado. Un perfil con rol de súper administrador requiere resolver primero ese acceso de plataforma por separado.',
+    typeName: 'Escribe el nombre exacto de la persona',
+    confirm: 'Eliminar perfil de todas las familias',
+  },
   personAdministration: {
+    deleteProfile: 'Eliminar globalmente el perfil de {{name}}',
     rename: 'Cambiar el nombre de {{name}}',
     remove: 'Quitar a {{name}} de esta familia',
     renameExplanation:

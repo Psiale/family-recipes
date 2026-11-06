@@ -22,6 +22,7 @@ service transactions additionally enforce multi-row invariants and auditing.
 | Transfer recipe ownership | No | No | No | No | No | No | Yes |
 | Manage family Owners | No | No | No | Owner transfer only | No | No | Yes |
 | Search the platform family directory and inspect unrelated families | No | No | No | No | No | No | Yes |
+| Delete/anonymize a profile globally (reason and typed name) | No | No | No | No | No | No | Yes, audited |
 | Rename a person globally (reason required) | No | No | No | No | No | No | Yes, audited |
 | Remove a person from an unrelated family (reason required) | No | No | No | No | No | No | Yes, audited |
 | Grant/revoke Super Admin | No | No | No | No | No | No | Yes, audited |
@@ -131,3 +132,16 @@ service transactions additionally enforce multi-row invariants and auditing.
 - Global profile deletion is deferred to a separate explicitly named action/PR;
   account links, owned recipes and historical attribution remain undecided.
   Platform-role management, invitations and Phase 3 recipes are outside this slice.
+
+
+## Global profile deletion
+
+Only the authenticated caller's current Super Admin role authorizes global
+profile deletion. A fresh impact snapshot, reason and exact typed name are
+required. Ordinary Owners, Admins and managers have no authority to call it.
+Every family is checked for last-Owner protection. Platform administrator access
+must be resolved separately. All family membership removals, branch cleanup,
+grant revocations, account detachment, anonymization and audits commit atomically.
+The login account survives and may create a new Person. Recipe ownership and
+history remain attached to an immutable anonymous identity; old audit events are
+not erased. Deleted profiles cannot be renamed, claimed or reactivated.
