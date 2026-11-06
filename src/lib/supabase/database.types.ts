@@ -1146,6 +1146,7 @@ export type Database = {
         };
         Returns: string;
       };
+      get_recipe_detail: { Args: { p_recipe_id: string }; Returns: Json };
       issue_person_claim: {
         Args: { p_email: string; p_person_id: string };
         Returns: string;
@@ -1156,6 +1157,10 @@ export type Database = {
           display_name: string;
           manager_user_id: string;
         }[];
+      };
+      list_recipe_cards: {
+        Args: { p_offset?: number; p_search?: string };
+        Returns: Json;
       };
       onboard_person: {
         Args: { p_biography?: string; p_display_name: string };
@@ -1168,6 +1173,17 @@ export type Database = {
           p_person_id: string;
         };
         Returns: undefined;
+      };
+      save_recipe: {
+        Args: {
+          p_content: Json;
+          p_expected_revision: number;
+          p_family_id?: string;
+          p_override_reason?: string;
+          p_recipe_id?: string;
+          p_share_with_family: boolean;
+        };
+        Returns: string;
       };
       set_branch_membership: {
         Args: {

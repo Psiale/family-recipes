@@ -13,8 +13,10 @@ import RecipesScreen from '@/app/(app)/recipes';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 import * as familyApi from '@/features/families/api';
 import { guideStorageKey } from '@/features/onboarding/OnboardingGate';
+import * as recipeApi from '@/features/recipes/api';
 
 jest.mock('@/features/families/api');
+jest.mock('@/features/recipes/api');
 jest.mock('@/features/auth/providers/SessionProvider', () => ({
   useSession: jest.fn(),
 }));
@@ -67,6 +69,9 @@ function TreeFixture() {
 
 async function openApp(superAdmin: boolean, initialUrl = '/') {
   jest.mocked(familyApi.isSuperAdmin).mockResolvedValue(superAdmin);
+  jest
+    .mocked(recipeApi.listRecipes)
+    .mockResolvedValue({ recipes: [], more: false });
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -103,7 +108,9 @@ it('opens separate screens through the drawer and preserves tree drafts', async 
   await user.press(screen.getByRole('button', { name: 'Abrir menú' }));
   expect(screen.queryByText('Administración de familias')).toBeNull();
   await user.press(await screen.findByText('Recetas'));
-  expect(await screen.findByText(/Aquí estarán las recetas/)).toBeOnTheScreen();
+  expect(
+    await screen.findByText(/Todavía no hay recetas visibles/),
+  ).toBeOnTheScreen();
   await user.press(screen.getByRole('button', { name: 'Abrir menú' }));
   await user.press(await screen.findByText('Cómo usar la app'));
   expect(await screen.findByText('Vamos paso a paso')).toBeOnTheScreen();

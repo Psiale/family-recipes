@@ -12,6 +12,7 @@ import { testMembershipConcurrency } from './test-membership-concurrency.mjs';
 import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
 import { testPersonAdministrationConcurrency } from './test-person-administration-concurrency.mjs';
 import { testProfileDeletionConcurrency } from './test-profile-deletion-concurrency.mjs';
+import { testRecipeConcurrency } from './test-recipe-concurrency.mjs';
 
 const env = parseDatabaseEnv();
 
@@ -80,6 +81,7 @@ try {
   await testFamilyLifecycleConcurrency(testUrl.toString());
   await testPersonAdministrationConcurrency(testUrl.toString());
   await testProfileDeletionConcurrency(testUrl.toString());
+  await testRecipeConcurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

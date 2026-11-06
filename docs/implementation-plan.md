@@ -190,7 +190,7 @@ Phase 2's planned family/person administration is complete. Global profile
 deletion is delivered by the separately named slice below, with account, recipe
 and historical-attribution behavior recorded in ADR 0002.
 Platform-role management stays separate. Invitations remain in Phase 5; recipe
-implementation is still pending in Phase 3.
+core is delivered by the Phase 3 slice below.
 
 
 ## Global profile deletion — completed slice
@@ -208,5 +208,46 @@ family serialization, expected-state checks and atomic audits protect the action
 Last Owners and platform-administrator profiles require their authority to be
 resolved first. Migration `20261106165127_global_profile_deletion` is required.
 
-Next: Phase 3 recipe authoring, ingredient/step editing, detail/list/search and
-revision history. Invitations and platform-role management remain separate.
+The Phase 3 recipe-core slice below adds authoring, ingredient/step editing,
+detail/list/search and revision history. Invitations and platform-role management
+remain separate.
+
+
+## Completed slice — Recipe core
+
+The Recipes menu now supports paginated literal title search, recipe details,
+private-by-default creation with optional initial family-wide sharing, and editing
+of title, provenance/story, servings, times, ordered ingredients and steps.
+Ownership, original authorship and entering account are distinct and server-set.
+Owners and explicit global delegates can edit; family leadership alone cannot.
+Read-only users may read shared recipes but cannot create them.
+
+Every accepted aggregate write commits a complete immutable revision and audit
+atomically, rejects stale expected revision numbers and retains current authority
+under concurrent changes. Existing preservation is enforced; a Super Admin
+requires a reason to override it. Historical versions are read-only. Globally
+deleted people display anonymous attribution while recipe content/IDs survive.
+
+Migration `20261106165709_recipe_core` is required after global profile deletion.
+App, SQL/RLS, concurrency and real Auth/PostgREST checks cover the first usable
+recipe slice. This is not the whole of Phase 3: managed-person recipe creation,
+media upload, editing multi-family/branch audiences, collections/defaults and
+preservation controls remain. Forks, lineage and suggestions stay in Phase 4.
+
+### Recipe entry decision — Manual authoring
+
+Keep the regular recipe editor as the entry point. Voice-to-text, image-to-text
+and video-to-text are deferred, including on-device OCR and hosted AI extraction.
+The experimental PR #20 is excluded from the merge: its UI, native bridge,
+capture dependencies and draft-mapping code are not shipped. No new migration,
+provider key or online processing is introduced by this decision.
+
+The existing manual editor retains Spanish/English support, ingredients and
+ordered steps, provenance/story, optional times/servings, private-by-default
+creation, explicit initial family sharing and audited revision history. Normal
+photo/media attachments remain pending; they are distinct from photo-to-text.
+
+Saved research: [deferred extraction options and illustrative API costs](research/recipe-capture-options.md)
+and [manual recipe-entry patterns and public adoption signals](research/manual-recipe-entry.md).
+The comparison recommends a focused editor with easy ingredient/step entry and
+optional metadata. It does not implement a new wizard, autosave or bulk paste.
