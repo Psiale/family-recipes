@@ -14,6 +14,8 @@ import {
 } from '@/features/families/queries';
 
 import * as api from './api';
+import { CapturePanel } from './capture/CapturePanel';
+import type { RecipeDraft } from './capture/draft';
 import { RecipeForm } from './RecipeForm';
 
 const keys = (userId: string) => [...familyKeys.root(userId), 'recipes'];
@@ -178,6 +180,8 @@ function CreateRecipeForm({
 }) {
   const { t } = useTranslation();
   const client = useQueryClient();
+  const [mode, setMode] = useState<'choose' | 'capture' | 'form'>('choose');
+  const [draft, setDraft] = useState<RecipeDraft>();
   const families = useFamilies(userId, personId);
   const mutation = useMutation({
     networkMode: 'always',
@@ -194,8 +198,34 @@ function CreateRecipeForm({
           <Text>{t('recipes.joinFamily')}</Text>
           <AppButton label={t('families.cancel')} onPress={onCancel} />
         </>
+      ) : mode === 'choose' ? (
+        <>
+          <AppButton
+            label={t('capture.title')}
+            onPress={() => setMode('capture')}
+          />
+          <AppButton
+            variant="secondary"
+            label={t('capture.manual')}
+            onPress={() => setMode('form')}
+          />
+          <AppButton
+            variant="secondary"
+            label={t('families.cancel')}
+            onPress={onCancel}
+          />
+        </>
+      ) : mode === 'capture' ? (
+        <CapturePanel
+          onCancel={() => setMode('form')}
+          onUse={(value) => {
+            setDraft(value);
+            setMode('form');
+          }}
+        />
       ) : (
         <RecipeForm
+          {...(draft ? { draft } : {})}
           families={families.data}
           onCancel={onCancel}
           onSave={async (values) => {

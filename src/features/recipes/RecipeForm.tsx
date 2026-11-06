@@ -9,6 +9,7 @@ import type { Family } from '@/features/families/api';
 import { styles } from '@/features/families/components/styles';
 
 import { contentSchema, type RecipeContent, type RecipeDetail } from './api';
+import type { RecipeDraft } from './capture/draft';
 
 type Ingredient = RecipeContent['ingredients'][number] & { key: number };
 type Step = RecipeContent['steps'][number] & { key: number };
@@ -34,11 +35,13 @@ function move<T>(items: T[], index: number, offset: number) {
 }
 export function RecipeForm({
   initial,
+  draft,
   families,
   onSave,
   onCancel,
 }: {
   initial?: RecipeDetail;
+  draft?: RecipeDraft;
   families: Family[];
   onSave: (values: {
     content: RecipeContent;
@@ -49,28 +52,36 @@ export function RecipeForm({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
+  const defaults = initial?.recipe ?? draft;
+  const initialIngredients = initial?.ingredients ?? draft?.ingredients;
+  const initialSteps = initial?.steps ?? draft?.steps;
   const ids = useRef(1000);
   const busy = useRef(false);
   const [fields, setFields] = useState(() => ({
-    title: initial?.recipe.title ?? '',
-    description: initial?.recipe.description ?? '',
-    origin_location: initial?.recipe.origin_location ?? '',
-    origin_year: initial?.recipe.origin_year?.toString() ?? '',
-    story: initial?.recipe.story ?? '',
-    servings: initial?.recipe.servings ?? '',
-    prep_time_minutes: initial?.recipe.prep_time_minutes?.toString() ?? '',
-    cook_time_minutes: initial?.recipe.cook_time_minutes?.toString() ?? '',
-    rest_time_minutes: initial?.recipe.rest_time_minutes?.toString() ?? '',
+    title: defaults?.title ?? '',
+    description: defaults?.description ?? '',
+    origin_location: defaults?.origin_location ?? '',
+    origin_year: defaults?.origin_year?.toString() ?? '',
+    story: defaults?.story ?? '',
+    servings: defaults?.servings ?? '',
+    prep_time_minutes: defaults?.prep_time_minutes?.toString() ?? '',
+    cook_time_minutes: defaults?.cook_time_minutes?.toString() ?? '',
+    rest_time_minutes: defaults?.rest_time_minutes?.toString() ?? '',
     change_summary: '',
   }));
   const [ingredients, setIngredients] = useState<Ingredient[]>(() =>
-    (initial?.ingredients ?? [blankIngredient()]).map((v, key) => ({
+    (initialIngredients?.length ? initialIngredients : [blankIngredient()]).map(
+      (v, key) => ({
+        ...v,
+        key,
+      }),
+    ),
+  );
+  const [steps, setSteps] = useState<Step[]>(() =>
+    (initialSteps?.length ? initialSteps : [blankStep()]).map((v, key) => ({
       ...v,
       key,
     })),
-  );
-  const [steps, setSteps] = useState<Step[]>(() =>
-    (initial?.steps ?? [blankStep()]).map((v, key) => ({ ...v, key })),
   );
   const [familyId, setFamilyId] = useState(
     families.find((f) => f.role !== 'READ_ONLY')?.id ?? null,

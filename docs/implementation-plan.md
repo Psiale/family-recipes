@@ -232,3 +232,25 @@ App, SQL/RLS, concurrency and real Auth/PostgREST checks cover the first usable
 recipe slice. This is not the whole of Phase 3: managed-person recipe creation,
 media upload, editing multi-family/branch audiences, collections/defaults and
 preservation controls remain. Forks, lineage and suggestions stay in Phase 4.
+
+### In progress: private on-device recipe capture
+
+Photo/text OCR, speech transcription and video narration plus sparse frame OCR
+feed the same create-recipe form through a local draft. Original files never go
+to the backend or an AI service. Initial public model downloads require an
+explicit capture action; subsequent extraction uses the cached models offline.
+The source text is reviewed/corrected first, then structured locally; only an
+explicit save in the existing recipe form persists reviewed recipe content.
+No migration or hosted AI key is needed.
+
+The first slice accepts one file up to 30 MB, audio/video up to two minutes,
+and at most eight video frames. Spanish is the default with English support.
+Text fields must be excerpts of the source; vague quantities remain verbatim.
+Times and year require manual entry. The source text and temporary media are
+discarded on leaving capture. It is a native custom-build feature, unavailable
+on web/Expo Go; manual authoring remains available. Real native inference and
+offline verification are required before marking this slice shipped.
+
+In-app camera/microphone recording, multi-page/batch imports, long clips,
+visual inference of unspoken cooking actions, source attachment storage,
+automatic time/unit conversion and cloud processing are not in this slice.

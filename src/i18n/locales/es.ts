@@ -1,4 +1,47 @@
 export const es = {
+  capture: {
+    title: 'Capturar desde foto, audio o video',
+    privacy:
+      'Los archivos se procesan en este teléfono y no se suben a servicios de IA. Solo se guardará el texto de la receta que revises y confirmes.',
+    limits:
+      'Una imagen de texto o un clip de hasta 2 minutos y 30 MB. El video usa la narración y hasta 8 fotogramas: puede omitir texto entre ellos y no deduce ingredientes por su apariencia. Revisa la transcripción; la letra manuscrita puede fallar.',
+    models:
+      'Al elegir un archivo u organizar el texto autorizas la descarga inicial de los modelos necesarios (puede superar 1 GB). Necesitas espacio libre y un teléfono compatible; recomendamos Wi-Fi. Con los modelos descargados, la extracción funciona sin conexión. No funciona en Expo Go.',
+    web: 'La captura local requiere la aplicación instalada en un teléfono compatible. Puedes continuar con la escritura manual.',
+    languageEs: 'Audio: español (cambiar a inglés)',
+    languageEn: 'Audio: inglés (cambiar a español)',
+    choose: 'Elegir archivo y preparar lectura local',
+    download: 'Preparando modelos en el teléfono…',
+    read: 'Leyendo el archivo en el teléfono…',
+    organize: 'Organizando la receta en el teléfono…',
+    stop: 'Detener procesamiento',
+    source: 'Texto extraído (puedes corregirlo)',
+    reviewSource:
+      'Compara el texto con el original. Corrige nombres, cantidades y pasos que falten antes de organizarlo. Este texto se descarta al salir de la captura.',
+    structure: 'Organizar borrador localmente',
+    reviewDraft:
+      'Revisa todos los campos en el siguiente formulario antes de guardar. Los tiempos y el año quedan vacíos para completarlos a partir del original. No se ha guardado ninguna receta.',
+    untitled: 'Título pendiente',
+    use: 'Revisar borrador en el formulario',
+    manual: 'Escribir receta manualmente',
+    errors: {
+      busy: 'La lectura anterior está terminando. Espera un momento y reintenta.',
+      unsupported:
+        'Formato no compatible. Prueba una foto JPEG/PNG o un clip MP4/audio compatible.',
+      size: 'Elige un archivo que no esté vacío y de hasta 30 MB.',
+      duration:
+        'El clip debe tener una duración legible, mayor que cero y de hasta 2 minutos.',
+      empty:
+        'No se reconoció texto. Prueba una imagen más nítida o un audio con voz clara.',
+      output:
+        'No se obtuvo un borrador fiable. El texto sigue aquí: corrígelo y reintenta, o escribe la receta manualmente.',
+      cancelled: 'Procesamiento detenido. Puedes volver a intentarlo.',
+      sourceLength:
+        'El límite es 6000 caracteres. Reduce el texto conservando todos los ingredientes y pasos de esta receta.',
+      failed:
+        'No se pudo procesar localmente. Comprueba el espacio libre y la conexión para la descarga inicial, o usa la escritura manual. No se enviaron archivos a un servicio de IA.',
+    },
+  },
   recipes: {
     moveUp: 'Subir: {{item}}',
     moveDown: 'Bajar: {{item}}',

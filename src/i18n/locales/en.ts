@@ -1,6 +1,49 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  capture: {
+    title: 'Capture from photo, audio or video',
+    privacy:
+      'Files are processed on this phone and are not uploaded to AI services. Only the recipe text you review and confirm will be saved.',
+    limits:
+      'One image of text or a clip up to 2 minutes and 30 MB. Video uses narration and up to 8 sampled frames: text between frames may be missed, and ingredients are not inferred from appearance. Review the transcript; handwriting may be misread.',
+    models:
+      'Choosing a file or organizing text authorizes the initial download of the required models (may exceed 1 GB). You need free storage and a compatible phone; Wi-Fi is recommended. Once downloaded, extraction works offline. Expo Go is not supported.',
+    web: 'Local capture requires the installed app on a compatible phone. You can continue with manual entry.',
+    languageEs: 'Audio: Spanish (switch to English)',
+    languageEn: 'Audio: English (switch to Spanish)',
+    choose: 'Choose file and prepare local reading',
+    download: 'Preparing models on this phone…',
+    read: 'Reading file on this phone…',
+    organize: 'Organizing recipe on this phone…',
+    stop: 'Stop processing',
+    source: 'Extracted text (you can correct it)',
+    reviewSource:
+      'Compare the text with the original. Correct names, quantities and missing steps before organizing it. This text is discarded when you leave capture.',
+    structure: 'Organize draft locally',
+    reviewDraft:
+      'Review every field in the next form before saving. Times and year are left blank for you to fill from the original. No recipe has been saved.',
+    untitled: 'Title needed',
+    use: 'Review draft in recipe form',
+    manual: 'Write recipe manually',
+    errors: {
+      busy: 'The previous reading is finishing. Wait a moment and retry.',
+      unsupported:
+        'Unsupported format. Try a JPEG/PNG photo or a compatible MP4/audio clip.',
+      size: 'Choose a nonempty file up to 30 MB.',
+      duration:
+        'The clip must have a readable duration greater than zero and up to 2 minutes.',
+      empty:
+        'No text was recognized. Try a clearer image or audio with clear speech.',
+      output:
+        'A reliable draft could not be produced. Your text is still here: correct it and retry, or enter the recipe manually.',
+      cancelled: 'Processing stopped. You can retry.',
+      sourceLength:
+        'The limit is 6000 characters. Shorten the text while retaining all ingredients and steps for this recipe.',
+      failed:
+        'Local processing failed. Check free storage and your connection for the initial download, or use manual entry. Files were not sent to an AI service.',
+    },
+  },
   recipes: {
     moveUp: 'Move up: {{item}}',
     moveDown: 'Move down: {{item}}',

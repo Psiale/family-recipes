@@ -37,7 +37,19 @@
             "backgroundColor": "#EEF1FF"
           }
         }
-      ]
+      ],
+      [
+        "react-native-audio-api",
+        {
+          "iosBackgroundMode": false,
+          "androidForegroundService": false,
+          "androidPermissions": []
+        }
+      ],
+      "react-native-blob-util",
+      "@kesha-antonov/react-native-background-downloader",
+      "expo-asset",
+      "expo-video"
     ],
     "locales": {
       "en": "./locales/app-en.json",
