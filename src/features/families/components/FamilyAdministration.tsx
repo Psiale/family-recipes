@@ -18,6 +18,7 @@ import { familyKeys, useFamilyPeople, useSuperAdmin } from '../queries';
 import { FamilyDetailsSummary } from './FamilyDetailsSummary';
 import { FamilyLifecyclePanel } from './FamilyLifecyclePanel';
 import { PersonAdministration } from './PersonAdministration';
+import { ProfileDeletion } from './ProfileDeletion';
 import { styles } from './styles';
 
 function LoadError({ retry }: { retry: () => void }) {
@@ -143,13 +144,25 @@ function Inspection({
   // Keep the exact roster snapshot the user chose, even during a refetch.
   const [selection, setSelection] = useState<{
     member: FamilyPerson;
-    action: 'rename' | 'remove';
+    action: 'rename' | 'remove' | 'deleteProfile';
   } | null>(null);
   const [personDone, setPersonDone] = useState(false);
   const requests = useQuery({
     queryKey: [...familyKeys.root(userId), 'request', family.id],
     queryFn: () => listDeletionRequests(family.id),
   });
+  if (selection?.action === 'deleteProfile')
+    return (
+      <ProfileDeletion
+        userId={userId}
+        personId={selection.member.person.id}
+        onClose={() => setSelection(null)}
+        onDone={() => {
+          setSelection(null);
+          setPersonDone(true);
+        }}
+      />
+    );
   if (selection)
     return (
       <PersonAdministration
@@ -207,7 +220,7 @@ function Inspection({
               {member.person.display_name} ·{' '}
               {t(`families.roles.${member.role}`)}
             </Text>
-            {(['rename', 'remove'] as const).map((action) => (
+            {(['rename', 'remove', 'deleteProfile'] as const).map((action) => (
               <AppButton
                 key={action}
                 variant="secondary"

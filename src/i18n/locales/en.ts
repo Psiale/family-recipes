@@ -1,7 +1,20 @@
 import type { TranslationResources } from './es';
 
 export const en = {
+  profileDeletion: {
+    title: 'Delete profile globally',
+    explanation:
+      'This action is permanent. It anonymizes the profile and removes it from every family and branch. It revokes management grants held by the account and grants over this profile, and invalidates claim codes. The login account and credentials remain; it can create a new profile. Recipes, their ownership and historical references remain under the anonymous identity. Previous audit records are retained.',
+    impact:
+      'Impact: {{families}} families, {{grants}} manager grants; {{recipes}} owned recipes are retained.',
+    lastOwner: 'last active Owner',
+    blocked:
+      'First transfer ownership in each family where this is the last Owner, or delete that family separately. A profile with Super Admin access must have its platform access resolved separately first.',
+    typeName: 'Type the person’s exact name',
+    confirm: 'Delete profile from all families',
+  },
   personAdministration: {
+    deleteProfile: 'Delete profile for {{name}} globally',
     rename: 'Change name for {{name}}',
     remove: 'Remove {{name}} from this family',
     renameExplanation:

@@ -478,6 +478,7 @@ export type Database = {
           biography: string | null;
           created_at: string;
           created_by_user_id: string | null;
+          deleted_at: string | null;
           display_name: string;
           id: string;
           profile_photo_path: string | null;
@@ -489,6 +490,7 @@ export type Database = {
           biography?: string | null;
           created_at?: string;
           created_by_user_id?: string | null;
+          deleted_at?: string | null;
           display_name: string;
           id?: string;
           profile_photo_path?: string | null;
@@ -499,6 +501,7 @@ export type Database = {
           biography?: string | null;
           created_at?: string;
           created_by_user_id?: string | null;
+          deleted_at?: string | null;
           display_name?: string;
           id?: string;
           profile_photo_path?: string | null;
@@ -1060,6 +1063,19 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      admin_delete_person_profile: {
+        Args: {
+          p_confirm_name: string;
+          p_expected_state: string;
+          p_person_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      admin_profile_deletion_preview: {
+        Args: { p_person_id: string };
+        Returns: Json;
+      };
       admin_remove_family_member: {
         Args: {
           p_expected_family_name: string;

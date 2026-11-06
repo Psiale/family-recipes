@@ -319,6 +319,114 @@ export async function testPersonAdministrationApi(config, db) {
       ).display_name,
       'Corrected owner',
     );
+    // Global deletion is distinct from removal: every membership/grant is ended,
+    // while the Auth account and anonymous historical Person ID remain.
+    const deletionImpact = unwrap(
+      await superAdmin.rpc('admin_profile_deletion_preview', {
+        p_person_id: managed,
+      }),
+    );
+    const deletionParams = {
+      p_person_id: managed,
+      p_expected_state: deletionImpact.expected_state,
+      p_confirm_name: deletionImpact.name,
+      p_reason: 'Global duplicate profile',
+    };
+    assert.equal(
+      (await owner.rpc('admin_delete_person_profile', deletionParams)).error
+        ?.code,
+      '42501',
+    );
+    assert.equal(
+      (await admin.rpc('admin_delete_person_profile', deletionParams)).error
+        ?.code,
+      '42501',
+    );
+    unwrap(await superAdmin.rpc('admin_delete_person_profile', deletionParams));
+    assert.equal(
+      (await superAdmin.rpc('admin_delete_person_profile', deletionParams))
+        .error?.code,
+      'PT409',
+    );
+    const anonymous = unwrap(
+      await superAdmin.from('people').select('*').eq('id', managed).single(),
+    );
+    assert.ok(anonymous.deleted_at);
+    assert.equal(anonymous.display_name, 'Persona eliminada');
+    assert.equal(
+      unwrap(
+        await superAdmin
+          .from('family_memberships')
+          .select('person_id')
+          .eq('person_id', managed)
+          .eq('status', 'ACTIVE'),
+      ).length,
+      0,
+    );
+    const blockedImpact = unwrap(
+      await superAdmin.rpc('admin_profile_deletion_preview', {
+        p_person_id: people[2],
+      }),
+    );
+    assert.ok(blockedImpact.families.some((f) => f.last_owner));
+    assert.equal(
+      (
+        await superAdmin.rpc('admin_delete_person_profile', {
+          p_person_id: people[2],
+          p_expected_state: blockedImpact.expected_state,
+          p_confirm_name: blockedImpact.name,
+          p_reason: 'Owner protection',
+        })
+      ).error?.code,
+      'PT412',
+    );
+    unwrap(
+      await superAdmin.rpc('family_lifecycle_action', {
+        p_family_id: privateFamily,
+        p_action: 'delete',
+        p_confirm_name: 'Admin private family',
+      }),
+    );
+    const linkedImpact = unwrap(
+      await superAdmin.rpc('admin_profile_deletion_preview', {
+        p_person_id: people[2],
+      }),
+    );
+    const { user: linkedUser } = unwrap(await admin.auth.getUser());
+    unwrap(
+      await superAdmin.rpc('admin_delete_person_profile', {
+        p_person_id: people[2],
+        p_expected_state: linkedImpact.expected_state,
+        p_confirm_name: linkedImpact.name,
+        p_reason: 'Global linked profile deletion',
+      }),
+    );
+    assert.deepEqual(
+      unwrap(
+        await admin
+          .from('family_memberships')
+          .select('person_id')
+          .eq('family_id', families[0]),
+      ),
+      [],
+    );
+    unwrap(await admin.auth.signOut());
+    unwrap(
+      await admin.auth.signInWithPassword({
+        email: linkedUser.email,
+        password,
+      }),
+    );
+    const newIdentity = unwrap(
+      await admin.rpc('onboard_person', {
+        p_display_name: 'New linked identity',
+      }),
+    );
+    people.push(newIdentity);
+    assert.notEqual(newIdentity, people[2]);
+    console.log(
+      'Real Auth/API global deletion: anonymous linked/unclaimed identities, all-family removal, current-token access loss, last-Owner protection, account/password retention and new onboarding passed.',
+    );
     await db.query(
       "update public.app_users set platform_role='USER' where id=$1",
       [users[0]],

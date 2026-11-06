@@ -187,7 +187,26 @@ App, SQL/RLS, concurrency and real Auth/PostgREST tests cover authorization,
 confirmation snapshots, preservation and audit attribution.
 
 Phase 2's planned family/person administration is complete. Global profile
-deletion is deferred to a separate, explicitly named action and its own PR:
-linked accounts, owned recipes and historical attribution need a product decision.
+deletion is delivered by the separately named slice below, with account, recipe
+and historical-attribution behavior recorded in ADR 0002.
 Platform-role management stays separate. Invitations remain in Phase 5; recipe
 implementation is still pending in Phase 3.
+
+
+## Global profile deletion — completed slice
+
+A separately named Super Admin action deletes a profile across all families.
+The selected policy keeps login accounts and credentials, permanently anonymizes
+and detaches the Person, ends all active family access, revokes incoming and
+outgoing manager grants, and invalidates claim codes. Recipe ownership, recipe
+content, lineage, revisions and existing immutable audit history are retained.
+The anonymous Person ID cannot be restored or claimed. See ADR 0002.
+
+The global impact preview lists affected families and grant/recipe counts.
+Confirmation requires a reason and typing the exact name. Current-role locking,
+family serialization, expected-state checks and atomic audits protect the action.
+Last Owners and platform-administrator profiles require their authority to be
+resolved first. Migration `20261106165127_global_profile_deletion` is required.
+
+Next: Phase 3 recipe authoring, ingredient/step editing, detail/list/search and
+revision history. Invitations and platform-role management remain separate.

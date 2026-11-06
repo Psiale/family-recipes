@@ -10,6 +10,7 @@ const makePerson = (id: string, displayName: string): FamilyPerson => ({
   membershipUpdatedAt: '2026-11-05T00:00:00Z',
   canIssueClaim: false,
   person: {
+    deleted_at: null,
     biography: null,
     created_at: '',
     created_by_user_id: 'user-1',
