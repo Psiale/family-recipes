@@ -133,3 +133,19 @@ it('uses anonymous attribution for a globally deleted profile', async () => {
     screen.getByText('Creación original: Persona eliminada'),
   ).toBeOnTheScreen();
 });
+it('displays captured section context in recipe details', async () => {
+  mocks.getRecipe.mockResolvedValue({
+    ...detail,
+    ingredients: detail.ingredients.map((v) => ({
+      ...v,
+      section_name: 'Salsa',
+    })),
+    steps: detail.steps.map((v) => ({ ...v, section_name: 'Salsa' })),
+  });
+  await open();
+  await userEvent
+    .setup()
+    .press(await screen.findByRole('button', { name: 'Sopa' }));
+  expect(await screen.findByText('Salsa · 2 · Tomate')).toBeOnTheScreen();
+  expect(screen.getByText('Salsa · 1. Hervir')).toBeOnTheScreen();
+});

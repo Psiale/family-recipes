@@ -61,7 +61,7 @@ it.each(['es', 'en'])(
     );
     const source = await screen.findByLabelText(i18n.t('capture.source'));
     expect(mocks.organizeSource).not.toHaveBeenCalled();
-    fireEvent.changeText(source, 'corrected source');
+    await fireEvent.changeText(source, 'corrected source');
     await user.press(
       screen.getByRole('button', { name: i18n.t('capture.structure') }),
     );

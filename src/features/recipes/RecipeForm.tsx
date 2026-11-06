@@ -55,6 +55,11 @@ export function RecipeForm({
   const defaults = initial?.recipe ?? draft;
   const initialIngredients = initial?.ingredients ?? draft?.ingredients;
   const initialSteps = initial?.steps ?? draft?.steps;
+  const showSections = Boolean(
+    draft ||
+    initialIngredients?.some((v) => v.section_name) ||
+    initialSteps?.some((v) => v.section_name),
+  );
   const ids = useRef(1000);
   const busy = useRef(false);
   const [fields, setFields] = useState(() => ({
@@ -230,6 +235,23 @@ export function RecipeForm({
               }
             />
           ))}
+          {showSections && (
+            <TextField
+              label={t('recipes.fields.ingredient_section', {
+                number: index + 1,
+              })}
+              value={item.section_name ?? ''}
+              editable={!saving}
+              maxLength={240}
+              onChangeText={(value) =>
+                setIngredients((old) =>
+                  old.map((v) =>
+                    v.key === item.key ? { ...v, section_name: value } : v,
+                  ),
+                )
+              }
+            />
+          )}
           <AppButton
             variant="secondary"
             label={t('recipes.moveUp', {
@@ -283,6 +305,21 @@ export function RecipeForm({
               )
             }
           />
+          {showSections && (
+            <TextField
+              label={t('recipes.fields.step_section', { number: index + 1 })}
+              value={item.section_name ?? ''}
+              editable={!saving}
+              maxLength={240}
+              onChangeText={(value) =>
+                setSteps((old) =>
+                  old.map((v) =>
+                    v.key === item.key ? { ...v, section_name: value } : v,
+                  ),
+                )
+              }
+            />
+          )}
           <AppButton
             variant="secondary"
             label={t('recipes.moveUp', {

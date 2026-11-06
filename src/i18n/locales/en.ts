@@ -100,6 +100,8 @@ export const en = {
       quantity: 'Ingredient {{number}}: quantity',
       unit: 'Ingredient {{number}}: unit',
       preparation_note: 'Ingredient {{number}}: note',
+      ingredient_section: 'Ingredient {{number}}: section',
+      step_section: 'Step {{number}}: section',
     },
   },
   profileDeletion: {

@@ -414,7 +414,13 @@ function RecipeContentView({
       <Text style={styles.subtitle}>{t('recipes.ingredients')}</Text>
       {data.ingredients.map((v, i) => (
         <Text key={i} style={styles.body}>
-          {[v.quantity, v.unit, v.ingredient, v.preparation_note]
+          {[
+            v.section_name,
+            v.quantity,
+            v.unit,
+            v.ingredient,
+            v.preparation_note,
+          ]
             .filter(Boolean)
             .join(' · ')}
         </Text>
@@ -422,6 +428,7 @@ function RecipeContentView({
       <Text style={styles.subtitle}>{t('recipes.steps')}</Text>
       {data.steps.map((v, i) => (
         <Text key={i} style={styles.body}>
+          {v.section_name ? `${v.section_name} · ` : ''}
           {i + 1}. {v.instruction}
         </Text>
       ))}
