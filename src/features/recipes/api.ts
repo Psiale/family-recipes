@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { getSupabaseClient } from '@/lib/supabase/client';
 
+import { recipeRequest } from './request';
+
 const text = z.string().nullable();
 const minutes = z.number().int().nonnegative().nullable();
 export const ingredientSchema = z.object({
@@ -74,28 +76,39 @@ const cardsSchema = z.array(
   }),
 );
 export async function listRecipes(search: string, page: number) {
-  const { data, error } = await getSupabaseClient().rpc('list_recipe_cards', {
-    p_search: search,
-    p_offset: page * 25,
-  });
+  const { data, error } = await recipeRequest((signal) =>
+    getSupabaseClient()
+      .rpc('list_recipe_cards', {
+        p_search: search,
+        p_offset: page * 25,
+      })
+      .abortSignal(signal),
+  );
   if (error) throw error;
   const rows = cardsSchema.parse(data);
   return { recipes: rows.slice(0, 25), more: rows.length > 25 };
 }
 export async function getRecipe(id: string) {
-  const { data, error } = await getSupabaseClient().rpc('get_recipe_detail', {
-    p_recipe_id: id,
-  });
+  const { data, error } = await recipeRequest((signal) =>
+    getSupabaseClient()
+      .rpc('get_recipe_detail', {
+        p_recipe_id: id,
+      })
+      .abortSignal(signal),
+  );
   if (error) throw error;
   return detailSchema.parse(data);
 }
 export async function getRevision(recipeId: string, revision: number) {
-  const { data, error } = await getSupabaseClient()
-    .from('recipe_revisions')
-    .select('snapshot')
-    .eq('recipe_id', recipeId)
-    .eq('revision_number', revision)
-    .single();
+  const { data, error } = await recipeRequest((signal) =>
+    getSupabaseClient()
+      .from('recipe_revisions')
+      .select('snapshot')
+      .eq('recipe_id', recipeId)
+      .eq('revision_number', revision)
+      .abortSignal(signal)
+      .single(),
+  );
   if (error) throw error;
   return snapshotSchema.parse(data.snapshot);
 }
@@ -107,16 +120,22 @@ export async function saveRecipe(values: {
   content: RecipeContent;
   overrideReason: string;
 }) {
-  const { data, error } = await getSupabaseClient().rpc('save_recipe', {
-    ...(values.id === null ? {} : { p_recipe_id: values.id }),
-    p_expected_revision: values.expectedRevision,
-    ...(values.familyId === null ? {} : { p_family_id: values.familyId }),
-    p_share_with_family: values.shareWithFamily,
-    p_content: values.content,
-    ...(values.overrideReason.trim()
-      ? { p_override_reason: values.overrideReason.trim() }
-      : {}),
-  });
+  const { data, error } = await recipeRequest(
+    (signal) =>
+      getSupabaseClient()
+        .rpc('save_recipe', {
+          ...(values.id === null ? {} : { p_recipe_id: values.id }),
+          p_expected_revision: values.expectedRevision,
+          ...(values.familyId === null ? {} : { p_family_id: values.familyId }),
+          p_share_with_family: values.shareWithFamily,
+          p_content: values.content,
+          ...(values.overrideReason.trim()
+            ? { p_override_reason: values.overrideReason.trim() }
+            : {}),
+        })
+        .abortSignal(signal),
+    true,
+  );
   if (error) throw error;
   return data;
 }
