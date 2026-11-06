@@ -182,6 +182,11 @@ function CreateRecipeForm({
   const mutation = useMutation({
     networkMode: 'always',
     mutationFn: api.saveRecipe,
+    onSettled: () => {
+      // A lost response can hide a committed write. Refresh after errors too,
+      // without making confirmation depend on the refresh finishing.
+      void client.invalidateQueries({ queryKey: keys(userId) });
+    },
   });
   return (
     <>
@@ -197,14 +202,16 @@ function CreateRecipeForm({
       ) : (
         <RecipeForm
           families={families.data}
-          onCancel={onCancel}
+          onCancel={() => {
+            void client.invalidateQueries({ queryKey: keys(userId) });
+            onCancel();
+          }}
           onSave={async (values) => {
             const id = await mutation.mutateAsync({
               ...values,
               id: null,
               expectedRevision: 0,
             });
-            await client.invalidateQueries({ queryKey: keys(userId) });
             onDone(id);
           }}
         />
@@ -232,6 +239,9 @@ function RecipeView({
   const mutation = useMutation({
     networkMode: 'always',
     mutationFn: api.saveRecipe,
+    onSettled: () => {
+      void client.invalidateQueries({ queryKey: keys(userId) });
+    },
   });
   if (editing)
     return (
@@ -248,7 +258,6 @@ function RecipeView({
             id,
             expectedRevision: editing.latest_revision,
           });
-          await client.invalidateQueries({ queryKey: keys(userId) });
           setEditing(null);
         }}
       />

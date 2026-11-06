@@ -2,9 +2,41 @@ import type { TranslationResources } from './es';
 
 export const en = {
   recipes: {
+    units: {
+      show: 'Show units for ingredient {{number}}',
+      hide: 'Hide units for ingredient {{number}}',
+      hint: 'Search for a unit or type your own.',
+      custom: 'Use “{{unit}}”',
+      options: {
+        gram: 'g',
+        kilogram: 'kg',
+        milliliter: 'ml',
+        liter: 'l',
+        teaspoon: 'teaspoons',
+        tablespoon: 'tablespoons',
+        cup: 'cups',
+        piece: 'pieces',
+        pinch: 'pinches',
+        handful: 'handfuls',
+        clove: 'cloves',
+        bunch: 'bunches',
+        slice: 'slices',
+        can: 'cans',
+        package: 'packages',
+        toTaste: 'to taste',
+      },
+    },
+    saveUnconfirmed:
+      'We could not confirm the save in time. Check your connection and return to the list to see whether it saved before creating another recipe. Your content remains in this form while you keep it open.',
     editor: {
-      rowNotes: 'Notes and section',
-      stepSection: 'Step section',
+      ingredientGroupHint:
+        'Group ingredients prepared separately. This is optional.',
+      ingredientGroupExample: 'e.g. For the sauce',
+      stepGroupHint:
+        'Group steps for one part of the recipe. This is optional.',
+      stepGroupExample: 'e.g. Prepare the sauce',
+      rowNotes: 'Notes and group',
+      stepSection: 'Step group',
       optional: 'Optional',
       privateVisibility: 'Private',
       familyVisibility: 'Shared with {{family}}',
@@ -22,7 +54,7 @@ export const en = {
       unitExample: 'e.g. cups',
       ingredientExample: 'e.g. flour',
       stepExample: 'Describe what to do and how to know it is ready.',
-      ingredientDetails: 'Ingredient {{number}}: notes and section',
+      ingredientDetails: 'Ingredient {{number}}: notes and group',
       stepDetails: 'Details for step {{number}}',
       timing: 'Servings and timing',
       timingHint: 'Optional · yield, preparation, cooking and resting time',
@@ -90,8 +122,8 @@ export const en = {
       quantity: 'Ingredient {{number}}: quantity',
       unit: 'Ingredient {{number}}: unit',
       preparation_note: 'Ingredient {{number}}: note',
-      ingredient_section: 'Ingredient {{number}}: section',
-      step_section: 'Step {{number}}: section',
+      ingredient_section: 'Ingredient {{number}}: group (optional)',
+      step_section: 'Step {{number}}: group (optional)',
     },
   },
   profileDeletion: {

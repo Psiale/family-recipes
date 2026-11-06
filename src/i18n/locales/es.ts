@@ -1,8 +1,40 @@
 export const es = {
   recipes: {
+    units: {
+      show: 'Ver unidades del ingrediente {{number}}',
+      hide: 'Ocultar unidades del ingrediente {{number}}',
+      hint: 'Busca una unidad o escribe la tuya.',
+      custom: 'Usar «{{unit}}»',
+      options: {
+        gram: 'g',
+        kilogram: 'kg',
+        milliliter: 'ml',
+        liter: 'l',
+        teaspoon: 'cucharaditas',
+        tablespoon: 'cucharadas',
+        cup: 'tazas',
+        piece: 'piezas',
+        pinch: 'pizcas',
+        handful: 'puñados',
+        clove: 'dientes',
+        bunch: 'manojos',
+        slice: 'rebanadas',
+        can: 'latas',
+        package: 'paquetes',
+        toTaste: 'al gusto',
+      },
+    },
+    saveUnconfirmed:
+      'No pudimos confirmar el guardado a tiempo. Revisa tu conexión y vuelve a la lista para comprobar si se guardó antes de crear otra receta. El contenido sigue en este formulario mientras lo mantengas abierto.',
     editor: {
-      rowNotes: 'Notas y sección',
-      stepSection: 'Sección del paso',
+      ingredientGroupHint:
+        'Agrupa ingredientes que se preparan por separado. Es opcional.',
+      ingredientGroupExample: 'Ej. Para la salsa',
+      stepGroupHint:
+        'Agrupa pasos de una misma parte de la receta. Es opcional.',
+      stepGroupExample: 'Ej. Preparar la salsa',
+      rowNotes: 'Notas y grupo',
+      stepSection: 'Grupo de pasos',
       optional: 'Opcional',
       privateVisibility: 'Privada',
       familyVisibility: 'Compartida con {{family}}',
@@ -20,7 +52,7 @@ export const es = {
       unitExample: 'Ej. tazas',
       ingredientExample: 'Ej. harina',
       stepExample: 'Describe qué hacer y cómo saber que está listo.',
-      ingredientDetails: 'Ingrediente {{number}}: notas y sección',
+      ingredientDetails: 'Ingrediente {{number}}: notas y grupo',
       stepDetails: 'Detalles del paso {{number}}',
       timing: 'Porciones y tiempos',
       timingHint: 'Opcional · porciones, preparación, cocción y reposo',
@@ -89,8 +121,8 @@ export const es = {
       quantity: 'Ingrediente {{number}}: cantidad',
       unit: 'Ingrediente {{number}}: unidad',
       preparation_note: 'Ingrediente {{number}}: nota',
-      ingredient_section: 'Ingrediente {{number}}: sección',
-      step_section: 'Paso {{number}}: sección',
+      ingredient_section: 'Ingrediente {{number}}: grupo (opcional)',
+      step_section: 'Paso {{number}}: grupo (opcional)',
     },
   },
   profileDeletion: {

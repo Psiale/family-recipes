@@ -14,6 +14,7 @@ import {
   RecipeRowActions,
   editorStyles,
 } from './RecipeEditorControls';
+import { RecipeUnitField } from './RecipeUnitField';
 
 type Ingredient = RecipeContent['ingredients'][number] & { key: number };
 type Step = RecipeContent['steps'][number] & { key: number };
@@ -135,14 +136,20 @@ export function RecipeForm({
         typeof caught === 'object' && caught && 'code' in caught
           ? caught.code
           : null;
-      setStale(code === 'PT409' || code === '42501');
+      setStale(
+        code === 'PT409' ||
+          code === '42501' ||
+          code === 'RECIPE_SAVE_UNCONFIRMED',
+      );
       setError(
         t(
-          code === 'PT409'
-            ? 'recipes.stale'
-            : code === '42501'
-              ? 'recipes.denied'
-              : 'families.errors.save',
+          code === 'RECIPE_SAVE_UNCONFIRMED'
+            ? 'recipes.saveUnconfirmed'
+            : code === 'PT409'
+              ? 'recipes.stale'
+              : code === '42501'
+                ? 'recipes.denied'
+                : 'families.errors.save',
         ),
       );
     } finally {
@@ -256,27 +263,39 @@ export function RecipeForm({
                 }
               />
               <View style={editorStyles.columns}>
-                {(['quantity', 'unit'] as const).map((key) => (
-                  <View key={key} style={editorStyles.column}>
-                    <TextField
-                      label={t(`recipes.editor.${key}`)}
-                      aria-label={t(`recipes.fields.${key}`, {
-                        number: index + 1,
-                      })}
-                      value={item[key] ?? ''}
-                      editable={!saving}
-                      maxLength={240}
-                      placeholder={t(`recipes.editor.${key}Example`)}
-                      onChangeText={(value) =>
-                        setIngredients((old) =>
-                          old.map((v) =>
-                            v.key === item.key ? { ...v, [key]: value } : v,
-                          ),
-                        )
-                      }
-                    />
-                  </View>
-                ))}
+                <View style={editorStyles.column}>
+                  <TextField
+                    label={t('recipes.editor.quantity')}
+                    aria-label={t('recipes.fields.quantity', {
+                      number: index + 1,
+                    })}
+                    value={item.quantity ?? ''}
+                    editable={!saving}
+                    maxLength={240}
+                    placeholder={t('recipes.editor.quantityExample')}
+                    onChangeText={(quantity) =>
+                      setIngredients((old) =>
+                        old.map((v) =>
+                          v.key === item.key ? { ...v, quantity } : v,
+                        ),
+                      )
+                    }
+                  />
+                </View>
+                <View style={editorStyles.unitColumn}>
+                  <RecipeUnitField
+                    value={item.unit ?? ''}
+                    number={index + 1}
+                    disabled={saving}
+                    onChange={(unit) =>
+                      setIngredients((old) =>
+                        old.map((v) =>
+                          v.key === item.key ? { ...v, unit } : v,
+                        ),
+                      )
+                    }
+                  />
+                </View>
               </View>
               <EditorDisclosure
                 label={t('recipes.editor.rowNotes')}
@@ -290,6 +309,9 @@ export function RecipeForm({
                 }
                 disabled={saving}
               >
+                <Text style={editorStyles.hint}>
+                  {t('recipes.editor.ingredientGroupHint')}
+                </Text>
                 {(['preparation_note', 'section_name'] as const).map((key) => (
                   <TextField
                     key={key}
@@ -297,6 +319,11 @@ export function RecipeForm({
                       `recipes.fields.${key === 'section_name' ? 'ingredient_section' : key}`,
                       { number: index + 1 },
                     )}
+                    placeholder={
+                      key === 'section_name'
+                        ? t('recipes.editor.ingredientGroupExample')
+                        : undefined
+                    }
                     value={item[key] ?? ''}
                     editable={!saving}
                     maxLength={240}
@@ -373,7 +400,11 @@ export function RecipeForm({
                 summary={item.section_name || t('recipes.editor.optional')}
                 disabled={saving}
               >
+                <Text style={editorStyles.hint}>
+                  {t('recipes.editor.stepGroupHint')}
+                </Text>
                 <TextField
+                  placeholder={t('recipes.editor.stepGroupExample')}
                   label={t('recipes.fields.step_section', {
                     number: index + 1,
                   })}

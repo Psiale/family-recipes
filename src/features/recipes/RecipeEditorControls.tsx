@@ -144,7 +144,8 @@ export const editorStyles = StyleSheet.create({
     minWidth: 32,
   },
   columns: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  column: { flexGrow: 1, flexBasis: 120, minWidth: 100 },
+  column: { flexGrow: 1, flexBasis: 100, minWidth: 84 },
+  unitColumn: { flexGrow: 1, flexBasis: 180, minWidth: 160 },
   grow: { flex: 1, minWidth: 0, gap: spacing.xs },
   hint: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   multiline: {

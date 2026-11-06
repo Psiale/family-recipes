@@ -126,6 +126,30 @@ it('requires title, ingredient and step instead of submitting an empty aggregate
   expect(save).not.toHaveBeenCalled();
 });
 
+it('ends loading on an unconfirmed save, keeps the draft and prevents a duplicate submission', async () => {
+  const save = jest.fn().mockRejectedValue({ code: 'RECIPE_SAVE_UNCONFIRMED' });
+  await render(
+    <RecipeForm families={[family]} onSave={save} onCancel={jest.fn()} />,
+  );
+  await fillRequired();
+  await fireEvent.press(
+    screen.getByRole('button', { name: i18n.t('recipes.save') }),
+  );
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    i18n.t('recipes.saveUnconfirmed'),
+  );
+  expect(
+    screen.getByLabelText(i18n.t('recipes.fields.title')),
+  ).toHaveDisplayValue('Sopa');
+  const button = screen.getByRole('button', { name: i18n.t('recipes.save') });
+  expect(button).toBeDisabled();
+  await fireEvent.press(button);
+  expect(save).toHaveBeenCalledTimes(1);
+  expect(
+    screen.getByRole('button', { name: i18n.t('families.cancel') }),
+  ).toBeEnabled();
+});
+
 async function fillRequired() {
   await fireEvent.changeText(
     screen.getByLabelText(i18n.t('recipes.fields.title')),
