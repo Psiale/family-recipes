@@ -1,4 +1,63 @@
 export const es = {
+  recipes: {
+    moveUp: 'Subir: {{item}}',
+    moveDown: 'Bajar: {{item}}',
+    create: 'Crear receta',
+    edit: 'Editar receta',
+    save: 'Guardar receta',
+    search: 'Buscar recetas por título',
+    empty:
+      'Todavía no hay recetas visibles. Crea una receta o cambia la búsqueda.',
+    back: 'Volver a recetas',
+    familyContext: 'Familia de referencia',
+    privateExplanation:
+      'Una receta nueva es privada: solo tú, tus gestores y los súper administradores pueden verla. Activa compartir si quieres que toda la familia elegida pueda verla. Editar el contenido no cambia la visibilidad existente.',
+    shareFamily: 'Compartir con toda la familia elegida',
+    ingredients: 'Ingredientes',
+    steps: 'Preparación',
+    ingredientNumber: 'Ingrediente {{number}}',
+    stepNumber: 'Paso {{number}}',
+    addIngredient: 'Añadir ingrediente',
+    removeIngredient: 'Quitar ingrediente {{number}}',
+    addStep: 'Añadir paso',
+    removeStep: 'Quitar paso {{number}}',
+    owner: 'Propiedad de: {{name}}',
+    creator: 'Creación original: {{name}}',
+    anonymous: 'Persona eliminada',
+    preserved: 'Receta preservada',
+    editable: 'Receta editable',
+    history: 'Historial: últimas 20 versiones',
+    version: 'Versión {{number}} · {{date}}',
+    historical: 'Versión histórica {{number}} (solo lectura)',
+    current: 'Ver receta actual',
+    preservedOverride:
+      'La receta está preservada. Solo un súper administrador puede modificarla con un motivo explícito que quedará auditado.',
+    invalid:
+      'Revisa el título, al menos un ingrediente y un paso. Usa números enteros no negativos para los tiempos y el año.',
+    stale:
+      'Esta receta cambió. Cancela y vuelve a abrirla para revisar la versión actual antes de guardar.',
+    denied: 'Ya no tienes permiso para editar esta receta.',
+    onboard:
+      'Crea o reclama tu perfil desde Mis familias para escribir recetas.',
+    joinFamily:
+      'Necesitas una familia con rol Miembro, Administrador o Propietario para crear recetas.',
+    fields: {
+      title: 'Título',
+      description: 'Descripción',
+      origin_location: 'Lugar de origen',
+      origin_year: 'Año de origen',
+      story: 'Historia de la receta',
+      servings: 'Porciones',
+      prep_time_minutes: 'Preparación (minutos)',
+      cook_time_minutes: 'Cocción (minutos)',
+      rest_time_minutes: 'Reposo (minutos)',
+      change_summary: 'Resumen del cambio',
+      ingredient: 'Ingrediente {{number}}: nombre',
+      quantity: 'Ingrediente {{number}}: cantidad',
+      unit: 'Ingrediente {{number}}: unidad',
+      preparation_note: 'Ingrediente {{number}}: nota',
+    },
+  },
   profileDeletion: {
     title: 'Eliminar perfil globalmente',
     explanation:
