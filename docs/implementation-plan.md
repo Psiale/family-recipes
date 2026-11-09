@@ -125,13 +125,12 @@ email delivery remain deferred. Recipe workflows begin in Phase 3.
 ## Decisions to resolve before recipe migrations stabilize
 
 1. Resolved: manager grants are global to the person, with explicit confirmation and revocation.
-2. Whether recipe owners may delegate only editing or also visibility changes.
-3. Whether family Admins/Owners may view all branch-scoped recipes (the current
-   authorization matrix says yes).
+2. Resolved: global delegates may edit and change audiences, with active non-read-only membership required for introducing content to a family.
+3. Resolved: family Admins/Owners can read every branch-scoped recipe in that family.
 4. What metadata remains visible for an inaccessible lineage node besides the
    localized “Version unavailable” placeholder.
 5. Media copy/retention policy for forks and account erasure.
-6. Whether preserving a recipe is reversible by its owner or only Super Admin.
+6. Resolved: the recipe owner or a current Super Admin can explicitly unlock preservation, with a reason and immutable audit. Delegates cannot change preservation.
 
 ## Person-manager delegation
 
@@ -252,7 +251,7 @@ and [manual recipe-entry patterns and public adoption signals](research/manual-r
 The comparison recommends a focused editor with easy ingredient/step entry and
 optional metadata. It does not implement a new wizard, autosave or bulk paste.
 
-### Current slice — Manual recipe editor layout
+### Completed slice — Manual recipe editor layout
 
 Use Samsung Food's single-page authoring pattern as the primary reference, with
 Paprika-style collapsed optional details. Title and description lead into compact
@@ -280,3 +279,42 @@ submission until the user checks the recipe list; it is not automatically retrie
 Confirmed saves navigate without waiting for the background list refresh. These
 changes require no new database migration or production dependency. Native
 end-to-end save/restart verification is tracked with the testing artifact.
+
+
+### Current slice — Complete Phase 3 authoring and organization
+
+- Attach private photos, audio and video using official Expo SDK modules. Files
+  are uploaded as attachments; speech/OCR/video-to-text extraction stays deferred.
+- A recording may replace written preparation. Explain this before choosing a
+  recording and preserve any already-entered text. Title remains required;
+  ingredients and steps may be empty only with an uploaded audio/video attachment.
+  Photos alone do not replace written preparation.
+- The bottom of the editor clearly offers the optional written recipe. A recording
+  without written steps has a localized explanation in its detail view. When both
+  exist, the ingredients and steps are inside an accessible expandable container.
+- Select the recipe's Person at creation: the caller or an explicitly managed
+  live Person. Authorship/ownership name that Person; the authenticated entering
+  account is server-set. Editing never transfers ownership.
+- Edit explicit multi-family and branch audiences. Owners/Admins retain branch
+  oversight; other recipients need branch membership. Revoking the last audience
+  in a family atomically prunes collection links, preserving ownership and media.
+- Family collections include localized default categories and custom names.
+  Members can create collections; family Owners/Admins (and Super Admins) organize,
+  rename and delete them. Renaming a default converts it into a custom name;
+  deleting a collection retains recipes. Read-only members only browse.
+- The recipe owner or a current Super Admin can preserve/unpreserve with a reason.
+  Preserved content stays protected until explicitly unlocked; the existing
+  reasoned Super Admin content override remains available. Every aggregate,
+  audience or preservation write records an immutable snapshot and audit event.
+- Storage objects are staged privately and sealed on attachment, with no client
+  overwrite/delete of historical bytes. Up to eight files, 100 MB total; photos
+  up to 10 MB and audio/video up to 50 MB each. Unattached stages expire after 24
+  hours and are cleaned on subsequent editor visits. Server-side scheduled
+  garbage collection and media transformations remain Phase 6 hardening.
+
+Migration `20261109205339_recipe_media_sharing_collections` must be deployed before
+installing an APK for this slice. The old authoring RPC remains compatible.
+See [ADR 0003](adr/0003-recipe-media-and-preservation.md) for recording behavior,
+private media retention and reversible preservation. Phase 4 forks, lineage and
+suggestions, Phase 5 invitations, extraction and platform-role management remain
+separate. This slice closes Phase 3 after review and merge.

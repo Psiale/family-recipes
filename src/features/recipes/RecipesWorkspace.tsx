@@ -14,7 +14,11 @@ import {
 } from '@/features/families/queries';
 
 import * as api from './api';
+import { RecipeCollections } from './RecipeCollections';
+import { EditorDisclosure } from './RecipeEditorControls';
 import { RecipeForm } from './RecipeForm';
+import { RecipeMediaView } from './RecipeMedia';
+import { RecipePreservation } from './RecipePreservation';
 
 const keys = (userId: string) => [...familyKeys.root(userId), 'recipes'];
 function LoadError({ retry }: { retry: () => void }) {
@@ -30,6 +34,11 @@ function LoadError({ retry }: { retry: () => void }) {
 }
 export function RecipesWorkspace({ userId }: { userId: string }) {
   const { t } = useTranslation();
+  const options = useQuery({
+    queryKey: [...keys(userId), 'options'],
+    queryFn: api.recipeOptions,
+  });
+  const [collections, setCollections] = useState(false);
   const [input, setInput] = useState(''),
     [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -41,8 +50,25 @@ export function RecipesWorkspace({ userId }: { userId: string }) {
   });
   return (
     <Screen contentStyle={styles.stack}>
-      {creating ? (
+      {collections ? (
+        options.data ? (
+          <RecipeCollections
+            options={options.data}
+            userId={userId}
+            onClose={() => setCollections(false)}
+            onOpenRecipe={(id) => {
+              setCollections(false);
+              setSelected(id);
+            }}
+          />
+        ) : options.isError ? (
+          <LoadError retry={() => void options.refetch()} />
+        ) : (
+          <Text role="status">{t('app.loading')}</Text>
+        )
+      ) : creating ? (
         <NewRecipe
+          options={options.data}
           userId={userId}
           onCancel={() => setCreating(false)}
           onDone={(id) => {
@@ -53,6 +79,7 @@ export function RecipesWorkspace({ userId }: { userId: string }) {
       ) : selected ? (
         <RecipeView
           key={selected}
+          options={options.data}
           id={selected}
           userId={userId}
           onClose={() => setSelected(null)}
@@ -62,6 +89,11 @@ export function RecipesWorkspace({ userId }: { userId: string }) {
           <Text role="heading" style={styles.title}>
             {t('navigation.recipes')}
           </Text>
+          <AppButton
+            label={t('recipes.collections.title')}
+            variant="secondary"
+            onPress={() => setCollections(true)}
+          />
           <AppButton
             label={t('recipes.create')}
             onPress={() => setCreating(true)}
@@ -135,11 +167,13 @@ export function RecipesWorkspace({ userId }: { userId: string }) {
   );
 }
 function NewRecipe({
+  options,
   userId,
   onCancel,
   onDone,
 }: {
   userId: string;
+  options?: api.RecipeOptions | undefined;
   onCancel: () => void;
   onDone: (id: string) => void;
 }) {
@@ -158,6 +192,7 @@ function NewRecipe({
     );
   return (
     <CreateRecipeForm
+      options={options}
       userId={userId}
       personId={person.data.id}
       onCancel={onCancel}
@@ -166,12 +201,14 @@ function NewRecipe({
   );
 }
 function CreateRecipeForm({
+  options,
   userId,
   personId,
   onCancel,
   onDone,
 }: {
   userId: string;
+  options?: api.RecipeOptions | undefined;
   personId: string;
   onCancel: () => void;
   onDone: (id: string) => void;
@@ -194,13 +231,16 @@ function CreateRecipeForm({
         <LoadError retry={() => void families.refetch()} />
       ) : !families.data ? (
         <Text role="status">{t('app.loading')}</Text>
-      ) : !families.data.some((f) => f.role !== 'READ_ONLY') ? (
+      ) : !(options
+          ? options.families.some((f) => f.can_write)
+          : families.data.some((f) => f.role !== 'READ_ONLY')) ? (
         <>
           <Text>{t('recipes.joinFamily')}</Text>
           <AppButton label={t('families.cancel')} onPress={onCancel} />
         </>
       ) : (
         <RecipeForm
+          options={options}
           families={families.data}
           onCancel={() => {
             void client.invalidateQueries({ queryKey: keys(userId) });
@@ -220,12 +260,14 @@ function CreateRecipeForm({
   );
 }
 function RecipeView({
+  options,
   id,
   userId,
   onClose,
 }: {
   id: string;
   userId: string;
+  options?: api.RecipeOptions | undefined;
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -234,6 +276,7 @@ function RecipeView({
     queryKey: [...keys(userId), 'detail', id],
     queryFn: () => api.getRecipe(id),
   });
+  const [editingWritten, setEditingWritten] = useState(false);
   const [editing, setEditing] = useState<api.RecipeDetail | null>(null),
     [revision, setRevision] = useState<number | null>(null);
   const mutation = useMutation({
@@ -246,6 +289,8 @@ function RecipeView({
   if (editing)
     return (
       <RecipeForm
+        options={options}
+        startWithWritten={editingWritten}
         initial={editing}
         families={[]}
         onCancel={() => {
@@ -302,7 +347,7 @@ function RecipeView({
             </>
           ) : (
             <>
-              <RecipeContentView data={detail.data} />
+              <RecipeContentView userId={userId} data={detail.data} />
               <Text>
                 {t(
                   detail.data.recipe.preservation_status === 'PRESERVED'
@@ -310,10 +355,20 @@ function RecipeView({
                     : 'recipes.editable',
                 )}
               </Text>
+              <RecipePreservation
+                key={detail.data.latest_revision}
+                detail={detail.data}
+                onChanged={() => {
+                  void client.invalidateQueries({ queryKey: keys(userId) });
+                }}
+              />
               {detail.data.can_edit && (
                 <AppButton
                   label={t('recipes.edit')}
-                  onPress={() => setEditing(detail.data!)}
+                  onPress={() => {
+                    setEditingWritten(false);
+                    setEditing(detail.data!);
+                  }}
                 />
               )}
             </>
@@ -332,6 +387,29 @@ function RecipeView({
               {r.change_summary && <Text>{r.change_summary}</Text>}
             </View>
           ))}
+          {revision === null &&
+            detail.data.media?.some(
+              (m) => m.kind === 'AUDIO' || m.kind === 'VIDEO',
+            ) && (
+              <View style={styles.card}>
+                <Text>
+                  {t(
+                    detail.data.can_edit
+                      ? 'recipes.media.writtenPrompt'
+                      : 'recipes.media.writtenEditorOnly',
+                  )}
+                </Text>
+                {detail.data.can_edit && (
+                  <AppButton
+                    label={t('recipes.media.addWritten')}
+                    onPress={() => {
+                      setEditingWritten(true);
+                      setEditing(detail.data!);
+                    }}
+                  />
+                )}
+              </View>
+            )}
         </>
       )}
     </>
@@ -354,17 +432,58 @@ function Revision({
   return query.isError || query.fetchStatus === 'paused' ? (
     <LoadError retry={() => void query.refetch()} />
   ) : query.data ? (
-    <RecipeContentView data={query.data} />
+    <RecipeContentView userId={userId} data={query.data} />
   ) : (
     <Text role="status">{t('app.loading')}</Text>
   );
 }
 function RecipeContentView({
+  userId,
   data,
 }: {
-  data: Pick<api.RecipeDetail, 'recipe' | 'ingredients' | 'steps'>;
+  userId: string;
+  data: Pick<api.RecipeDetail, 'recipe' | 'ingredients' | 'steps'> & {
+    media?: api.RecipeMedia[];
+  };
 }) {
   const { t } = useTranslation();
+  const written = (
+    <>
+      {data.ingredients.length > 0 && (
+        <Text style={styles.subtitle}>{t('recipes.ingredients')}</Text>
+      )}
+      {data.ingredients.map((v, i) => (
+        <View key={i} style={styles.stack}>
+          {v.section_name &&
+            v.section_name !== data.ingredients[i - 1]?.section_name && (
+              <Text role="heading" style={styles.fieldLabel}>
+                {v.section_name}
+              </Text>
+            )}
+          <Text style={styles.body}>
+            {[v.quantity, v.unit, v.ingredient, v.preparation_note]
+              .filter(Boolean)
+              .join(' · ')}
+          </Text>
+        </View>
+      ))}
+      <Text style={styles.subtitle}>{t('recipes.steps')}</Text>
+      {!data.steps.length && <Text>{t('recipes.media.noWritten')}</Text>}
+      {data.steps.map((v, i) => (
+        <View key={i} style={styles.stack}>
+          {v.section_name &&
+            v.section_name !== data.steps[i - 1]?.section_name && (
+              <Text role="heading" style={styles.fieldLabel}>
+                {v.section_name}
+              </Text>
+            )}
+          <Text style={styles.body}>
+            {i + 1}. {v.instruction}
+          </Text>
+        </View>
+      ))}
+    </>
+  );
   return (
     <View style={styles.stack}>
       <ScrollIntoView>
@@ -390,36 +509,22 @@ function RecipeContentView({
           </Text>
         ) : null,
       )}
-      <Text style={styles.subtitle}>{t('recipes.ingredients')}</Text>
-      {data.ingredients.map((v, i) => (
-        <View key={i} style={styles.stack}>
-          {v.section_name &&
-            v.section_name !== data.ingredients[i - 1]?.section_name && (
-              <Text role="heading" style={styles.fieldLabel}>
-                {v.section_name}
-              </Text>
-            )}
-          <Text style={styles.body}>
-            {[v.quantity, v.unit, v.ingredient, v.preparation_note]
-              .filter(Boolean)
-              .join(' · ')}
-          </Text>
-        </View>
-      ))}
-      <Text style={styles.subtitle}>{t('recipes.steps')}</Text>
-      {data.steps.map((v, i) => (
-        <View key={i} style={styles.stack}>
-          {v.section_name &&
-            v.section_name !== data.steps[i - 1]?.section_name && (
-              <Text role="heading" style={styles.fieldLabel}>
-                {v.section_name}
-              </Text>
-            )}
-          <Text style={styles.body}>
-            {i + 1}. {v.instruction}
-          </Text>
-        </View>
-      ))}
+      <RecipeMediaView media={data.media ?? []} viewerId={userId} />
+      {(data.media ?? []).some(
+        (m) => m.kind === 'AUDIO' || m.kind === 'VIDEO',
+      ) && data.steps.length > 0 ? (
+        <EditorDisclosure
+          label={t('recipes.media.writtenView')}
+          summary={t('recipes.media.writtenCount', {
+            count: data.steps.length,
+          })}
+          disabled={false}
+        >
+          {written}
+        </EditorDisclosure>
+      ) : (
+        written
+      )}
     </View>
   );
 }

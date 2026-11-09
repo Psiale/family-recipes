@@ -667,39 +667,51 @@ export type Database = {
       recipe_media: {
         Row: {
           alt_text: string | null;
+          byte_size: number | null;
           caption: string | null;
+          content_type: string | null;
           created_at: string;
+          file_name: string | null;
           id: string;
           kind: Database['public']['Enums']['media_kind'];
           position: number;
           recipe_id: string;
           storage_path: string;
           updated_at: string;
+          upload_id: string | null;
           uploaded_by_user_id: string;
         };
         ComputedFields: never;
         Insert: {
           alt_text?: string | null;
+          byte_size?: number | null;
           caption?: string | null;
+          content_type?: string | null;
           created_at?: string;
+          file_name?: string | null;
           id?: string;
           kind: Database['public']['Enums']['media_kind'];
           position?: number;
           recipe_id: string;
           storage_path: string;
           updated_at?: string;
+          upload_id?: string | null;
           uploaded_by_user_id: string;
         };
         Update: {
           alt_text?: string | null;
+          byte_size?: number | null;
           caption?: string | null;
+          content_type?: string | null;
           created_at?: string;
+          file_name?: string | null;
           id?: string;
           kind?: Database['public']['Enums']['media_kind'];
           position?: number;
           recipe_id?: string;
           storage_path?: string;
           updated_at?: string;
+          upload_id?: string | null;
           uploaded_by_user_id?: string;
         };
         Relationships: [
@@ -708,6 +720,13 @@ export type Database = {
             columns: ['recipe_id'];
             isOneToOne: false;
             referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_media_upload_id_fkey';
+            columns: ['upload_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_uploads';
             referencedColumns: ['id'];
           },
           {
@@ -889,6 +908,71 @@ export type Database = {
           {
             foreignKeyName: 'recipe_suggestions_submitted_by_user_id_fkey';
             columns: ['submitted_by_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'app_users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      recipe_uploads: {
+        Row: {
+          byte_size: number;
+          content_type: string;
+          created_at: string;
+          expires_at: string;
+          file_name: string;
+          id: string;
+          kind: Database['public']['Enums']['media_kind'];
+          recipe_id: string | null;
+          storage_path: string;
+          target_recipe_id: string | null;
+          uploaded_by_user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          byte_size: number;
+          content_type: string;
+          created_at?: string;
+          expires_at?: string;
+          file_name: string;
+          id?: string;
+          kind: Database['public']['Enums']['media_kind'];
+          recipe_id?: string | null;
+          storage_path: string;
+          target_recipe_id?: string | null;
+          uploaded_by_user_id: string;
+        };
+        Update: {
+          byte_size?: number;
+          content_type?: string;
+          created_at?: string;
+          expires_at?: string;
+          file_name?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['media_kind'];
+          recipe_id?: string | null;
+          storage_path?: string;
+          target_recipe_id?: string | null;
+          uploaded_by_user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recipe_uploads_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_uploads_target_recipe_id_fkey';
+            columns: ['target_recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_uploads_uploaded_by_user_id_fkey';
+            columns: ['uploaded_by_user_id'];
             isOneToOne: false;
             referencedRelation: 'app_users';
             referencedColumns: ['id'];
@@ -1098,6 +1182,19 @@ export type Database = {
         };
         Returns: undefined;
       };
+      begin_recipe_upload: {
+        Args: {
+          p_byte_size: number;
+          p_content_type: string;
+          p_file_name: string;
+          p_recipe_id?: string;
+        };
+        Returns: Json;
+      };
+      cancel_recipe_upload: {
+        Args: { p_upload_id: string };
+        Returns: undefined;
+      };
       change_family_role: {
         Args: {
           p_expected_role: Database['public']['Enums']['family_role'];
@@ -1166,6 +1263,7 @@ export type Database = {
         Args: { p_biography?: string; p_display_name: string };
         Returns: string;
       };
+      recipe_options: { Args: Record<PropertyKey, never>; Returns: Json };
       remove_family_member: {
         Args: {
           p_expected_role: Database['public']['Enums']['family_role'];
@@ -1173,6 +1271,17 @@ export type Database = {
           p_person_id: string;
         };
         Returns: undefined;
+      };
+      save_collection: {
+        Args: {
+          p_collection_id?: string;
+          p_delete?: boolean;
+          p_description?: string;
+          p_expected_updated_at?: string;
+          p_family_id: string;
+          p_name: string;
+        };
+        Returns: string;
       };
       save_recipe: {
         Args: {
@@ -1182,6 +1291,19 @@ export type Database = {
           p_override_reason?: string;
           p_recipe_id?: string;
           p_share_with_family: boolean;
+        };
+        Returns: string;
+      };
+      save_recipe_v2: {
+        Args: {
+          p_audiences?: Json;
+          p_content: Json;
+          p_expected_revision: number;
+          p_family_id?: string;
+          p_media?: Json;
+          p_override_reason?: string;
+          p_owner_person_id?: string;
+          p_recipe_id?: string;
         };
         Returns: string;
       };
@@ -1195,12 +1317,30 @@ export type Database = {
         };
         Returns: undefined;
       };
+      set_collection_recipe: {
+        Args: {
+          p_add: boolean;
+          p_collection_id: string;
+          p_expected_updated_at: string;
+          p_recipe_id: string;
+        };
+        Returns: undefined;
+      };
       set_person_manager: {
         Args: {
           p_enabled?: boolean;
           p_expected_enabled?: boolean;
           p_family_id?: string;
           p_manager_user_id: string;
+        };
+        Returns: undefined;
+      };
+      set_recipe_preservation: {
+        Args: {
+          p_expected_revision: number;
+          p_preserved: boolean;
+          p_reason: string;
+          p_recipe_id: string;
         };
         Returns: undefined;
       };

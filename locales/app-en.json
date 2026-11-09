@@ -1,6 +1,7 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Family Recipe Tree"
+    "CFBundleDisplayName": "Family Recipe Tree",
+    "NSPhotoLibraryUsageDescription": "Choose photos to attach to your recipes."
   },
   "android": {
     "app_name": "Family Recipe Tree"
