@@ -29,7 +29,7 @@ export const en = {
       writtenHint:
         'Open to write ingredients and steps. Closing this section keeps your entries.',
       writtenView: 'View written recipe',
-      writtenCount: '{{count}} written steps',
+      writtenCount: 'Written steps: {{count}}',
       noWritten:
         'This recipe does not include written steps yet. Watch or listen to the recording for the preparation.',
       addWritten: 'Add or edit written recipe',

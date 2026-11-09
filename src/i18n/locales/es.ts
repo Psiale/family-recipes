@@ -27,7 +27,7 @@ export const es = {
       writtenHint:
         'Abre para escribir los ingredientes y los pasos. Se conservarán al cerrar esta sección.',
       writtenView: 'Ver receta escrita',
-      writtenCount: '{{count}} pasos escritos',
+      writtenCount: 'Pasos escritos: {{count}}',
       noWritten:
         'Esta receta todavía no incluye pasos escritos. Consulta la grabación para ver o escuchar la preparación.',
       addWritten: 'Añadir o editar receta escrita',
