@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, userEvent } from '@testing-library/react-native';
 
+import * as familyApi from '@/features/families/api';
 import i18n from '@/i18n';
 
 import * as api from './api';
@@ -18,6 +19,11 @@ jest.mock(
   () => jest.requireActual('react-native-safe-area-context/jest/mock').default,
 );
 const mocks = jest.mocked(api);
+jest.mock('@/features/families/api', () => ({
+  ...jest.requireActual('@/features/families/api'),
+  getCurrentPerson: jest.fn(),
+  listFamilies: jest.fn(),
+}));
 const detail: api.RecipeDetail = {
   recipe: {
     id: 'r',
@@ -75,6 +81,7 @@ async function open() {
       <RecipesWorkspace userId="u" />
     </QueryClientProvider>,
   );
+  return client;
 }
 beforeEach(() => {
   jest.clearAllMocks();
@@ -97,6 +104,84 @@ beforeEach(() => {
     ...detail,
     recipe: { ...detail.recipe, title: 'Sopa original' },
   });
+  jest
+    .mocked(familyApi.getCurrentPerson)
+    .mockResolvedValue({ id: 'p' } as familyApi.Person);
+  jest.mocked(familyApi.listFamilies).mockResolvedValue([
+    {
+      id: 'f',
+      name: 'Luna',
+      role: 'OWNER',
+      description: null,
+      created_at: 'stamp',
+      created_by_user_id: 'u',
+    },
+  ]);
+});
+
+it('finishes a confirmed creation even if refreshing the list never completes', async () => {
+  mocks.saveRecipe.mockResolvedValue('r');
+  const client = await open();
+  jest
+    .spyOn(client, 'invalidateQueries')
+    .mockImplementation(() => new Promise(() => {}));
+  const user = userEvent.setup();
+  await user.press(
+    screen.getByRole('button', { name: i18n.t('recipes.create') }),
+  );
+  await user.type(
+    await screen.findByLabelText(i18n.t('recipes.fields.title')),
+    'Huevos revueltos',
+  );
+  await user.type(
+    screen.getByLabelText(i18n.t('recipes.fields.ingredient', { number: 1 })),
+    'Huevos',
+  );
+  await user.type(
+    screen.getByLabelText(i18n.t('recipes.stepNumber', { number: 1 })),
+    'Batir y cocinar',
+  );
+  await user.press(
+    screen.getByRole('button', { name: i18n.t('recipes.save') }),
+  );
+  expect(
+    await screen.findByRole('button', { name: i18n.t('recipes.back') }),
+  ).toBeOnTheScreen();
+  expect(mocks.saveRecipe).toHaveBeenCalledTimes(1);
+});
+
+it('refreshes after an uncertain save so a committed recipe is visible when returning to the list', async () => {
+  mocks.listRecipes.mockResolvedValueOnce({ recipes: [], more: false });
+  mocks.saveRecipe.mockRejectedValue({ code: 'RECIPE_SAVE_UNCONFIRMED' });
+  await open();
+  const user = userEvent.setup();
+  await user.press(
+    screen.getByRole('button', { name: i18n.t('recipes.create') }),
+  );
+  await user.type(
+    await screen.findByLabelText(i18n.t('recipes.fields.title')),
+    'Sopa',
+  );
+  await user.type(
+    screen.getByLabelText(i18n.t('recipes.fields.ingredient', { number: 1 })),
+    'Tomate',
+  );
+  await user.type(
+    screen.getByLabelText(i18n.t('recipes.stepNumber', { number: 1 })),
+    'Hervir',
+  );
+  await user.press(
+    screen.getByRole('button', { name: i18n.t('recipes.save') }),
+  );
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    i18n.t('recipes.saveUnconfirmed'),
+  );
+  await user.press(
+    screen.getByRole('button', { name: i18n.t('families.cancel') }),
+  );
+  expect(await screen.findByRole('button', { name: 'Sopa' })).toBeOnTheScreen();
+  expect(mocks.listRecipes.mock.calls.length).toBeGreaterThan(1);
+  expect(mocks.saveRecipe).toHaveBeenCalledTimes(1);
 });
 it('searches literally, displays full recipe and opens immutable historical content without edit controls', async () => {
   await open();
@@ -131,5 +216,41 @@ it('uses anonymous attribution for a globally deleted profile', async () => {
   ).toBeOnTheScreen();
   expect(
     screen.getByText('Creación original: Persona eliminada'),
+  ).toBeOnTheScreen();
+});
+
+it('shows ingredient and step section labels in current and historical recipes', async () => {
+  mocks.getRecipe.mockResolvedValue({
+    ...detail,
+    ingredients: detail.ingredients.map((v) => ({
+      ...v,
+      section_name: 'Caldo',
+    })),
+    steps: detail.steps.map((v) => ({ ...v, section_name: 'Cocción' })),
+  });
+  mocks.getRevision.mockResolvedValue({
+    ...detail,
+    ingredients: detail.ingredients.map((v) => ({
+      ...v,
+      section_name: 'Base original',
+    })),
+    steps: detail.steps.map((v) => ({
+      ...v,
+      section_name: 'Preparación original',
+    })),
+  });
+  await open();
+  const user = userEvent.setup();
+  await user.press(await screen.findByRole('button', { name: 'Sopa' }));
+  expect(
+    await screen.findByRole('heading', { name: 'Caldo' }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole('heading', { name: 'Cocción' })).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: /Versión 1 ·/ }));
+  expect(
+    await screen.findByRole('heading', { name: 'Base original' }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole('heading', { name: 'Preparación original' }),
   ).toBeOnTheScreen();
 });

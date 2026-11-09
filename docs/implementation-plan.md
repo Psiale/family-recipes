@@ -251,3 +251,32 @@ Saved research: [deferred extraction options and illustrative API costs](researc
 and [manual recipe-entry patterns and public adoption signals](research/manual-recipe-entry.md).
 The comparison recommends a focused editor with easy ingredient/step entry and
 optional metadata. It does not implement a new wizard, autosave or bulk paste.
+
+### Current slice — Manual recipe editor layout
+
+Use Samsung Food's single-page authoring pattern as the primary reference, with
+Paprika-style collapsed optional details. Title and description lead into compact
+ingredient rows (name, quantity and unit) and numbered preparation steps. Small,
+labeled controls reorder/remove rows; adding a row reveals it in the editor.
+Optional ingredient notes and section names, servings/timing and family
+story/provenance expand on demand. Collapsing a section retains its draft values;
+existing section names and per-step durations survive edits. Current and
+historical recipe views display section labels.
+
+Privacy stays explicit and private by default. Sharing names the selected family;
+editing retains the existing audience. Spanish remains the default, with English
+coverage. Stale-save/permission errors and preserved-recipe override reasons keep
+the existing behavior. No authorization/RPC/schema changes, new dependencies,
+media attachments or automatic extraction are introduced. Bulk paste and draft
+autosave remain separate decisions.
+
+
+Manual editor follow-up: ingredient units use an editable searchable selector
+with common localized units and custom entries. Optional section names are
+presented as ingredient/step groups with examples such as “For the sauce”.
+Recipe network operations have a bounded deadline, including SDK token waits.
+An unconfirmed write retains the open form, stops loading and blocks duplicate
+submission until the user checks the recipe list; it is not automatically retried.
+Confirmed saves navigate without waiting for the background list refresh. These
+changes require no new database migration or production dependency. Native
+end-to-end save/restart verification is tracked with the testing artifact.

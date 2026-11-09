@@ -2,6 +2,71 @@ import type { TranslationResources } from './es';
 
 export const en = {
   recipes: {
+    units: {
+      show: 'Show units for ingredient {{number}}',
+      hide: 'Hide units for ingredient {{number}}',
+      hint: 'Search for a unit or type your own.',
+      custom: 'Use “{{unit}}”',
+      options: {
+        gram: 'g',
+        kilogram: 'kg',
+        milliliter: 'ml',
+        liter: 'l',
+        teaspoon: 'teaspoons',
+        tablespoon: 'tablespoons',
+        cup: 'cups',
+        piece: 'pieces',
+        pinch: 'pinches',
+        handful: 'handfuls',
+        clove: 'cloves',
+        bunch: 'bunches',
+        slice: 'slices',
+        can: 'cans',
+        package: 'packages',
+        toTaste: 'to taste',
+      },
+    },
+    saveUnconfirmed:
+      'We could not confirm the save in time. Check your connection and return to the list to see whether it saved before creating another recipe. Your content remains in this form while you keep it open.',
+    editor: {
+      ingredientGroupHint:
+        'Group ingredients prepared separately. This is optional.',
+      ingredientGroupExample: 'e.g. For the sauce',
+      stepGroupHint:
+        'Group steps for one part of the recipe. This is optional.',
+      stepGroupExample: 'e.g. Prepare the sauce',
+      rowNotes: 'Notes and group',
+      stepSection: 'Step group',
+      optional: 'Optional',
+      privateVisibility: 'Private',
+      familyVisibility: 'Shared with {{family}}',
+      familyVisibilityHint:
+        'Everyone in {{family}} will be able to view this recipe.',
+      intro:
+        'Start with the recipe, ingredients and steps. Add the extra details whenever you need them.',
+      ingredientsHint:
+        'One ingredient per row. Quantities can be exact or in your own words.',
+      stepsHint:
+        'Write one action at a time. Use the arrows to change the order.',
+      quantity: 'Quantity',
+      unit: 'Unit',
+      quantityExample: '2 or ½',
+      unitExample: 'e.g. cups',
+      ingredientExample: 'e.g. flour',
+      stepExample: 'Describe what to do and how to know it is ready.',
+      ingredientDetails: 'Ingredient {{number}}: notes and group',
+      stepDetails: 'Details for step {{number}}',
+      timing: 'Servings and timing',
+      timingHint: 'Optional · yield, preparation, cooking and resting time',
+      story: 'Story and origin',
+      storyHint: 'Optional · where it comes from and who taught you to make it',
+      storyAdded: 'Family story added',
+      servingsSummary: 'Servings: {{value}}',
+      sharing: 'Privacy and sharing',
+      existingSharing:
+        'Saving an edit keeps the recipe’s current sharing settings.',
+      remove: 'Remove: {{item}}',
+    },
     moveUp: 'Move up: {{item}}',
     moveDown: 'Move down: {{item}}',
     create: 'Create recipe',
@@ -12,7 +77,7 @@ export const en = {
     back: 'Back to recipes',
     familyContext: 'Family context',
     privateExplanation:
-      'A new recipe is private: only you, your managers and Super Admins can see it. Enable sharing to let the entire selected family see it. Editing content does not change existing visibility.',
+      'Only you, your managers and Super Admins can see it. Enable sharing to let the entire selected family see it.',
     shareFamily: 'Share with the entire selected family',
     ingredients: 'Ingredients',
     steps: 'Preparation',
@@ -57,6 +122,8 @@ export const en = {
       quantity: 'Ingredient {{number}}: quantity',
       unit: 'Ingredient {{number}}: unit',
       preparation_note: 'Ingredient {{number}}: note',
+      ingredient_section: 'Ingredient {{number}}: group (optional)',
+      step_section: 'Step {{number}}: group (optional)',
     },
   },
   profileDeletion: {
