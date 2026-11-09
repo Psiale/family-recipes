@@ -7,6 +7,7 @@ service transactions additionally enforce multi-row invariants and auditing.
 |---|---:|---:|---:|---:|---:|---:|---:|
 | View content shared family-wide | Yes | Yes | Yes | Yes | If otherwise visible | Yes | Yes |
 | View content shared to a branch | If in branch | If in branch | Yes | Yes | If otherwise visible | Yes | Yes |
+| Preserve or unlock a recipe | No | No | No | No | No | Yes, audited | Yes, audited |
 | Create own recipe | No | Yes | Yes | Yes | No | n/a | Yes |
 | Share/fork own or managed recipe | No | Own only | Own only | Own only | Yes | Yes | Yes |
 | Fork a visible recipe | No | Yes | Yes | Yes | If active member | Yes | Yes |
@@ -164,3 +165,32 @@ not erased. Deleted profiles cannot be renamed, claimed or reactivated.
   reason. Archival and preservation controls are separate from content editing.
 - Recipe readers may view immutable revisions. Deleted profile attribution is
   anonymous, preserving identity references without restoring account access.
+
+
+## Phase 3 media, audiences, managed authoring and collections
+
+- New recipes may belong to the caller's Person or a live Person explicitly
+  managed by the caller; family leadership alone is insufficient. For ordinary
+  callers, both the entering account and the managed Person must be active in
+  the selected family, and the entering account cannot be Read-only. Current
+  Super Admin authority is an audited override. Owner/authorship/entering account
+  are established at creation and cannot be reassigned by a content edit.
+- Owners/global delegates/current Super Admins edit media and audiences using the
+  expected aggregate revision. New family/branch grants require active writing
+  membership in that family (or current Super Admin authority). Existing grants
+  may be retained or removed after leaving that family. These writes serialize
+  with family membership/deletion and immutable revision/audit creation.
+- Audio/video attachments can substitute for written preparation; photos cannot.
+  The server verifies the registered upload and actual Storage metadata before
+  accepting a recording-only recipe. Private media access follows recipe access,
+  including branch oversight and access loss. Sealed bytes survive removal from
+  current content because authorized readers may inspect immutable revisions.
+- Only the recipe owner or a current Super Admin may preserve/unpreserve. Family
+  leadership and global delegation do not confer that authority. A separate,
+  reasoned confirmation compares the current revision. Unlocking only changes
+  preservation metadata and appends its own revision/audit; it cannot edit content.
+- Members create family collections. Active family Owners/Admins and current
+  Super Admins manage their metadata/items, with stale confirmation checks.
+  Read-only members cannot create or organize. Collection items require current
+  recipe visibility in that family and never expand recipe access. Removing the
+  last family audience prunes items atomically and invalidates collection stamps.

@@ -13,6 +13,7 @@ import { testOnboardingConcurrency } from './test-onboarding-concurrency.mjs';
 import { testPersonAdministrationConcurrency } from './test-person-administration-concurrency.mjs';
 import { testProfileDeletionConcurrency } from './test-profile-deletion-concurrency.mjs';
 import { testRecipeConcurrency } from './test-recipe-concurrency.mjs';
+import { testRecipePhase3Concurrency } from './test-recipe-phase3-concurrency.mjs';
 
 const env = parseDatabaseEnv();
 
@@ -31,6 +32,14 @@ try {
   created = true;
   await client.connect();
   await client.query(`
+    -- Minimal Storage catalog for isolated SQL/RLS tests. Real object upload,
+    -- metadata, byte serving and signing are checked against local Storage API.
+    create schema storage;
+    create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+    create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,metadata jsonb,unique(bucket_id,name));
+    alter table storage.objects enable row level security;
+    grant usage on schema storage to authenticated,anon;
+    grant select,insert,delete on storage.objects to authenticated;
     create schema auth;
     create table auth.users (
       id uuid primary key, email text, raw_user_meta_data jsonb default '{}',
@@ -82,6 +91,7 @@ try {
   await testPersonAdministrationConcurrency(testUrl.toString());
   await testProfileDeletionConcurrency(testUrl.toString());
   await testRecipeConcurrency(testUrl.toString());
+  await testRecipePhase3Concurrency(testUrl.toString());
 } finally {
   await client.end();
   if (created)

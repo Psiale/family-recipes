@@ -1,5 +1,96 @@
 export const es = {
   recipes: {
+    media: {
+      historyHint:
+        'Los archivos ya guardados se conservan en las versiones anteriores cuando se quitan de la receta actual.',
+      writtenEditorOnly:
+        'Un editor autorizado también puede añadir los ingredientes y pasos escritos a esta receta.',
+      title: 'Fotos y grabaciones',
+      limits:
+        'Hasta 8 archivos y 100 MB en total. Fotos de hasta 10 MB; audio o video de hasta 50 MB.',
+      photo: 'Foto',
+      video: 'Video',
+      audio: 'Audio',
+      caption: 'Descripción del archivo {{number}}',
+      alt: 'Texto alternativo de la foto {{number}}',
+      remove: 'Quitar archivo {{number}}',
+      addPhoto: 'Añadir foto',
+      addRecording: 'Subir audio o video',
+      uploading: 'Subiendo archivo… Espera antes de guardar.',
+      error:
+        'No se pudo subir el archivo. Comprueba la conexión, el formato y el tamaño, e inténtalo de nuevo.',
+      replaces:
+        'Una grabación de audio o video puede sustituir los pasos escritos de la receta. Puedes guardar sin pasos escritos o añadir la receta escrita al final del formulario. Si ya escribiste pasos, se conservarán.',
+      writtenPrompt:
+        'También puedes incluir la receta escrita, con sus ingredientes y pasos, además de la grabación.',
+      writtenEditor: 'Añadir o revisar la receta escrita (opcional)',
+      writtenHint:
+        'Abre para escribir los ingredientes y los pasos. Se conservarán al cerrar esta sección.',
+      writtenView: 'Ver receta escrita',
+      writtenCount: 'Pasos escritos: {{count}}',
+      noWritten:
+        'Esta receta todavía no incluye pasos escritos. Consulta la grabación para ver o escuchar la preparación.',
+      addWritten: 'Añadir o editar receta escrita',
+      play: 'Reproducir audio',
+      pause: 'Pausar audio',
+      open: 'Abrir grabación: {{name}}',
+      close: 'Cerrar grabación: {{name}}',
+      unavailable:
+        'No se pudo abrir este archivo. Puede que ya no tengas acceso o que el formato no sea compatible.',
+    },
+    authorship: {
+      title: '¿De quién es esta receta?',
+      hint: 'Puedes crearla para ti o para una persona que administras. La autoría y la propiedad quedarán a su nombre; tu cuenta quedará registrada como quien la ingresó.',
+    },
+    audiences: {
+      title: 'Con quién se comparte',
+      shared:
+        'La receta estará disponible para los grupos seleccionados. Puedes compartirla con varias familias o ramas.',
+      wholeFamily: 'Toda la familia',
+      choice: '{{family}}: {{audience}}',
+      existing: 'Grupo compartido existente. Desactiva para retirar su acceso.',
+    },
+    preservation: {
+      lock: 'Preservar receta',
+      unlock: 'Volver a permitir cambios',
+      lockHint:
+        'Preservar protege el contenido contra cambios. Los delegados no podrán editarlo. La persona propietaria o un Super Admin podrán volver a permitir cambios.',
+      unlockHint:
+        'La receta volverá a permitir cambios por sus editores autorizados. Esta acción no cambia quién puede verla.',
+      confirm: 'Confirmar cambio de preservación',
+    },
+    collections: {
+      stale:
+        'Esta colección cambió o ya no tienes permiso. Vuelve a abrirla antes de confirmar.',
+      duplicate: 'Ya existe una colección con ese nombre en esta familia.',
+      unconfirmed:
+        'No se pudo confirmar el cambio. Revisa la lista de colecciones antes de volver a intentarlo.',
+
+      builtIn: 'Colección predeterminada',
+      renameDefault:
+        'Escribe un nombre propio para convertir esta colección predeterminada en una colección personalizada. Su nombre dejará de cambiar con el idioma.',
+      title: 'Colecciones familiares',
+      noFamily: 'Únete a una familia para ver sus colecciones.',
+      create: 'Crear colección',
+      name: 'Nombre de la colección',
+      save: 'Guardar colección',
+      back: 'Volver a las colecciones',
+      empty: 'No hay recetas visibles para ti en esta colección.',
+      add: 'Añadir recetas compartidas con esta familia',
+      addTitle: 'Añadir: {{title}}',
+      remove: 'Quitar de la colección: {{title}}',
+      edit: 'Editar colección',
+      delete: 'Eliminar colección',
+      deleteConfirm:
+        '¿Eliminar la colección «{{name}}»? Sus recetas se conservarán.',
+      confirmDelete: 'Confirmar eliminación de colección',
+      defaults: {
+        breakfast: 'Desayunos',
+        mains: 'Platos principales',
+        desserts: 'Postres',
+        drinks: 'Bebidas',
+      },
+    },
     units: {
       show: 'Ver unidades del ingrediente {{number}}',
       hide: 'Ocultar unidades del ingrediente {{number}}',
@@ -97,6 +188,8 @@ export const es = {
     current: 'Ver receta actual',
     preservedOverride:
       'La receta está preservada. Solo un súper administrador puede modificarla con un motivo explícito que quedará auditado.',
+    invalidRecording:
+      'Revisa el título y los datos. Si añades una receta escrita, completa las filas que comenzaste. Usa números enteros no negativos para los tiempos y el año.',
     invalid:
       'Revisa el título, al menos un ingrediente y un paso. Usa números enteros no negativos para los tiempos y el año.',
     stale:

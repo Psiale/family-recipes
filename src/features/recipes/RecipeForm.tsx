@@ -8,12 +8,22 @@ import { TextField } from '@/components/TextField';
 import type { Family } from '@/features/families/api';
 import { styles } from '@/features/families/components/styles';
 
-import { contentSchema, type RecipeContent, type RecipeDetail } from './api';
+import {
+  validateRecipeContent,
+  type RecipeContent,
+  type RecipeDetail,
+  type RecipeMedia,
+  type RecipeOptions,
+  type RecipeAudience,
+} from './api';
+import { discardStagedMedia } from './media';
+import { RecipeAudienceEditor } from './RecipeAudienceEditor';
 import {
   EditorDisclosure,
   RecipeRowActions,
   editorStyles,
 } from './RecipeEditorControls';
+import { RecipeMediaEditor } from './RecipeMedia';
 import { RecipeUnitField } from './RecipeUnitField';
 
 type Ingredient = RecipeContent['ingredients'][number] & { key: number };
@@ -40,17 +50,24 @@ function move<T>(items: T[], index: number, offset: number) {
 }
 export function RecipeForm({
   initial,
+  startWithWritten = false,
+  options,
   families,
   onSave,
   onCancel,
 }: {
   initial?: RecipeDetail;
+  startWithWritten?: boolean;
+  options?: RecipeOptions | undefined;
   families: Family[];
   onSave: (values: {
     content: RecipeContent;
     familyId: string | null;
     shareWithFamily: boolean;
     overrideReason: string;
+    ownerPersonId?: string | null;
+    media?: Pick<RecipeMedia, 'id' | 'caption' | 'alt_text'>[];
+    audiences?: RecipeAudience[];
   }) => Promise<unknown>;
   onCancel: () => void;
 }) {
@@ -70,18 +87,39 @@ export function RecipeForm({
     change_summary: '',
   }));
   const [ingredients, setIngredients] = useState<Ingredient[]>(() =>
-    (initial?.ingredients ?? [blankIngredient()]).map((v, key) => ({
+    (initial?.ingredients.length
+      ? initial.ingredients
+      : [blankIngredient()]
+    ).map((v, key) => ({
       ...v,
       key,
     })),
   );
   const [steps, setSteps] = useState<Step[]>(() =>
-    (initial?.steps ?? [blankStep()]).map((v, key) => ({ ...v, key })),
+    (initial?.steps.length ? initial.steps : [blankStep()]).map((v, key) => ({
+      ...v,
+      key,
+    })),
   );
   const [familyId, setFamilyId] = useState(
     families.find((f) => f.role !== 'READ_ONLY')?.id ?? null,
   );
   const [share, setShare] = useState(false);
+  const [media, setMedia] = useState<RecipeMedia[]>(initial?.media ?? []);
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [ownerPersonId, setOwnerPersonId] = useState<string | null>(null);
+  const [audiences, setAudiences] = useState<RecipeAudience[]>(
+    initial?.visibilities ?? [],
+  );
+  const [audiencesChanged, setAudiencesChanged] = useState(false);
+  const [writtenOpen, setWrittenOpen] = useState(startWithWritten);
+  const uncertain = useRef(false);
+  const hasRecording = media.some(
+    (m) => m.kind === 'AUDIO' || m.kind === 'VIDEO',
+  );
+  const effectiveFamilyId =
+    familyId ?? options?.families.find((f) => f.can_write)?.id ?? null;
+
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,25 +128,45 @@ export function RecipeForm({
   const [storyOpen, setStoryOpen] = useState(false);
   const preserved = initial?.recipe.preservation_status === 'PRESERVED';
   const save = async () => {
-    if (busy.current || stale) return;
+    if (busy.current || stale || mediaBusy) return;
     const numeric = (value: string) =>
       value.trim() === ''
         ? null
         : /^[0-9]{1,6}$/.test(value)
           ? Number(value)
           : Number.NaN;
-    const parsed = contentSchema.safeParse({
-      ...fields,
-      origin_year: numeric(fields.origin_year),
-      prep_time_minutes: numeric(fields.prep_time_minutes),
-      cook_time_minutes: numeric(fields.cook_time_minutes),
-      rest_time_minutes: numeric(fields.rest_time_minutes),
-      ingredients: ingredients.map(({ key, ...v }) => v),
-      steps: steps.map(({ key, ...v }) => v),
-    });
+    const parsed = validateRecipeContent(
+      {
+        ...fields,
+        origin_year: numeric(fields.origin_year),
+        prep_time_minutes: numeric(fields.prep_time_minutes),
+        cook_time_minutes: numeric(fields.cook_time_minutes),
+        rest_time_minutes: numeric(fields.rest_time_minutes),
+        ingredients: ingredients
+          .filter(
+            (v) =>
+              !hasRecording ||
+              Object.entries(v).some(
+                ([key, value]) =>
+                  key !== 'key' && typeof value === 'string' && value.trim(),
+              ),
+          )
+          .map(({ key, ...v }) => v),
+        steps: steps
+          .filter(
+            (v) =>
+              !hasRecording ||
+              v.instruction.trim() ||
+              v.section_name?.trim() ||
+              v.duration_minutes !== null,
+          )
+          .map(({ key, ...v }) => v),
+      },
+      hasRecording,
+    );
     if (
       !parsed.success ||
-      (!initial && !familyId) ||
+      (!initial && !effectiveFamilyId) ||
       (preserved && !reason.trim())
     ) {
       if (
@@ -118,7 +176,10 @@ export function RecipeForm({
       )
         setTimingOpen(true);
       if (Number.isNaN(numeric(fields.origin_year))) setStoryOpen(true);
-      setError(t('recipes.invalid'));
+      if (hasRecording) setWrittenOpen(true);
+      setError(
+        t(hasRecording ? 'recipes.invalidRecording' : 'recipes.invalid'),
+      );
       return;
     }
     busy.current = true;
@@ -127,15 +188,23 @@ export function RecipeForm({
     try {
       await onSave({
         content: parsed.data,
-        familyId: initial ? null : familyId,
+        familyId: initial ? null : effectiveFamilyId,
         shareWithFamily: !initial && share,
         overrideReason: reason,
+        ...(!initial && ownerPersonId ? { ownerPersonId } : {}),
+        media: media.map(({ id, caption, alt_text }) => ({
+          id,
+          caption,
+          alt_text,
+        })),
+        ...(options && (!initial || audiencesChanged) ? { audiences } : {}),
       });
     } catch (caught) {
       const code =
         typeof caught === 'object' && caught && 'code' in caught
           ? caught.code
           : null;
+      uncertain.current = code === 'RECIPE_SAVE_UNCONFIRMED';
       setStale(
         code === 'PT409' ||
           code === '42501' ||
@@ -208,18 +277,8 @@ export function RecipeForm({
     ]
       .filter(Boolean)
       .join(' · ') || t('recipes.editor.storyHint');
-  return (
-    <View style={editorStyles.container}>
-      <ScrollIntoView>
-        <Text role="heading" style={styles.title}>
-          {t(initial ? 'recipes.edit' : 'recipes.create')}
-        </Text>
-      </ScrollIntoView>
-      <Text style={styles.body}>{t('recipes.editor.intro')}</Text>
-      <View style={editorStyles.section}>
-        {field('title')}
-        {field('description')}
-      </View>
+  const writtenFields = (
+    <>
       <View style={editorStyles.section}>
         <Text role="heading" style={styles.subtitle}>
           {t('recipes.ingredients')}
@@ -236,7 +295,7 @@ export function RecipeForm({
                   label={t('recipes.ingredientNumber', { number: index + 1 })}
                   first={index === 0}
                   last={index === ingredients.length - 1}
-                  only={ingredients.length === 1}
+                  only={ingredients.length === 1 && !hasRecording}
                   disabled={saving}
                   onMove={(offset) =>
                     setIngredients((old) => move(old, index, offset))
@@ -366,7 +425,7 @@ export function RecipeForm({
                   label={t('recipes.stepNumber', { number: index + 1 })}
                   first={index === 0}
                   last={index === steps.length - 1}
-                  only={steps.length === 1}
+                  only={steps.length === 1 && !hasRecording}
                   disabled={saving}
                   onMove={(offset) =>
                     setSteps((old) => move(old, index, offset))
@@ -432,6 +491,47 @@ export function RecipeForm({
           }
         />
       </View>
+    </>
+  );
+  return (
+    <View style={editorStyles.container}>
+      <ScrollIntoView>
+        <Text role="heading" style={styles.title}>
+          {t(initial ? 'recipes.edit' : 'recipes.create')}
+        </Text>
+      </ScrollIntoView>
+      <Text style={styles.body}>{t('recipes.editor.intro')}</Text>
+      <View style={editorStyles.section}>
+        {field('title')}
+        {field('description')}
+      </View>
+      {!initial && options && options.people.length > 1 && (
+        <View style={editorStyles.row}>
+          <Text style={styles.subtitle}>{t('recipes.authorship.title')}</Text>
+          <Text>{t('recipes.authorship.hint')}</Text>
+          {options.people.map((p) => (
+            <AppButton
+              key={p.id}
+              label={p.display_name}
+              variant={
+                ownerPersonId === p.id || (!ownerPersonId && p.own)
+                  ? 'primary'
+                  : 'secondary'
+              }
+              disabled={saving || mediaBusy}
+              onPress={() => setOwnerPersonId(p.id)}
+            />
+          ))}
+        </View>
+      )}
+      <RecipeMediaEditor
+        value={media}
+        onChange={setMedia}
+        recipeId={initial?.recipe.id ?? null}
+        disabled={saving}
+        onBusy={setMediaBusy}
+      />
+      {!hasRecording && writtenFields}
       <EditorDisclosure
         label={t('recipes.editor.timing')}
         summary={timingSummary}
@@ -461,41 +561,51 @@ export function RecipeForm({
             {t('recipes.editor.sharing')}
           </Text>
           <Text style={editorStyles.hint}>{t('recipes.familyContext')}</Text>
-          {families
-            .filter((f) => f.role !== 'READ_ONLY')
-            .map((f) => (
-              <AppButton
-                key={f.id}
-                variant={familyId === f.id ? 'primary' : 'secondary'}
-                label={f.name}
-                disabled={saving}
-                onPress={() => setFamilyId(f.id)}
-              />
-            ))}
-          <Text style={styles.fieldLabel}>
-            {t(
-              share
-                ? 'recipes.editor.familyVisibility'
-                : 'recipes.editor.privateVisibility',
-              { family: families.find((f) => f.id === familyId)?.name ?? '' },
-            )}
-          </Text>
-          <Text style={styles.body}>
-            {share
-              ? t('recipes.editor.familyVisibilityHint', {
-                  family: families.find((f) => f.id === familyId)?.name ?? '',
-                })
-              : t('recipes.privateExplanation')}
-          </Text>
-          <View style={editorStyles.sharingRow}>
-            <Text style={editorStyles.grow}>{t('recipes.shareFamily')}</Text>
-            <Switch
-              accessibilityLabel={t('recipes.shareFamily')}
-              value={share}
-              onValueChange={setShare}
+          {(options
+            ? options.families.filter((f) => f.can_write)
+            : families.filter((f) => f.role !== 'READ_ONLY')
+          ).map((f) => (
+            <AppButton
+              key={f.id}
+              variant={familyId === f.id ? 'primary' : 'secondary'}
+              label={f.name}
               disabled={saving}
+              onPress={() => setFamilyId(f.id)}
             />
-          </View>
+          ))}
+          {!options && (
+            <>
+              <Text style={styles.fieldLabel}>
+                {t(
+                  share
+                    ? 'recipes.editor.familyVisibility'
+                    : 'recipes.editor.privateVisibility',
+                  {
+                    family: families.find((f) => f.id === familyId)?.name ?? '',
+                  },
+                )}
+              </Text>
+              <Text style={styles.body}>
+                {share
+                  ? t('recipes.editor.familyVisibilityHint', {
+                      family:
+                        families.find((f) => f.id === familyId)?.name ?? '',
+                    })
+                  : t('recipes.privateExplanation')}
+              </Text>
+              <View style={editorStyles.sharingRow}>
+                <Text style={editorStyles.grow}>
+                  {t('recipes.shareFamily')}
+                </Text>
+                <Switch
+                  accessibilityLabel={t('recipes.shareFamily')}
+                  value={share}
+                  onValueChange={setShare}
+                  disabled={saving}
+                />
+              </View>
+            </>
+          )}
         </View>
       ) : (
         <View style={editorStyles.section}>
@@ -504,6 +614,17 @@ export function RecipeForm({
           </Text>
           {field('change_summary')}
         </View>
+      )}
+      {options && (
+        <RecipeAudienceEditor
+          value={audiences}
+          onChange={(value) => {
+            setAudiences(value);
+            setAudiencesChanged(true);
+          }}
+          options={options}
+          disabled={saving || mediaBusy}
+        />
       )}
       {preserved && (
         <View style={editorStyles.row}>
@@ -517,6 +638,20 @@ export function RecipeForm({
           />
         </View>
       )}
+      {hasRecording && (
+        <View style={editorStyles.section}>
+          <Text style={styles.body}>{t('recipes.media.writtenPrompt')}</Text>
+          <EditorDisclosure
+            label={t('recipes.media.writtenEditor')}
+            summary={t('recipes.media.writtenHint')}
+            disabled={saving || mediaBusy}
+            expanded={writtenOpen}
+            onToggle={() => setWrittenOpen((old) => !old)}
+          >
+            {writtenFields}
+          </EditorDisclosure>
+        </View>
+      )}
       {error && (
         <Text role="alert" style={styles.error}>
           {error}
@@ -524,15 +659,21 @@ export function RecipeForm({
       )}
       <AppButton
         label={t('recipes.save')}
-        disabled={stale}
+        disabled={stale || mediaBusy}
         loading={saving}
         onPress={() => void save()}
       />
       <AppButton
         variant="secondary"
         label={t('families.cancel')}
-        disabled={saving}
-        onPress={onCancel}
+        disabled={saving || mediaBusy}
+        onPress={() => {
+          if (!uncertain.current)
+            for (const m of media)
+              if (!initial?.media?.some((old) => old.id === m.id))
+                void discardStagedMedia(m).catch(() => {});
+          onCancel();
+        }}
       />
     </View>
   );

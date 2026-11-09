@@ -2,6 +2,96 @@ import type { TranslationResources } from './es';
 
 export const en = {
   recipes: {
+    media: {
+      historyHint:
+        'Previously saved files remain in earlier versions when removed from the current recipe.',
+      writtenEditorOnly:
+        'An authorized editor can also add written ingredients and steps to this recipe.',
+      title: 'Photos and recordings',
+      limits:
+        'Up to 8 files and 100 MB total. Photos up to 10 MB; audio or video up to 50 MB.',
+      photo: 'Photo',
+      video: 'Video',
+      audio: 'Audio',
+      caption: 'File {{number}} caption',
+      alt: 'Photo {{number}} alternative text',
+      remove: 'Remove file {{number}}',
+      addPhoto: 'Add photo',
+      addRecording: 'Upload audio or video',
+      uploading: 'Uploading file… Wait before saving.',
+      error:
+        'Could not upload the file. Check your connection, format and size, then try again.',
+      replaces:
+        'An audio or video recording can replace the written recipe steps. You can save without written steps, or add the written recipe at the end of this form. Any steps already entered will be kept.',
+      writtenPrompt:
+        'You can also include the written recipe, with ingredients and steps, alongside the recording.',
+      writtenEditor: 'Add or review the written recipe (optional)',
+      writtenHint:
+        'Open to write ingredients and steps. Closing this section keeps your entries.',
+      writtenView: 'View written recipe',
+      writtenCount: 'Written steps: {{count}}',
+      noWritten:
+        'This recipe does not include written steps yet. Watch or listen to the recording for the preparation.',
+      addWritten: 'Add or edit written recipe',
+      play: 'Play audio',
+      pause: 'Pause audio',
+      open: 'Open recording: {{name}}',
+      close: 'Close recording: {{name}}',
+      unavailable:
+        'Could not open this file. You may have lost access, or the format may be unsupported.',
+    },
+    authorship: {
+      title: 'Whose recipe is this?',
+      hint: 'Create it for yourself or a person you manage. Authorship and ownership will be attributed to them; your account is recorded as the person who entered it.',
+    },
+    audiences: {
+      title: 'Who can see this recipe',
+      shared:
+        'The selected groups can access this recipe. You can share with multiple families or branches.',
+      wholeFamily: 'Whole family',
+      choice: '{{family}}: {{audience}}',
+      existing: 'Existing sharing group. Turn off to remove its access.',
+    },
+    preservation: {
+      lock: 'Preserve recipe',
+      unlock: 'Allow changes again',
+      lockHint:
+        'Preservation protects the content from changes. Delegates cannot edit it. The recipe owner or a Super Admin can allow changes again.',
+      unlockHint:
+        'Authorized editors will be able to change this recipe again. This does not change who can see it.',
+      confirm: 'Confirm preservation change',
+    },
+    collections: {
+      stale:
+        'This collection changed or you no longer have permission. Reopen it before confirming.',
+      duplicate: 'A collection with this name already exists in this family.',
+      unconfirmed:
+        'The change could not be confirmed. Check the collection list before trying again.',
+
+      builtIn: 'Default collection',
+      renameDefault:
+        'Enter a custom name to convert this default collection into a custom collection. Its name will no longer change with the language.',
+      title: 'Family collections',
+      noFamily: 'Join a family to see its collections.',
+      create: 'Create collection',
+      name: 'Collection name',
+      save: 'Save collection',
+      back: 'Back to collections',
+      empty: 'There are no recipes visible to you in this collection.',
+      add: 'Add recipes shared with this family',
+      addTitle: 'Add: {{title}}',
+      remove: 'Remove from collection: {{title}}',
+      edit: 'Edit collection',
+      delete: 'Delete collection',
+      deleteConfirm: 'Delete collection “{{name}}”? Its recipes will be kept.',
+      confirmDelete: 'Confirm collection deletion',
+      defaults: {
+        breakfast: 'Breakfast',
+        mains: 'Main dishes',
+        desserts: 'Desserts',
+        drinks: 'Drinks',
+      },
+    },
     units: {
       show: 'Show units for ingredient {{number}}',
       hide: 'Hide units for ingredient {{number}}',
@@ -98,6 +188,8 @@ export const en = {
     current: 'View current recipe',
     preservedOverride:
       'This recipe is preserved. Only a Super Admin can change it with an explicit reason recorded in the audit history.',
+    invalidRecording:
+      'Check the title and details. If you add a written recipe, complete any rows you started. Use nonnegative whole numbers for times and year.',
     invalid:
       'Check the title, at least one ingredient and one step. Use nonnegative whole numbers for times and year.',
     stale:
