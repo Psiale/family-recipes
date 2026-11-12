@@ -1,0 +1,93 @@
+{
+  "status": "proposals; user selection pending",
+  "date": "2026-11-12",
+  "roles": [
+    "text",
+    "background",
+    "primary",
+    "secondary",
+    "accent"
+  ],
+  "options": [
+    {
+      "id": "talavera",
+      "name": "Talavera de casa",
+      "colors": [
+        "182B45",
+        "FBF9F2",
+        "24528A",
+        "DFE9ED",
+        "A65A32"
+      ],
+      "heading": "Bitter",
+      "body": "Source Sans 3",
+      "url": "https://www.realtimecolors.com/?colors=182b45-fbf9f2-24528a-dfe9ed-a65a32&fonts=Bitter-Source+Sans+3",
+      "contrast": {
+        "text/background": 13.56,
+        "white/primary": 7.93,
+        "text/secondary": 11.57,
+        "accent/background": 4.83
+      }
+    },
+    {
+      "id": "peltre",
+      "name": "Peltre y hoja santa",
+      "colors": [
+        "20332D",
+        "F6F8F2",
+        "275D4B",
+        "DEE7D7",
+        "9B5A28"
+      ],
+      "heading": "Alegreya Sans",
+      "body": "Atkinson Hyperlegible",
+      "url": "https://www.realtimecolors.com/?colors=20332d-f6f8f2-275d4b-dee7d7-9b5a28&fonts=Alegreya+Sans-Atkinson+Hyperlegible",
+      "contrast": {
+        "text/background": 12.48,
+        "white/primary": 7.63,
+        "text/secondary": 10.5,
+        "accent/background": 5.05
+      }
+    },
+    {
+      "id": "barro",
+      "name": "Barro y maíz",
+      "colors": [
+        "30221C",
+        "FCF8EF",
+        "A1432E",
+        "EDDFC6",
+        "527047"
+      ],
+      "heading": "Literata",
+      "body": "Source Sans 3",
+      "url": "https://www.realtimecolors.com/?colors=30221c-fcf8ef-a1432e-eddfc6-527047&fonts=Literata-Source+Sans+3",
+      "contrast": {
+        "text/background": 14.45,
+        "white/primary": 6.25,
+        "text/secondary": 11.65,
+        "accent/background": 5.26
+      }
+    },
+    {
+      "id": "bugambilia",
+      "name": "Patio de bugambilia",
+      "colors": [
+        "352331",
+        "FCF8F6",
+        "922C55",
+        "ECDDE3",
+        "3E6650"
+      ],
+      "heading": "Bitter",
+      "body": "Atkinson Hyperlegible",
+      "url": "https://www.realtimecolors.com/?colors=352331-fcf8f6-922c55-ecdde3-3e6650&fonts=Bitter-Atkinson+Hyperlegible",
+      "contrast": {
+        "text/background": 13.85,
+        "white/primary": 7.74,
+        "text/secondary": 11.15,
+        "accent/background": 6.18
+      }
+    }
+  ]
+}
