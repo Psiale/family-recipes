@@ -1,5 +1,7 @@
 import type { ComponentProps } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+
+import { Text } from '@/components/Text';
 
 import { colors, spacing } from './theme';
 
@@ -51,17 +53,18 @@ export function AppButton({
 const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 8,
     justifyContent: 'center',
-    minHeight: 50,
-    paddingHorizontal: spacing.lg,
+    minHeight: 52,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
   },
   primary: {
     backgroundColor: colors.primary,
   },
   secondary: {
-    backgroundColor: colors.surface,
-    borderColor: colors.primary,
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondary,
     borderWidth: 1,
   },
   pressed: {
@@ -72,12 +75,16 @@ const styles = StyleSheet.create({
   },
   primaryLabel: {
     color: colors.white,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
+    textAlign: 'center',
+    flexShrink: 1,
   },
   secondaryLabel: {
     color: colors.primary,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
+    textAlign: 'center',
+    flexShrink: 1,
   },
 });

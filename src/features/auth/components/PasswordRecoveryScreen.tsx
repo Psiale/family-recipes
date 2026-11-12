@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Screen } from '@/components/Screen';
-import { colors, spacing } from '@/components/theme';
+import { Text } from '@/components/Text';
+import { colors, fonts, spacing } from '@/components/theme';
 
 import { useSession } from '../providers/SessionProvider';
 
@@ -112,7 +113,7 @@ export function PasswordRecoveryScreen() {
 }
 const styles = StyleSheet.create({
   screen: { gap: spacing.lg, justifyContent: 'center' },
-  title: { color: colors.text, fontSize: 28, fontWeight: '800' },
+  title: { color: colors.text, fontSize: 28, fontFamily: fonts.heading },
   body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   error: { color: colors.error, fontSize: 14 },
 });

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { Text } from '@/components/Text';
 import { setAppLanguage, type SupportedLanguage } from '@/i18n';
 
 import { AppButton } from './AppButton';
@@ -38,11 +39,12 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.muted,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   actions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
 });

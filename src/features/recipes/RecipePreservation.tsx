@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { styles } from '@/features/families/components/styles';
 

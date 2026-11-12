@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { colors, spacing } from '@/components/theme';
 
 import type { Family, Person, FamilyRole } from '../api';

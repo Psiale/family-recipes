@@ -1,14 +1,9 @@
 import { type ComponentRef, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { colors } from '@/components/theme';
 
 import type {

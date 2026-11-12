@@ -1,13 +1,14 @@
-import { forwardRef, type ComponentProps } from 'react';
+import { forwardRef, useContext, type ComponentProps } from 'react';
 import {
   StyleSheet,
-  Text,
   TextInput,
   type TextInputInstance,
   View,
 } from 'react-native';
 
-import { colors, spacing } from './theme';
+import { FontAvailability, Text } from '@/components/Text';
+
+import { colors, fonts, spacing } from './theme';
 
 type TextFieldProps = ComponentProps<typeof TextInput> & {
   error?: string | undefined;
@@ -16,6 +17,7 @@ type TextFieldProps = ComponentProps<typeof TextInput> & {
 
 export const TextField = forwardRef<TextInputInstance, TextFieldProps>(
   function TextField({ error, label, style, ...props }, ref) {
+    const fontsReady = useContext(FontAvailability);
     return (
       <View style={styles.container}>
         <Text style={styles.label}>{label}</Text>
@@ -24,7 +26,12 @@ export const TextField = forwardRef<TextInputInstance, TextFieldProps>(
           aria-label={label}
           aria-invalid={Boolean(error)}
           placeholderTextColor={colors.muted}
-          style={[styles.input, Boolean(error) && styles.inputError, style]}
+          style={[
+            styles.input,
+            Boolean(error) && styles.inputError,
+            style,
+            !fontsReady && { fontFamily: undefined },
+          ]}
           {...props}
         />
         {error ? (
@@ -43,24 +50,26 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '600',
   },
   input: {
     backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: 12,
+    borderColor: colors.outline,
+    borderRadius: 8,
     borderWidth: 1,
     color: colors.text,
-    fontSize: 16,
-    minHeight: 50,
+    fontFamily: fonts.body,
+    fontSize: 18,
+    minHeight: 54,
     paddingHorizontal: spacing.md,
+    paddingVertical: 12,
   },
   inputError: {
     borderColor: colors.error,
   },
   error: {
     color: colors.error,
-    fontSize: 13,
+    fontSize: 16,
   },
 });

@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { ScrollIntoView } from '@/components/Screen';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 
 import {

@@ -1,7 +1,9 @@
 import { useState, type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { ActionIcon } from '@/components/ActionIcon';
+import { Text } from '@/components/Text';
 import { colors, spacing } from '@/components/theme';
 
 export function EditorDisclosure({
@@ -42,9 +44,7 @@ export function EditorDisclosure({
             {summary}
           </Text>
         </View>
-        <Text accessible={false} style={editorStyles.symbol}>
-          {open ? '−' : '+'}
-        </Text>
+        <ActionIcon name={open ? 'minus' : 'plus'} />
       </Pressable>
       {open && <View style={editorStyles.disclosureBody}>{children}</View>}
     </View>
@@ -72,19 +72,19 @@ export function RecipeRowActions({
   const actions = [
     {
       label: t('recipes.moveUp', { item: label }),
-      symbol: '↑',
+      symbol: 'up' as const,
       disabled: disabled || first,
       onPress: () => onMove(-1),
     },
     {
       label: t('recipes.moveDown', { item: label }),
-      symbol: '↓',
+      symbol: 'down' as const,
       disabled: disabled || last,
       onPress: () => onMove(1),
     },
     {
       label: t('recipes.editor.remove', { item: label }),
-      symbol: '×',
+      symbol: 'close' as const,
       disabled: disabled || only,
       onPress: onRemove,
     },
@@ -105,9 +105,7 @@ export function RecipeRowActions({
             action.disabled && editorStyles.disabled,
           ]}
         >
-          <Text accessible={false} style={editorStyles.symbol}>
-            {action.symbol}
-          </Text>
+          <ActionIcon name={action.symbol} />
         </Pressable>
       ))}
     </View>
@@ -124,9 +122,9 @@ export const editorStyles = StyleSheet.create({
   section: { gap: spacing.md },
   row: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: colors.border,
-    borderRadius: 16,
+    borderRadius: 0,
     padding: spacing.md,
     gap: spacing.md,
   },
@@ -147,7 +145,7 @@ export const editorStyles = StyleSheet.create({
   column: { flexGrow: 1, flexBasis: 100, minWidth: 84 },
   unitColumn: { flexGrow: 1, flexBasis: 180, minWidth: 160 },
   grow: { flex: 1, minWidth: 0, gap: spacing.xs },
-  hint: { color: colors.muted, fontSize: 14, lineHeight: 21 },
+  hint: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   multiline: {
     minHeight: 112,
     paddingTop: spacing.md,
@@ -165,14 +163,13 @@ export const editorStyles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
   },
-  symbol: { color: colors.primary, fontSize: 22, fontWeight: '600' },
   pressed: { backgroundColor: colors.background },
   disabled: { opacity: 0.4 },
   disclosure: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 16,
+    borderRadius: 10,
     overflow: 'hidden',
   },
   disclosureHeader: {
@@ -182,7 +179,7 @@ export const editorStyles = StyleSheet.create({
     padding: spacing.md,
     minHeight: 64,
   },
-  disclosureTitle: { color: colors.text, fontSize: 16, fontWeight: '600' },
+  disclosureTitle: { color: colors.text, fontSize: 18, fontWeight: '600' },
   disclosureBody: { padding: spacing.md, paddingTop: 0, gap: spacing.md },
   sharingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

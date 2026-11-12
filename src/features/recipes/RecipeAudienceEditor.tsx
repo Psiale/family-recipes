@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Switch, Text, View } from 'react-native';
+import { Switch, View } from 'react-native';
 
+import { Text } from '@/components/Text';
 import { styles } from '@/features/families/components/styles';
 
 import type { RecipeAudience, RecipeOptions } from './api';

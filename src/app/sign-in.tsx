@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Screen } from '@/components/Screen';
-import { colors, spacing } from '@/components/theme';
+import { Text } from '@/components/Text';
+import { colors, fonts, spacing } from '@/components/theme';
 import { SignInForm } from '@/features/auth/components/SignInForm';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 34,
-    fontWeight: '800',
+    fontFamily: fonts.heading,
     letterSpacing: -0.7,
   },
   subtitle: {

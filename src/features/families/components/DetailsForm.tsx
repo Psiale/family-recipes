@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 
 import type { DetailsValues } from '../api';

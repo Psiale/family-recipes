@@ -1,7 +1,7 @@
 import { useIsMutating, useQuery } from '@tanstack/react-query';
 import { Fragment, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Swipeable, {
   type SwipeableMethods,
@@ -9,6 +9,7 @@ import Swipeable, {
 
 import { AppButton } from '@/components/AppButton';
 import { ScrollIntoView } from '@/components/Screen';
+import { Text } from '@/components/Text';
 import { colors, spacing } from '@/components/theme';
 
 import { type Family, getFamilyLifecycle } from '../api';

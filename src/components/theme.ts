@@ -1,14 +1,23 @@
 export const colors = {
-  background: '#EEF1FF',
-  surface: '#FAF9FF',
-  text: '#172554',
-  muted: '#59658F',
-  primary: '#3159C6',
-  partner: '#8354A8',
-  primaryPressed: '#26459C',
-  border: '#C8D0F0',
-  error: '#A3295D',
+  background: '#FCF8F6',
+  surface: '#FFFFFF',
+  secondary: '#ECDDE3',
+  text: '#352331',
+  muted: '#675361',
+  primary: '#922C55',
+  partner: '#3E6650',
+  accent: '#3E6650',
+  primaryPressed: '#74203F',
+  border: '#E4D5DC',
+  outline: '#8B707E',
+  error: '#B3261E',
   white: '#FFFFFF',
+} as const;
+
+export const fonts = {
+  heading: 'BitterBold',
+  body: 'AtkinsonRegular',
+  bodyBold: 'AtkinsonBold',
 } as const;
 
 export const spacing = {

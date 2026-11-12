@@ -3,9 +3,10 @@ import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, Image, Text, View } from 'react-native';
+import { AppState, Image, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { styles } from '@/features/families/components/styles';
 

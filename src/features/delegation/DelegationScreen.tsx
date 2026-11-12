@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
 import { styles } from '@/features/families/components/styles';
 import {
   familyKeys,
