@@ -4,11 +4,12 @@ import {
   DrawerItemList,
 } from 'expo-router/drawer';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { colors, spacing } from '@/components/theme';
+import { Text } from '@/components/Text';
+import { colors, fonts, spacing } from '@/components/theme';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 
 export function AppMenu(props: DrawerContentComponentProps) {
@@ -41,6 +42,6 @@ export function AppMenu(props: DrawerContentComponentProps) {
 }
 const styles = StyleSheet.create({
   section: { padding: spacing.md, gap: spacing.md },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700' },
+  title: { color: colors.text, fontSize: 22, fontFamily: fonts.heading },
   email: { color: colors.muted, fontSize: 14 },
 });

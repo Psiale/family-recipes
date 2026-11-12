@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Switch, Text, View } from 'react-native';
+import { Switch, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { ScrollIntoView } from '@/components/Screen';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import type { Family } from '@/features/families/api';
 import { styles } from '@/features/families/components/styles';

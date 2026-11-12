@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { Text } from '@/components/Text';
 import { colors } from '@/components/theme';
 import { logger } from '@/lib/logger';
 

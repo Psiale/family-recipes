@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { colors, spacing } from '@/components/theme';
+import { colors, fonts, spacing } from '@/components/theme';
 
 export const styles = StyleSheet.create({
   treeCanvas: {
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
   nodeName: {
     backgroundColor: colors.background,
     color: colors.text,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
     paddingHorizontal: 4,
@@ -39,15 +39,25 @@ export const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 18,
+    borderRadius: 12,
     borderWidth: 1,
     gap: spacing.md,
     padding: spacing.lg,
   },
-  title: { color: colors.text, fontSize: 24, fontWeight: '800' },
-  subtitle: { color: colors.text, fontSize: 19, fontWeight: '700' },
-  body: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  error: { color: colors.error, fontSize: 14 },
+  title: {
+    color: colors.text,
+    fontSize: 28,
+    lineHeight: 36,
+    fontFamily: fonts.heading,
+  },
+  subtitle: {
+    color: colors.text,
+    fontSize: 22,
+    lineHeight: 30,
+    fontFamily: fonts.heading,
+  },
+  body: { color: colors.text, fontSize: 19, lineHeight: 29 },
+  error: { color: colors.error, fontSize: 16 },
   multiline: {
     minHeight: 100,
     paddingTop: spacing.md,
@@ -70,8 +80,8 @@ export const styles = StyleSheet.create({
   },
   personNodeMeta: {
     color: colors.muted,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 23,
     marginTop: spacing.xs,
   },
   relationshipRow: {

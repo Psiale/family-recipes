@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { colors, spacing } from '@/components/theme';
 
@@ -137,24 +138,24 @@ const unitStyles = StyleSheet.create({
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.xs },
   input: { flex: 1, minWidth: 0 },
   toggle: {
-    minWidth: 44,
-    minHeight: 50,
+    minWidth: 48,
+    minHeight: 54,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
+    borderColor: colors.outline,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   arrow: { color: colors.primary, fontSize: 22 },
   options: {
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
+    borderColor: colors.outline,
+    borderRadius: 8,
     backgroundColor: colors.surface,
     padding: spacing.sm,
   },
   list: { maxHeight: 220 },
   option: { minHeight: 48, justifyContent: 'center', padding: spacing.sm },
-  label: { color: colors.text, fontSize: 16 },
-  hint: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  label: { color: colors.text, fontSize: 18 },
+  hint: { color: colors.muted, fontSize: 16, lineHeight: 24 },
 });

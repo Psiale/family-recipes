@@ -1,8 +1,11 @@
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 
 import { ConfigurationErrorScreen } from '@/components/ConfigurationErrorScreen';
+import { FontAvailability } from '@/components/Text';
+import { fonts } from '@/components/theme';
 import { getPublicEnvResult } from '@/config/env';
 import {
   SessionProvider,
@@ -16,6 +19,16 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [isLanguageReady, setIsLanguageReady] = useState(false);
+  const [fontsReady, fontError] = useFonts({
+    [fonts.heading]: require('../../assets/fonts/BitterBold.ttf'),
+    [fonts.body]: require('../../assets/fonts/AtkinsonRegular.ttf'),
+    [fonts.bodyBold]: require('../../assets/fonts/AtkinsonBold.ttf'),
+  });
+  const ready = isLanguageReady && (fontsReady || Boolean(fontError));
+  useEffect(() => {
+    if (fontError)
+      logger.warn('Unable to load bundled fonts; using the system font.');
+  }, [fontError]);
   const publicEnv = getPublicEnvResult();
 
   useEffect(() => {
@@ -25,23 +38,29 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (isLanguageReady && !publicEnv.success) {
+    if (ready && !publicEnv.success) {
       void SplashScreen.hideAsync();
     }
-  }, [isLanguageReady, publicEnv.success]);
+  }, [ready, publicEnv.success]);
 
-  if (!isLanguageReady) {
+  if (!ready) {
     return null;
   }
 
   if (!publicEnv.success) {
-    return <ConfigurationErrorScreen />;
+    return (
+      <FontAvailability value={fontsReady}>
+        <ConfigurationErrorScreen />
+      </FontAvailability>
+    );
   }
 
   return (
-    <SessionProvider>
-      <SessionQueries />
-    </SessionProvider>
+    <FontAvailability value={fontsReady}>
+      <SessionProvider>
+        <SessionQueries />
+      </SessionProvider>
+    </FontAvailability>
   );
 }
 

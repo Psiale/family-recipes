@@ -2,7 +2,7 @@ import { Drawer, DrawerToggleButton } from 'expo-router/drawer';
 import { useTranslation } from 'react-i18next';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { colors } from '@/components/theme';
+import { colors, fonts } from '@/components/theme';
 import { useSession } from '@/features/auth/providers/SessionProvider';
 import { useSuperAdmin } from '@/features/families/queries';
 import { AppMenu } from '@/features/navigation/AppMenu';
@@ -19,17 +19,24 @@ export default function AuthenticatedLayout() {
           backBehavior="history"
           drawerContent={(props) => <AppMenu {...props} />}
           screenOptions={{
-            headerStyle: { backgroundColor: colors.surface },
-            headerTintColor: colors.text,
+            headerStyle: { backgroundColor: colors.primary },
+            headerTintColor: colors.white,
+            headerTitleStyle: {
+              fontFamily: fonts.heading,
+              fontSize: 24,
+              fontWeight: 'normal',
+            },
             headerLeft: () => (
               <DrawerToggleButton
                 accessibilityLabel={t('navigation.open')}
-                tintColor={colors.text}
+                tintColor={colors.white}
               />
             ),
             sceneStyle: { backgroundColor: colors.background },
             drawerStyle: { backgroundColor: colors.surface },
             drawerActiveTintColor: colors.primary,
+            drawerActiveBackgroundColor: colors.secondary,
+            drawerLabelStyle: { fontFamily: fonts.bodyBold, fontSize: 18 },
             drawerInactiveTintColor: colors.text,
           }}
         >

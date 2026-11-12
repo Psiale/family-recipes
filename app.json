@@ -17,7 +17,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#EEF1FF"
+        "backgroundColor": "#FCF8F6"
       },
       "package": "com.familyrecipetree.app",
       "predictiveBackGestureEnabled": true
@@ -32,9 +32,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#EEF1FF",
+          "backgroundColor": "#FCF8F6",
           "dark": {
-            "backgroundColor": "#EEF1FF"
+            "backgroundColor": "#FCF8F6"
           }
         }
       ],
@@ -61,7 +61,8 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-font"
     ],
     "locales": {
       "en": "./locales/app-en.json",

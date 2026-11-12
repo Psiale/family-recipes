@@ -5,14 +5,14 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Screen } from '@/components/Screen';
-import { colors, spacing } from '@/components/theme';
+import { Text } from '@/components/Text';
+import { colors, fonts, spacing } from '@/components/theme';
 
 const steps = ['welcome', 'profile', 'family', 'tree'] as const;
 
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   activeDot: { backgroundColor: colors.primary },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 24,
+    borderRadius: 12,
     padding: spacing.lg,
     gap: spacing.lg,
     borderWidth: 1,
@@ -142,12 +142,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   number: { color: colors.primary, fontSize: 30, fontWeight: '800' },
-  title: { color: colors.text, fontSize: 28, fontWeight: '800' },
+  title: { color: colors.text, fontSize: 28, fontFamily: fonts.heading },
   body: { color: colors.muted, fontSize: 17, lineHeight: 26 },
   tip: {
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-    paddingLeft: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
     gap: spacing.sm,
   },
   tipLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },

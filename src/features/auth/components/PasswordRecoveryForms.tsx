@@ -2,10 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
 import { AppButton } from '@/components/AppButton';
+import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { colors, spacing } from '@/components/theme';
 
