@@ -1,6 +1,7 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
 import { ConfigurationErrorScreen } from '@/components/ConfigurationErrorScreen';
@@ -50,6 +51,7 @@ export default function RootLayout() {
   if (!publicEnv.success) {
     return (
       <FontAvailability value={fontsReady}>
+        <StatusBar style="dark" />
         <ConfigurationErrorScreen />
       </FontAvailability>
     );
@@ -57,6 +59,7 @@ export default function RootLayout() {
 
   return (
     <FontAvailability value={fontsReady}>
+      <StatusBar style="dark" />
       <SessionProvider>
         <SessionQueries />
       </SessionProvider>

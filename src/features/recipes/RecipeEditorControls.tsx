@@ -2,6 +2,7 @@ import { useState, type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { ActionIcon } from '@/components/ActionIcon';
 import { Text } from '@/components/Text';
 import { colors, spacing } from '@/components/theme';
 
@@ -43,9 +44,7 @@ export function EditorDisclosure({
             {summary}
           </Text>
         </View>
-        <Text accessible={false} style={editorStyles.symbol}>
-          {open ? '−' : '+'}
-        </Text>
+        <ActionIcon name={open ? 'minus' : 'plus'} />
       </Pressable>
       {open && <View style={editorStyles.disclosureBody}>{children}</View>}
     </View>
@@ -73,19 +72,19 @@ export function RecipeRowActions({
   const actions = [
     {
       label: t('recipes.moveUp', { item: label }),
-      symbol: '↑',
+      symbol: 'up' as const,
       disabled: disabled || first,
       onPress: () => onMove(-1),
     },
     {
       label: t('recipes.moveDown', { item: label }),
-      symbol: '↓',
+      symbol: 'down' as const,
       disabled: disabled || last,
       onPress: () => onMove(1),
     },
     {
       label: t('recipes.editor.remove', { item: label }),
-      symbol: '×',
+      symbol: 'close' as const,
       disabled: disabled || only,
       onPress: onRemove,
     },
@@ -106,9 +105,7 @@ export function RecipeRowActions({
             action.disabled && editorStyles.disabled,
           ]}
         >
-          <Text accessible={false} style={editorStyles.symbol}>
-            {action.symbol}
-          </Text>
+          <ActionIcon name={action.symbol} />
         </Pressable>
       ))}
     </View>
@@ -166,7 +163,6 @@ export const editorStyles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
   },
-  symbol: { color: colors.primary, fontSize: 22, fontWeight: '600' },
   pressed: { backgroundColor: colors.background },
   disabled: { opacity: 0.4 },
   disclosure: {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { ActionIcon } from '@/components/ActionIcon';
 import { Text } from '@/components/Text';
 import { TextField } from '@/components/TextField';
 import { colors, spacing } from '@/components/theme';
@@ -90,9 +91,7 @@ export function RecipeUnitField({
           onPress={() => setOpen((old) => !old)}
           style={unitStyles.toggle}
         >
-          <Text accessible={false} style={unitStyles.arrow}>
-            {open ? '⌃' : '⌄'}
-          </Text>
+          <ActionIcon name={open ? 'chevron-up' : 'chevron-down'} />
         </Pressable>
       </View>
       {open && !disabled && (
@@ -146,7 +145,6 @@ const unitStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrow: { color: colors.primary, fontSize: 22 },
   options: {
     borderWidth: 1,
     borderColor: colors.outline,

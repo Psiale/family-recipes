@@ -62,7 +62,8 @@
           "microphonePermission": false
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-asset"
     ],
     "locales": {
       "en": "./locales/app-en.json",
