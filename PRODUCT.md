@@ -25,11 +25,11 @@ A native Expo / React Native application for Android and iOS, with web support i
 - Family and branch access and administrative powers are server-authorized.
 - Keep all existing recipe, people, family, authentication, confirmation, and audit behavior during a visual redesign.
 - Media, collections, sharing, and preservation additions are tracked separately in PR #22; check its current merge state before implementation.
-- This design task explores palettes and typography; no visual option is selected yet.
+- The user selected Patio de bugambilia as the palette and typography direction on November 12, 2026. Application styling is the next implementation step.
 
 ## Brand Commitments
 
-The user requests a Mexican identity and a palette that feels directed toward family. The current generic presentation is a rejected aesthetic reference. The identity should serve older women and adult relatives. Exact colors and font families remain open decisions.
+The user requests a Mexican identity and a palette that feels directed toward family. The current generic presentation is a rejected aesthetic reference. The identity should serve older women and adult relatives. The approved direction is Patio de bugambilia, with Bitter headings and Atkinson Hyperlegible reading content. Exact role colors and usage are recorded in `docs/design/exploration.md`.
 
 ## Product Principles
 

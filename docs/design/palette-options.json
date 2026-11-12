@@ -1,5 +1,7 @@
 {
-  "status": "proposals; user selection pending",
+  "status": "direction selected; application styling pending",
+  "selectedId": "bugambilia",
+  "selectedOn": "2026-11-12",
   "date": "2026-11-12",
   "roles": [
     "text",

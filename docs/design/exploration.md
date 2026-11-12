@@ -1,8 +1,8 @@
 # Family Recipes: palette and typography exploration
 
-Status: proposals, awaiting the user’s choice. Recorded November 12, 2026.
+Status: **Patio de bugambilia selected by the user on November 12, 2026.** Other options are retained as exploration history.
 
-This round compares color and type. It does not select a final identity or change app styles. `DESIGN.md` should describe the eventual approved, implemented system; this exploration is not that authority.
+This document records the approved palette/type direction and its exploration. The choice has not yet been applied to application styles. `DESIGN.md` should describe the eventual implemented system after native visual review.
 
 ## Confirmed brief
 
@@ -10,7 +10,7 @@ This round compares color and type. It does not select a final identity or chang
 - A Mexican identity that feels personal, familiar, and appropriate for family recipes.
 - Spanish first, with English support. Preserve the existing native behavior, ownership, sharing and audited confirmations.
 - Use Realtime Colors for palette and heading/body font comparisons. The user explicitly made this a standing preference for **all future design work**; saved in `/Users/aledev/.codex/AGENTS.md`. The Mexican identity and audience apply to this project only.
-- No palette or font pairing has been approved yet. The user’s original Realtime Colors URL is the tool reference, not approval of its purple/Inter defaults.
+- The user selected **Patio de bugambilia**, including its Bitter / Atkinson Hyperlegible pairing. The user’s original Realtime Colors URL is the tool reference, not approval of its purple/Inter defaults.
 
 ## Incumbent findings
 
@@ -98,9 +98,11 @@ A bougainvillea patio, pale walls and deep green foliage.
 
 **Tradeoff:** Bolder than the green and blue options. Choose it for its character, not because the primary audience is women.
 
-## Recommendation to discuss
+## Selected direction
 
-Start with **Peltre y hoja santa** for its calm reading surface and legible humanist typography. **Talavera de casa** is the stronger alternative if the family wants a more recognizable blue-and-white kitchen reference. All four remain valid proposals; the recommendation is not an approval.
+**Patio de bugambilia** is the user’s approved direction. Use deep bugambilia `#922C55` for primary actions and selection, pale `#FCF8F6` for the reading background, dark plum `#352331` for text, soft `#ECDDE3` for secondary surfaces, and foliage green `#3E6650` as the supporting accent. Headings use **Bitter**; recipe reading content uses **Atkinson Hyperlegible**. Preserve comfortable reading sizes, system text scaling and native control conventions.
+
+The earlier Peltre recommendation was not selected. The three alternatives are historical references, not competing implementation defaults.
 
 Atkinson Hyperlegible is specifically designed for distinguishable letterforms and numerals for people with low vision: see [Braille Institute’s font explanation](https://www.brailleinstitute.org/freefont/). Legibility still requires adequate size, spacing, contrast and real-user testing.
 
@@ -134,6 +136,6 @@ Tool reference: [Realtime Colors font setup](https://www.realtimecolors.com/docs
 
 ## Decision log
 
-Pending: preferred palette and heading/body pair. The user may mix a palette with another pair. Record that choice explicitly before applying it to the app. Carry the final implemented roles into `DESIGN.md` after native visual review.
+November 12, 2026 — the user chose: “I'm gonna go with patio de bugambilia”. Record `bugambilia` as `selectedId` in `palette-options.json`. No change to its proposed colors or font pair was requested. Carry the final implemented roles into `DESIGN.md` after native visual review.
 
 The next design step is to apply the chosen pair to representative recipe list, detail and editor screens, while retaining all existing workflows. This exploration does not authorize new product features, server changes, a new APK, or merging PR #22.
