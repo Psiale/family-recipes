@@ -10,6 +10,7 @@ import { parseDatabaseEnv } from './server-env.mjs';
 import { testPasswordRecovery } from './test-password-recovery.mjs';
 import { testPersonAdministrationApi } from './test-person-administration-api.mjs';
 import { testRecipeApi } from './test-recipe-api.mjs';
+import { testRecipePhase3Api } from './test-recipe-phase3-api.mjs';
 
 // This test is intentionally local-only. Credentials stay in this process and
 // never enter the Expo bundle, logs, or committed fixtures.
@@ -568,6 +569,7 @@ try {
   unwrap(await claimant.auth.signOut());
   await testPersonAdministrationApi(config, db);
   await testRecipeApi(config, db);
+  await testRecipePhase3Api(config, db);
   await testPasswordRecovery(config, db);
   console.log(
     'Real local Auth + PostgREST onboarding, claiming, role changes, immediate demotion, ownership transfer, removal, RLS, and sign-out passed.',

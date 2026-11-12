@@ -14,6 +14,7 @@ export class RecipeRequestTimeout extends Error {
 export async function recipeRequest<T>(
   run: (signal: AbortSignal) => PromiseLike<T>,
   write = false,
+  timeoutMs = RECIPE_REQUEST_TIMEOUT_MS,
 ): Promise<T> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -21,7 +22,7 @@ export async function recipeRequest<T>(
     timer = setTimeout(() => {
       controller.abort();
       reject(new RecipeRequestTimeout(write));
-    }, RECIPE_REQUEST_TIMEOUT_MS);
+    }, timeoutMs);
   });
   try {
     return await Promise.race([

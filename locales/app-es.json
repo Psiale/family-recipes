@@ -1,6 +1,7 @@
 {
   "ios": {
-    "CFBundleDisplayName": "Recetario Familiar"
+    "CFBundleDisplayName": "Recetario Familiar",
+    "NSPhotoLibraryUsageDescription": "Permite elegir fotos para adjuntarlas a tus recetas."
   },
   "android": {
     "app_name": "Recetario Familiar"

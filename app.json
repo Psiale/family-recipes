@@ -37,6 +37,30 @@
             "backgroundColor": "#EEF1FF"
           }
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite elegir fotos para adjuntarlas a tus recetas.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "locales": {

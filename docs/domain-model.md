@@ -131,7 +131,10 @@ bypasses ordinary recipe read authorization.
 ### Preservation and suggestions
 
 Normal recipe mutations are rejected while `preservation_status = PRESERVED`.
-A Super Admin may override this rule and must emit an audit event. Accepting a
+A Super Admin may override this rule with a reason and audit. The recipe owner
+or a current Super Admin may explicitly unlock preservation; unlocking changes
+no content or audience and appends a separate immutable revision/audit. Delegates
+cannot change preservation. Accepting a
 suggestion:
 
 - updates an editable recipe and appends a revision; or

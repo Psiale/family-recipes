@@ -13,6 +13,7 @@ jest.mock('./api', () => ({
   getRecipe: jest.fn(),
   getRevision: jest.fn(),
   saveRecipe: jest.fn(),
+  recipeOptions: jest.fn(),
 }));
 jest.mock(
   'react-native-safe-area-context',
@@ -58,6 +59,9 @@ const detail: api.RecipeDetail = {
   owner_deleted: false,
   creator_name: 'Ana',
   creator_deleted: false,
+  media: [],
+  visibilities: [],
+  can_preserve: false,
   can_edit: false,
   latest_revision: 2,
   revisions: [
@@ -85,6 +89,18 @@ async function open() {
 }
 beforeEach(() => {
   jest.clearAllMocks();
+  mocks.recipeOptions.mockResolvedValue({
+    people: [{ id: 'p', display_name: 'Ana', own: true }],
+    families: [
+      {
+        id: 'f',
+        name: 'Luna',
+        can_write: true,
+        can_manage: true,
+        branches: [],
+      },
+    ],
+  });
   mocks.listRecipes.mockResolvedValue({
     recipes: [
       {
@@ -253,4 +269,63 @@ it('shows ingredient and step section labels in current and historical recipes',
   expect(
     screen.getByRole('heading', { name: 'Preparación original' }),
   ).toBeOnTheScreen();
+});
+
+it('shows the recording-only message and a clear action to add written preparation', async () => {
+  mocks.getRecipe.mockResolvedValue({
+    ...detail,
+    can_edit: true,
+    ingredients: [],
+    steps: [],
+    media: [
+      {
+        id: 'audio',
+        kind: 'AUDIO',
+        storage_path: 'u/audio',
+        file_name: 'Abuela.wav',
+        caption: null,
+        alt_text: null,
+      },
+    ],
+  });
+  await open();
+  await userEvent
+    .setup()
+    .press(await screen.findByRole('button', { name: 'Sopa' }));
+  expect(
+    await screen.findByText(i18n.t('recipes.media.noWritten')),
+  ).toBeOnTheScreen();
+  await userEvent
+    .setup()
+    .press(
+      screen.getByRole('button', { name: i18n.t('recipes.media.addWritten') }),
+    );
+  expect(
+    await screen.findByRole('button', { name: i18n.t('recipes.addStep') }),
+  ).toBeOnTheScreen();
+});
+it('collapses all written preparation when the recipe also has a recording', async () => {
+  mocks.getRecipe.mockResolvedValue({
+    ...detail,
+    media: [
+      {
+        id: 'audio',
+        kind: 'AUDIO',
+        storage_path: 'u/audio',
+        caption: null,
+        alt_text: null,
+      },
+    ],
+  });
+  await open();
+  const user = userEvent.setup();
+  await user.press(await screen.findByRole('button', { name: 'Sopa' }));
+  const toggle = await screen.findByRole('button', {
+    name: i18n.t('recipes.media.writtenView'),
+  });
+  expect(screen.queryByText('1. Hervir')).toBeNull();
+  await user.press(toggle);
+  expect(screen.getByText('1. Hervir')).toBeOnTheScreen();
+  await user.press(toggle);
+  expect(screen.queryByText('1. Hervir')).toBeNull();
 });
